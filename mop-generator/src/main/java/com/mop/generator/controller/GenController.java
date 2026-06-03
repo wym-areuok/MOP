@@ -3,7 +3,7 @@ package com.mop.generator.controller;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlCreateTableStatement;
+import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.mop.common.annotation.Log;
 import com.mop.common.core.controller.BaseController;
 import com.mop.common.core.domain.AjaxResult;
@@ -118,13 +118,13 @@ public class GenController extends BaseController {
     public AjaxResult createTableSave(@RequestParam("sql") String sql, @RequestParam("tplWebType") String tplWebType) {
         try {
             SqlUtil.filterKeyword(sql);
-            List<SQLStatement> sqlStatements = SQLUtils.parseStatements(sql, DbType.mysql);
+            List<SQLStatement> sqlStatements = SQLUtils.parseStatements(sql, DbType.sqlserver);
             List<String> tableNames = new ArrayList<>();
             for (SQLStatement sqlStatement : sqlStatements) {
-                if (sqlStatement instanceof MySqlCreateTableStatement) {
-                    MySqlCreateTableStatement createTableStatement = (MySqlCreateTableStatement) sqlStatement;
+                if (sqlStatement instanceof SQLCreateTableStatement) {
+                    SQLCreateTableStatement createTableStatement = (SQLCreateTableStatement) sqlStatement;
                     if (genTableService.createTable(createTableStatement.toString())) {
-                        String tableName = createTableStatement.getTableName().replaceAll("`", "");
+                        String tableName = createTableStatement.getTableName().replaceAll("\\[", "").replaceAll("\\]", "");
                         tableNames.add(tableName);
                     }
                 }

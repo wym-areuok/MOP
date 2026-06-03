@@ -65,53 +65,73 @@
         <include refid="selectGenTableVo"/>
         <where>
             <if test="tableName != null and tableName != ''">
-                AND lower(table_name) like lower(concat('%', #{tableName}, '%'))
+                AND table_name like '%' + #{tableName} + '%'
             </if>
             <if test="tableComment != null and tableComment != ''">
-                AND lower(table_comment) like lower(concat('%', #{tableComment}, '%'))
+                AND table_comment like '%' + #{tableComment} + '%'
             </if>
             <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
-                AND date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')
+                AND convert(varchar(10), create_time, 112) &gt;= convert(varchar(10), #{params.beginTime}, 112)
             </if>
             <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
-                AND date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
+                AND convert(varchar(10), create_time, 112) &lt;= convert(varchar(10), #{params.endTime}, 112)
             </if>
         </where>
     </select>
 
     <select id="selectDbTableList" parameterType="GenTable" resultMap="GenTableResult">
-        select table_name, table_comment, create_time, update_time from information_schema.tables
-        where table_schema = (select database())
-        AND table_name NOT LIKE 'qrtz\_%' AND table_name NOT LIKE 'gen\_%'
-        AND table_name NOT IN (select table_name from gen_table)
+        SELECT
+        cast(t.name as nvarchar(255)) as table_name,
+        cast(p.value as nvarchar(4000)) as table_comment,
+        t.create_date as create_time,
+        t.modify_date as update_time
+        FROM sys.tables t
+        LEFT OUTER JOIN sys.extended_properties p ON t.object_id = p.major_id AND p.minor_id = 0 AND p.name =
+        'MS_Description'
+        WHERE t.is_ms_shipped = 0
+        AND t.name NOT LIKE 'qrtz[_]%' AND t.name NOT LIKE 'gen[_]%'
+        AND NOT EXISTS (SELECT 1 FROM gen_table gt WHERE gt.table_name = t.name COLLATE DATABASE_DEFAULT)
         <if test="tableName != null and tableName != ''">
-            AND lower(table_name) like lower(concat('%', #{tableName}, '%'))
+            AND t.name like '%' + #{tableName} + '%'
         </if>
         <if test="tableComment != null and tableComment != ''">
-            AND lower(table_comment) like lower(concat('%', #{tableComment}, '%'))
+            AND cast(p.value as nvarchar(4000)) like '%' + #{tableComment} + '%'
         </if>
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
-            AND date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')
+            AND t.create_date &gt;= #{params.beginTime}
         </if>
         <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
-            AND date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
+            AND t.create_date &lt;= #{params.endTime}
         </if>
-        order by create_time desc
+        order by t.create_date desc
     </select>
 
     <select id="selectDbTableListByNames" resultMap="GenTableResult">
-        select table_name, table_comment, create_time, update_time from information_schema.tables
-        where table_name NOT LIKE 'qrtz\_%' and table_name NOT LIKE 'gen\_%' and table_schema = (select database())
-        and table_name in
+        SELECT
+        cast(t.name as nvarchar(128)) as table_name,
+        cast(p.value as nvarchar(4000)) as table_comment,
+        t.create_date as create_time,
+        t.modify_date as update_time
+        FROM sys.tables t
+        LEFT OUTER JOIN sys.extended_properties p ON t.object_id = p.major_id AND p.minor_id = 0 AND p.name =
+        'MS_Description'
+        WHERE t.name NOT LIKE 'qrtz[_]%' and t.name NOT LIKE 'gen[_]%'
+        and t.name COLLATE DATABASE_DEFAULT in
         <foreach collection="array" item="name" open="(" separator="," close=")">
             #{name}
         </foreach>
     </select>
 
     <select id="selectTableByName" parameterType="String" resultMap="GenTableResult">
-        select table_name, table_comment, create_time, update_time from information_schema.tables
-        where table_comment <![CDATA[ <> ]]> '' and table_schema = (select database())
-        and table_name = #{tableName}
+        SELECT
+        cast(t.name as nvarchar(255)) as table_name,
+        cast(p.value as nvarchar(4000)) as table_comment,
+        t.create_date as create_time,
+        t.modify_date as update_time
+        FROM sys.tables t
+        LEFT OUTER JOIN sys.extended_properties p ON t.object_id = p.major_id AND p.minor_id = 0 AND p.name =
+        'MS_Description'
+        WHERE t.name = #{tableName}
     </select>
 
     <select id="selectGenTableById" parameterType="Long" resultMap="GenTableResult">
@@ -181,7 +201,7 @@
         <if test="genPath != null and genPath != ''">#{genPath},</if>
         <if test="remark != null and remark != ''">#{remark},</if>
         <if test="createBy != null and createBy != ''">#{createBy},</if>
-        sysdate()
+        getdate()
         )
     </insert>
 
@@ -210,7 +230,7 @@
             <if test="options != null and options != ''">options = #{options},</if>
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
             <if test="remark != null">remark = #{remark},</if>
-            update_time = sysdate()
+            update_time = getdate()
         </set>
         where table_id = #{tableId}
     </update>

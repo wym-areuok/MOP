@@ -42,11 +42,29 @@
     </select>
 
     <select id="selectDbTableColumnsByName" parameterType="String" resultMap="GenTableColumnResult">
-        select column_name, (case when (is_nullable = 'no' <![CDATA[ && ]]> column_key != 'PRI') then '1' else '0' end)
-        as is_required, (case when column_key = 'PRI' then '1' else '0' end) as is_pk, ordinal_position as sort,
-        column_comment, (case when extra = 'auto_increment' then '1' else '0' end) as is_increment, column_type
-        from information_schema.columns where table_schema = (select database()) and table_name = (#{tableName})
-        order by ordinal_position
+        SELECT
+        cast(col.name as nvarchar(128)) as column_name,
+        case when col.is_nullable = 1 then '0' else '1' end as is_required,
+        case when exists (SELECT 1 FROM sys.index_columns ic JOIN sys.indexes i ON ic.object_id = i.object_id AND
+        ic.index_id = i.index_id WHERE i.is_primary_key = 1 AND ic.object_id = col.object_id AND ic.column_id =
+        col.column_id) then '1' else '0' end as is_pk,
+        col.column_id as sort,
+        cast(ep.value as nvarchar(max)) as column_comment,
+        case when col.is_identity = 1 then '1' else '0' end as is_increment,
+        cast(t.name as nvarchar(100)) + (case
+        when t.name in ('varchar', 'nvarchar', 'char', 'nchar') then
+        '(' + case when col.max_length = -1 then 'max' else cast(columnproperty(col.object_id, col.name, 'precision') as
+        varchar) end + ')'
+        else '' end) as column_type
+        FROM sys.columns col
+        JOIN sys.types t ON col.user_type_id = t.user_type_id
+        JOIN sys.tables tab ON col.object_id = tab.object_id
+        LEFT JOIN sys.extended_properties ep ON ep.major_id = col.object_id AND ep.minor_id = col.column_id AND ep.name
+        = 'MS_Description'
+        WHERE tab.name = #{tableName}
+        AND tab.type = 'U'
+        AND schema_name(tab.schema_id) = SCHEMA_NAME()
+        ORDER BY col.column_id
     </select>
 
     <insert id="insertGenTableColumn" parameterType="GenTableColumn" useGeneratedKeys="true" keyProperty="columnId">
@@ -89,7 +107,7 @@
         <if test="dictType != null and dictType != ''">#{dictType},</if>
         <if test="sort != null">#{sort},</if>
         <if test="createBy != null and createBy != ''">#{createBy},</if>
-        sysdate()
+        getdate()
         )
     </insert>
 
@@ -110,7 +128,7 @@
             <if test="dictType != null">dict_type = #{dictType},</if>
             <if test="sort != null">sort = #{sort},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
-            update_time = sysdate()
+            update_time = getdate()
         </set>
         where column_id = #{columnId}
     </update>
