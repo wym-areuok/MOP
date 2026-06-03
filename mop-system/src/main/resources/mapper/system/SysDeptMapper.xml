@@ -38,7 +38,7 @@
             AND parent_id = #{parentId}
         </if>
         <if test="deptName != null and deptName != ''">
-            AND dept_name like concat('%', #{deptName}, '%')
+            AND dept_name like '%' + #{deptName} + '%'
         </if>
         <if test="status != null and status != ''">
             AND status = #{status}
@@ -72,21 +72,27 @@
     </select>
 
     <select id="hasChildByDeptId" parameterType="Long" resultType="int">
-        select count(1) from sys_dept
-        where del_flag = '0' and parent_id = #{deptId} limit 1
+        select count(1) from (
+        select top 1 1 as col from sys_dept
+        where del_flag = '0' and parent_id = #{deptId}
+        ) t
     </select>
 
     <select id="selectChildrenDeptById" parameterType="Long" resultMap="SysDeptResult">
-        select * from sys_dept where find_in_set(#{deptId}, ancestors)
+        select * from sys_dept where ',' + ancestors + ',' like '%,' + cast(#{deptId} as varchar(20)) + ',%'
     </select>
 
     <select id="selectNormalChildrenDeptById" parameterType="Long" resultType="int">
-        select count(*) from sys_dept where status = 0 and del_flag = '0' and find_in_set(#{deptId}, ancestors)
+        select count(*) from sys_dept where status = 0 and del_flag = '0' and (',' + ancestors + ',' like '%,' +
+        cast(#{deptId} as varchar(20)) + ',%')
     </select>
 
     <select id="checkDeptNameUnique" resultMap="SysDeptResult">
-        <include refid="selectDeptVo"/>
-        where dept_name=#{deptName} and parent_id = #{parentId} and del_flag = '0' limit 1
+        select top 1 d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.order_num, d.leader, d.phone, d.email,
+        d.status,
+        d.del_flag, d.create_by, d.create_time
+        from sys_dept d
+        where d.dept_name=#{deptName} and d.parent_id = #{parentId} and d.del_flag = '0'
     </select>
 
     <insert id="insertDept" parameterType="SysDept">
@@ -113,7 +119,7 @@
         <if test="email != null and email != ''">#{email},</if>
         <if test="status != null">#{status},</if>
         <if test="createBy != null and createBy != ''">#{createBy},</if>
-        sysdate()
+        getdate()
         )
     </insert>
 
@@ -129,7 +135,7 @@
             <if test="email != null">email = #{email},</if>
             <if test="status != null and status != ''">status = #{status},</if>
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
-            update_time = sysdate()
+            update_time = getdate()
         </set>
         where dept_id = #{deptId}
     </update>

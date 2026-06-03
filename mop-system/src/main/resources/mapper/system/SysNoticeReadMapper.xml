@@ -13,8 +13,11 @@
 
     <!-- 新增已读记录 -->
     <insert id="insertNoticeRead" parameterType="SysNoticeRead">
-        insert ignore into sys_notice_read (notice_id, user_id, read_time)
-        values (#{noticeId}, #{userId}, sysdate())
+        IF NOT EXISTS (SELECT 1 FROM sys_notice_read WHERE notice_id = #{noticeId} AND user_id = #{userId})
+        BEGIN
+        insert into sys_notice_read (notice_id, user_id, read_time)
+        values (#{noticeId}, #{userId}, getdate())
+        END
     </insert>
 
     <!-- 查询未读数量：正常状态公告 减去 当前用户已读数 -->
@@ -31,29 +34,34 @@
 
     <!-- 查询带已读状态的公告列表（直接在SQL中限制条数） -->
     <select id="selectNoticeListWithReadStatus" resultType="SysNotice">
-        select
+        select top (#{limit})
         n.notice_id as noticeId,
         n.notice_title as noticeTitle,
         n.notice_type as noticeType,
         n.status,
         n.create_by as createBy,
         n.create_time as createTime,
-        case when r.notice_id is not null then true else false end as isRead
+        case when r.notice_id is not null then 1 else 0 end as isRead
         from sys_notice n
         left join sys_notice_read r
         on r.notice_id = n.notice_id and r.user_id = #{userId}
         where n.status = '0'
         order by n.notice_id desc
-        limit #{limit}
     </select>
 
     <!-- 批量标记已读 -->
     <insert id="insertNoticeReadBatch">
-        insert ignore into sys_notice_read (notice_id, user_id, read_time)
-        values
-        <foreach collection="noticeIds" item="noticeId" separator=",">
-            (#{noticeId}, #{userId}, sysdate())
+        INSERT INTO sys_notice_read (notice_id, user_id, read_time)
+        SELECT notice_id, user_id, read_time
+        FROM (
+        <foreach collection="noticeIds" item="noticeId" separator=" UNION ALL ">
+            SELECT #{noticeId} as notice_id, #{userId} as user_id, getdate() as read_time
         </foreach>
+        ) AS tmp
+        WHERE NOT EXISTS (
+        SELECT 1 FROM sys_notice_read r
+        WHERE r.notice_id = tmp.notice_id AND r.user_id = tmp.user_id
+        )
     </insert>
 
     <!-- 删除公告时清理已读记录 -->
@@ -79,8 +87,8 @@
         where r.notice_id = #{noticeId}
         <if test="searchValue != null and searchValue != ''">
             and (
-            u.user_name like concat('%', #{searchValue}, '%')
-            or u.nick_name like concat('%', #{searchValue}, '%')
+            u.user_name like '%' + #{searchValue} + '%'
+            or u.nick_name like '%' + #{searchValue} + '%'
             )
         </if>
         order by r.read_time desc

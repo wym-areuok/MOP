@@ -24,19 +24,19 @@
         <include refid="selectDictTypeVo"/>
         <where>
             <if test="dictName != null and dictName != ''">
-                AND dict_name like concat('%', #{dictName}, '%')
+                AND dict_name like '%' + #{dictName} + '%'
             </if>
             <if test="status != null and status != ''">
                 AND status = #{status}
             </if>
             <if test="dictType != null and dictType != ''">
-                AND dict_type like concat('%', #{dictType}, '%')
+                AND dict_type like '%' + #{dictType} + '%'
             </if>
             <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
-                and date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')
+                and convert(varchar(10), create_time, 112) &gt;= convert(varchar(10), #{params.beginTime}, 112)
             </if>
             <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
-                and date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
+                and convert(varchar(10), create_time, 112) &lt;= convert(varchar(10), #{params.endTime}, 112)
             </if>
         </where>
     </select>
@@ -56,8 +56,8 @@
     </select>
 
     <select id="checkDictTypeUnique" parameterType="String" resultMap="SysDictTypeResult">
-        <include refid="selectDictTypeVo"/>
-        where dict_type = #{dictType} limit 1
+        select top 1 dict_id, dict_name, dict_type, status, create_by, create_time, remark
+        from sys_dict_type where dict_type = #{dictType}
     </select>
 
     <delete id="deleteDictTypeById" parameterType="Long">
@@ -79,7 +79,7 @@
             <if test="status != null">status = #{status},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
-            update_time = sysdate()
+            update_time = getdate()
         </set>
         where dict_id = #{dictId}
     </update>
@@ -98,7 +98,7 @@
         <if test="status != null">#{status},</if>
         <if test="remark != null and remark != ''">#{remark},</if>
         <if test="createBy != null and createBy != ''">#{createBy},</if>
-        sysdate()
+        getdate()
         )
     </insert>
 

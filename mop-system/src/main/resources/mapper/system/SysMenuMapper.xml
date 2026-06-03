@@ -29,8 +29,8 @@
     </resultMap>
 
     <sql id="selectMenuVo">
-        select menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache,
-        menu_type, visible, status, ifnull(perms,'') as perms, icon, create_time
+        select menu_id, menu_name, parent_id, order_num, path, component, [query], route_name, is_frame, is_cache,
+        menu_type, visible, status, isnull(perms,'') as perms, icon, create_time
         from sys_menu
     </sql>
 
@@ -38,7 +38,7 @@
         <include refid="selectMenuVo"/>
         <where>
             <if test="menuName != null and menuName != ''">
-                AND menu_name like concat('%', #{menuName}, '%')
+                AND menu_name like '%' + #{menuName} + '%'
             </if>
             <if test="visible != null and visible != ''">
                 AND visible = #{visible}
@@ -51,22 +51,22 @@
     </select>
 
     <select id="selectMenuTreeAll" resultMap="SysMenuResult">
-        select distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.`query`, m.route_name, m.visible,
-        m.status, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time
+        select distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.[query], m.route_name, m.visible,
+        m.status, isnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time
         from sys_menu m where m.menu_type in ('M', 'C') and m.status = 0
         order by m.parent_id, m.order_num
     </select>
 
     <select id="selectMenuListByUserId" parameterType="SysMenu" resultMap="SysMenuResult">
-        select distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.`query`, m.route_name, m.visible,
-        m.status, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time
+        select distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.[query], m.route_name, m.visible,
+        m.status, isnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time
         from sys_menu m
         left join sys_role_menu rm on m.menu_id = rm.menu_id
         left join sys_user_role ur on rm.role_id = ur.role_id
         left join sys_role ro on ur.role_id = ro.role_id
         where ur.user_id = #{params.userId}
         <if test="menuName != null and menuName != ''">
-            AND m.menu_name like concat('%', #{menuName}, '%')
+            AND m.menu_name like '%' + #{menuName} + '%'
         </if>
         <if test="visible != null and visible != ''">
             AND m.visible = #{visible}
@@ -78,8 +78,8 @@
     </select>
 
     <select id="selectMenuTreeByUserId" parameterType="Long" resultMap="SysMenuResult">
-        select distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.`query`, m.route_name, m.visible,
-        m.status, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time
+        select distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.[query], m.route_name, m.visible,
+        m.status, isnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time
         from sys_menu m
         left join sys_role_menu rm on m.menu_id = rm.menu_id
         left join sys_user_role ur on rm.role_id = ur.role_id
@@ -134,8 +134,9 @@
     </select>
 
     <select id="checkMenuNameUnique" parameterType="SysMenu" resultMap="SysMenuResult">
-        <include refid="selectMenuVo"/>
-        where menu_name= #{menuName} and parent_id = #{parentId} limit 1
+        select top 1 menu_id, menu_name, parent_id, order_num, path, component, [query], route_name, is_frame, is_cache,
+        menu_type, visible, status, isnull(perms,'') as perms, icon, create_time from sys_menu
+        where menu_name= #{menuName} and parent_id = #{parentId}
     </select>
 
     <select id="selectMenusByPathOrRouteName" parameterType="SysMenu" resultMap="SysMenuResult">
@@ -152,7 +153,7 @@
             <if test="orderNum != null">order_num = #{orderNum},</if>
             <if test="path != null and path != ''">path = #{path},</if>
             <if test="component != null">component = #{component},</if>
-            <if test="query != null">`query` = #{query},</if>
+            <if test="query != null">[query] = #{query},</if>
             <if test="routeName != null">route_name = #{routeName},</if>
             <if test="isFrame != null and isFrame != ''">is_frame = #{isFrame},</if>
             <if test="isCache != null and isCache != ''">is_cache = #{isCache},</if>
@@ -163,7 +164,7 @@
             <if test="icon !=null and icon != ''">icon = #{icon},</if>
             <if test="remark != null and remark != ''">remark = #{remark},</if>
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
-            update_time = sysdate()
+            update_time = getdate()
         </set>
         where menu_id = #{menuId}
     </update>
@@ -176,7 +177,7 @@
         <if test="orderNum != null">order_num,</if>
         <if test="path != null and path != ''">path,</if>
         <if test="component != null and component != ''">component,</if>
-        <if test="query != null and query != ''">`query`,</if>
+        <if test="query != null and query != ''">[query],</if>
         <if test="routeName != null">route_name,</if>
         <if test="isFrame != null and isFrame != ''">is_frame,</if>
         <if test="isCache != null and isCache != ''">is_cache,</if>
@@ -206,7 +207,7 @@
         <if test="icon != null and icon != ''">#{icon},</if>
         <if test="remark != null and remark != ''">#{remark},</if>
         <if test="createBy != null and createBy != ''">#{createBy},</if>
-        sysdate()
+        getdate()
         )
     </insert>
 

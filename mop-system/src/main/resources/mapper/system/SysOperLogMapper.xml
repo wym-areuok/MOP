@@ -35,17 +35,17 @@
         oper_url, oper_ip, oper_location, oper_param, json_result, status, error_msg, cost_time, oper_time)
         values (#{title}, #{businessType}, #{method}, #{requestMethod}, #{operatorType}, #{operName}, #{deptName},
         #{operUrl}, #{operIp}, #{operLocation}, #{operParam}, #{jsonResult}, #{status}, #{errorMsg}, #{costTime},
-        sysdate())
+        getdate())
     </insert>
 
     <select id="selectOperLogList" parameterType="SysOperLog" resultMap="SysOperLogResult">
         <include refid="selectOperLogVo"/>
         <where>
             <if test="operIp != null and operIp != ''">
-                AND oper_ip like concat('%', #{operIp}, '%')
+                AND oper_ip like '%' + #{operIp} + '%'
             </if>
             <if test="title != null and title != ''">
-                AND title like concat('%', #{title}, '%')
+                AND title like '%' + #{title} + '%'
             </if>
             <if test="businessType != null">
                 AND business_type = #{businessType}
@@ -60,13 +60,13 @@
                 AND status = #{status}
             </if>
             <if test="operName != null and operName != ''">
-                AND oper_name like concat('%', #{operName}, '%')
+                AND oper_name like '%' + #{operName} + '%'
             </if>
             <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
-                AND oper_time &gt;= #{params.beginTime}
+                AND convert(varchar(10), oper_time, 112) &gt;= convert(varchar(10), #{params.beginTime}, 112)
             </if>
             <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
-                AND oper_time &lt;= #{params.endTime}
+                AND convert(varchar(10), oper_time, 112) &lt;= convert(varchar(10), #{params.endTime}, 112)
             </if>
         </where>
         order by oper_id desc
