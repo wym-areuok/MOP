@@ -88,6 +88,9 @@ public class Arith {
         }
         BigDecimal b1 = new BigDecimal(Double.toString(v1));
         BigDecimal b2 = new BigDecimal(Double.toString(v2));
+        if (b2.compareTo(BigDecimal.ZERO) == 0) {
+            throw new ArithmeticException("Division by zero");
+        }
         if (b1.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO.doubleValue();
         }

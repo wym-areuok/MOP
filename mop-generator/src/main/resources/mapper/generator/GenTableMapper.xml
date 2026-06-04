@@ -98,10 +98,10 @@
             AND cast(p.value as nvarchar(4000)) like '%' + #{tableComment} + '%'
         </if>
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
-            AND t.create_date &gt;= #{params.beginTime}
+            AND convert(varchar(10), t.create_date, 112) &gt;= convert(varchar(10), #{params.beginTime}, 112)
         </if>
         <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
-            AND t.create_date &lt;= #{params.endTime}
+            AND convert(varchar(10), t.create_date, 112) &lt;= convert(varchar(10), #{params.endTime}, 112)
         </if>
         order by t.create_date desc
     </select>

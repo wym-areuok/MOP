@@ -93,8 +93,9 @@ public class DictUtils {
         }
         StringBuilder labelBuilder = new StringBuilder();
         for (String seperatedValue : dictValue.split(separator)) {
-            if (dictMap.containsKey(seperatedValue)) {
-                labelBuilder.append(dictMap.get(seperatedValue)).append(separator);
+            String trimmedValue = seperatedValue.trim();
+            if (dictMap.containsKey(trimmedValue)) {
+                labelBuilder.append(dictMap.get(trimmedValue)).append(separator);
             }
         }
         return StringUtils.removeEnd(labelBuilder.toString(), separator);
@@ -119,8 +120,9 @@ public class DictUtils {
         }
         StringBuilder valueBuilder = new StringBuilder();
         for (String seperatedValue : dictLabel.split(separator)) {
-            if (dictMap.containsKey(seperatedValue)) {
-                valueBuilder.append(dictMap.get(seperatedValue)).append(separator);
+            String trimmedValue = seperatedValue.trim();
+            if (dictMap.containsKey(trimmedValue)) {
+                valueBuilder.append(dictMap.get(trimmedValue)).append(separator);
             }
         }
         return StringUtils.removeEnd(valueBuilder.toString(), separator);
