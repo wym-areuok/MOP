@@ -30,7 +30,8 @@
         <include refid="selectJobVo"/>
         <where>
             <if test="jobName != null and jobName != ''">
-                AND job_name like '%' + #{jobName} + '%'
+                <!-- 适配 BIN 编码：强制转大写比较实现忽略大小写搜索 -->
+                AND UPPER(job_name) like '%' + UPPER(#{jobName}) + '%'
             </if>
             <if test="jobGroup != null and jobGroup != ''">
                 AND job_group = #{jobGroup}
@@ -39,7 +40,7 @@
                 AND status = #{status}
             </if>
             <if test="invokeTarget != null and invokeTarget != ''">
-                AND invoke_target like '%' + #{invokeTarget} + '%'
+                AND UPPER(invoke_target) like '%' + UPPER(#{invokeTarget}) + '%'
             </if>
         </where>
     </select>

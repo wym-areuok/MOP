@@ -27,7 +27,7 @@
         <include refid="selectJobLogVo"/>
         <where>
             <if test="jobName != null and jobName != ''">
-                AND job_name like '%' + #{jobName} + '%'
+                AND UPPER(job_name) like '%' + UPPER(#{jobName}) + '%'
             </if>
             <if test="jobGroup != null and jobGroup != ''">
                 AND job_group = #{jobGroup}
@@ -36,7 +36,7 @@
                 AND status = #{status}
             </if>
             <if test="invokeTarget != null and invokeTarget != ''">
-                AND invoke_target like '%' + #{invokeTarget} + '%'
+                AND UPPER(invoke_target) like '%' + UPPER(#{invokeTarget}) + '%'
             </if>
             <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
                 and convert(varchar(10), create_time, 112) &gt;= convert(varchar(10), #{params.beginTime}, 112)

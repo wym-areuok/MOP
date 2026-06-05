@@ -33,11 +33,16 @@ public class ScheduleConfig {
         prop.put("org.quartz.jobStore.isClustered", "true");
         prop.put("org.quartz.jobStore.clusterCheckinInterval", "15000");
         prop.put("org.quartz.jobStore.maxMisfiresToHandleAtATime", "10");
-        prop.put("org.quartz.jobStore.txIsolationLevelSerializable", "true");
+        // SQL Server 配合 UPDLOCK 建议关闭串行化隔离，防止高并发下的范围锁死锁
+        prop.put("org.quartz.jobStore.txIsolationLevelSerializable", "false");
+        prop.put("org.quartz.jobStore.useProperties", "false");
+        // SQL Server 集群建议开启，防止获取触发器时的竞争冲突
+        prop.put("org.quartz.jobStore.acquireTriggersWithinLock", "true");
 
         // sqlserver 启用适配
         prop.put("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.MSSQLDelegate");
-        prop.put("org.quartz.jobStore.selectWithLockSQL", "SELECT * FROM {0}LOCKS WITH (UPDLOCK,ROWLOCK) WHERE LOCK_NAME = ?");
+        // 增加 SCHED_NAME 谓词，使锁定逻辑在 BIN 编码下更加严谨且符合官方规范
+        prop.put("org.quartz.jobStore.selectWithLockSQL", "SELECT * FROM {0}LOCKS WITH (UPDLOCK,ROWLOCK) WHERE SCHED_NAME = {1} AND LOCK_NAME = ?");
 
         prop.put("org.quartz.jobStore.misfireThreshold", "12000");
         prop.put("org.quartz.jobStore.tablePrefix", "QRTZ_");
