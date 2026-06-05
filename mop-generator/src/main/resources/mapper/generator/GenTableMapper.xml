@@ -65,10 +65,10 @@
         <include refid="selectGenTableVo"/>
         <where>
             <if test="tableName != null and tableName != ''">
-                AND table_name like '%' + #{tableName} + '%'
+                AND UPPER(table_name) like '%' + UPPER(#{tableName}) + '%'
             </if>
             <if test="tableComment != null and tableComment != ''">
-                AND table_comment like '%' + #{tableComment} + '%'
+                AND UPPER(table_comment) like '%' + UPPER(#{tableComment}) + '%'
             </if>
             <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
                 AND convert(varchar(10), create_time, 112) &gt;= convert(varchar(10), #{params.beginTime}, 112)
@@ -90,12 +90,12 @@
         'MS_Description'
         WHERE t.is_ms_shipped = 0
         AND t.name NOT LIKE 'qrtz[_]%' AND t.name NOT LIKE 'gen[_]%'
-        AND NOT EXISTS (SELECT 1 FROM gen_table gt WHERE gt.table_name = t.name COLLATE DATABASE_DEFAULT)
+        AND NOT EXISTS (SELECT 1 FROM gen_table gt WHERE UPPER(gt.table_name) = UPPER(t.name))
         <if test="tableName != null and tableName != ''">
-            AND t.name like '%' + #{tableName} + '%'
+            AND UPPER(t.name) like '%' + UPPER(#{tableName}) + '%'
         </if>
         <if test="tableComment != null and tableComment != ''">
-            AND cast(p.value as nvarchar(4000)) like '%' + #{tableComment} + '%'
+            AND UPPER(cast(p.value as nvarchar(4000))) like '%' + UPPER(#{tableComment}) + '%'
         </if>
         <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
             AND convert(varchar(10), t.create_date, 112) &gt;= convert(varchar(10), #{params.beginTime}, 112)
@@ -116,9 +116,9 @@
         LEFT OUTER JOIN sys.extended_properties p ON t.object_id = p.major_id AND p.minor_id = 0 AND p.name =
         'MS_Description'
         WHERE t.name NOT LIKE 'qrtz[_]%' and t.name NOT LIKE 'gen[_]%'
-        and t.name COLLATE DATABASE_DEFAULT in
+        and UPPER(t.name) in
         <foreach collection="array" item="name" open="(" separator="," close=")">
-            #{name}
+            UPPER(#{name})
         </foreach>
     </select>
 
@@ -131,7 +131,7 @@
         FROM sys.tables t
         LEFT OUTER JOIN sys.extended_properties p ON t.object_id = p.major_id AND p.minor_id = 0 AND p.name =
         'MS_Description'
-        WHERE t.name = #{tableName}
+        WHERE UPPER(t.name) = UPPER(#{tableName})
     </select>
 
     <select id="selectGenTableById" parameterType="Long" resultMap="GenTableResult">
@@ -153,7 +153,7 @@
         c.is_required, c.is_insert, c.is_edit, c.is_list, c.is_query, c.query_type, c.html_type, c.dict_type, c.sort
         FROM gen_table t
         LEFT JOIN gen_table_column c ON t.table_id = c.table_id
-        where t.table_name = #{tableName} order by c.sort
+        where UPPER(t.table_name) = UPPER(#{tableName}) order by c.sort
     </select>
 
     <select id="selectGenTableAll" parameterType="String" resultMap="GenTableResult">

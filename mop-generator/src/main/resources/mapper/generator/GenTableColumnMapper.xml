@@ -45,9 +45,9 @@
         SELECT
         cast(col.name as nvarchar(128)) as column_name,
         case when col.is_nullable = 1 then '0' else '1' end as is_required,
-        case when exists (SELECT 1 FROM sys.index_columns ic JOIN sys.indexes i ON ic.object_id = i.object_id AND
-        ic.index_id = i.index_id WHERE i.is_primary_key = 1 AND ic.object_id = col.object_id AND ic.column_id =
-        col.column_id) then '1' else '0' end as is_pk,
+        case when exists (SELECT 1 FROM sys.key_constraints k JOIN sys.index_columns ic ON k.parent_object_id =
+        ic.object_id AND k.unique_index_id = ic.index_id WHERE k.type = 'PK' AND ic.object_id = col.object_id AND
+        ic.column_id = col.column_id) then '1' else '0' end as is_pk,
         col.column_id as sort,
         cast(ep.value as nvarchar(max)) as column_comment,
         case when col.is_identity = 1 then '1' else '0' end as is_increment,
@@ -55,13 +55,16 @@
         when t.name in ('varchar', 'nvarchar', 'char', 'nchar') then
         '(' + case when col.max_length = -1 then 'max' else cast(columnproperty(col.object_id, col.name, 'precision') as
         varchar) end + ')'
+        when t.name in ('decimal', 'numeric') then
+        '(' + cast(columnproperty(col.object_id, col.name, 'precision') as varchar) + ',' +
+        cast(columnproperty(col.object_id, col.name, 'scale') as varchar) + ')'
         else '' end) as column_type
         FROM sys.columns col
         JOIN sys.types t ON col.user_type_id = t.user_type_id
         JOIN sys.tables tab ON col.object_id = tab.object_id
         LEFT JOIN sys.extended_properties ep ON ep.major_id = col.object_id AND ep.minor_id = col.column_id AND ep.name
         = 'MS_Description'
-        WHERE tab.name = #{tableName}
+        WHERE UPPER(tab.name) = UPPER(#{tableName})
         AND tab.type = 'U'
         AND schema_name(tab.schema_id) = SCHEMA_NAME()
         ORDER BY col.column_id

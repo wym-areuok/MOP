@@ -49,6 +49,7 @@ public class GenUtils {
             column.setHtmlType(htmlType);
         } else if (arraysContains(GenConstants.COLUMNTYPE_TIME, dataType)) {
             column.setJavaType(GenConstants.TYPE_DATE);
+            // 针对 SQL Server 的 datetime2/datetime，默认使用日期时间控件
             column.setHtmlType(GenConstants.HTML_DATETIME);
         } else if (arraysContains(GenConstants.COLUMNTYPE_NUMBER, dataType)) {
             column.setHtmlType(GenConstants.HTML_INPUT);
@@ -213,7 +214,11 @@ public class GenUtils {
     public static Integer getColumnLength(String columnType) {
         if (StringUtils.indexOf(columnType, "(") > 0) {
             String length = StringUtils.substringBetween(columnType, "(", ")");
-            return Integer.valueOf(length);
+            if (StringUtils.isNumeric(length)) {
+                return Integer.valueOf(length);
+            }
+            // 如果是 max 等非数字标识，返回极大值以触发 TEXTAREA 判定
+            return 2147483647;
         } else {
             return 0;
         }
