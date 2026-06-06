@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mop.system.mapper.AiChatMapper">
+
+    <!-- ==================== 会话 ==================== -->
+    <resultMap id="ConversationResult" type="com.mop.system.domain.AiConversationEntity">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="userId" column="user_id"/>
+        <result property="model" column="model"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- ==================== 消息 ==================== -->
+    <resultMap id="MessageResult" type="com.mop.system.domain.AiMessageEntity">
+        <id property="id" column="id"/>
+        <result property="conversationId" column="conversation_id"/>
+        <result property="role" column="role"/>
+        <result property="content" column="content"/>
+        <result property="tokens" column="tokens"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insertConversation" parameterType="com.mop.system.domain.AiConversationEntity"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_conversation(title, user_id, model, status, create_by, create_time, update_time)
+        VALUES (#{title}, #{userId}, #{model}, 1, #{createBy}, GETDATE(), GETDATE())
+    </insert>
+
+    <update id="updateConversationTitle">
+        UPDATE ai_conversation SET title = #{title}, update_time = GETDATE()
+        WHERE id = #{id} AND user_id = #{userId}
+    </update>
+
+    <update id="deleteConversation">
+        UPDATE ai_conversation SET status = 0, update_time = GETDATE()
+        WHERE id = #{id} AND user_id = #{userId}
+    </update>
+
+    <select id="selectConversationsByUserId" resultMap="ConversationResult">
+        SELECT TOP 50 * FROM ai_conversation
+        WHERE user_id = #{userId} AND status = 1
+        ORDER BY update_time DESC
+    </select>
+
+    <select id="selectConversationById" resultMap="ConversationResult">
+        SELECT * FROM ai_conversation
+        WHERE id = #{id} AND user_id = #{userId} AND status = 1
+    </select>
+
+    <insert id="insertMessage" parameterType="com.mop.system.domain.AiMessageEntity"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_message(conversation_id, role, content, tokens, create_time)
+        VALUES (#{conversationId}, #{role}, #{content}, #{tokens}, GETDATE())
+    </insert>
+
+    <select id="selectMessagesByConversationId" resultMap="MessageResult">
+        SELECT TOP 100 * FROM ai_message
+        WHERE conversation_id = #{conversationId}
+        ORDER BY id ASC
+    </select>
+
+    <delete id="deleteMessagesByConversationId">
+        DELETE FROM ai_message WHERE conversation_id = #{conversationId}
+    </delete>
+
+</mapper>

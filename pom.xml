@@ -29,8 +29,12 @@
         <poi.version>4.1.2</poi.version>
         <velocity.version>2.3</velocity.version>
         <jwt.version>0.9.1</jwt.version>
+        <maven-war-plugin.version>3.1.0</maven-war-plugin.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
+        <jaxb-runtime.version>2.3.1</jaxb-runtime.version>
         <springdoc.version>3.0.2</springdoc.version>
+        <langchain4j.version>0.36.2</langchain4j.version>
+        <mssql-jdbc.version>12.8.1.jre11</mssql-jdbc.version>
     </properties>
 
     <!-- 依赖声明 -->
@@ -79,6 +83,13 @@
                 <version>${jaxb-api.version}</version>
             </dependency>
 
+            <!-- JAXB Runtime (Java 17 下 jjwt 0.9.1 必须) -->
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb-runtime.version}</version>
+            </dependency>
+
             <!-- 获取系统信息 -->
             <dependency>
                 <groupId>com.github.oshi</groupId>
@@ -105,6 +116,13 @@
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
                 <version>${poi.version}</version>
+            </dependency>
+
+            <!-- SQL Server 驱动 -->
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>${mssql-jdbc.version}</version>
             </dependency>
 
             <!-- velocity代码生成使用模板 -->
@@ -170,6 +188,27 @@
                 <version>${mop.version}</version>
             </dependency>
 
+            <!-- LangChain4j 核心 -->
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j</artifactId>
+                <version>${langchain4j.version}</version>
+            </dependency>
+
+            <!-- LangChain4j OpenAI 适配 -->
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-open-ai</artifactId>
+                <version>${langchain4j.version}</version>
+            </dependency>
+
+            <!-- ai大模型模块-->
+            <dependency>
+                <groupId>com.mop</groupId>
+                <artifactId>mop-ai</artifactId>
+                <version>${mop.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -180,26 +219,39 @@
         <module>mop-quartz</module>
         <module>mop-generator</module>
         <module>mop-common</module>
+
+        <module>mop-ai</module>
     </modules>
     <packaging>pom</packaging>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <!-- 统一管理 Spring Boot 插件版本 -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+                <!-- 统一管理 WAR 插件版本 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>${maven-war-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <parameters>true</parameters>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <parameters>true</parameters>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
             </plugin>
         </plugins>
     </build>

@@ -89,6 +89,12 @@
             <artifactId>jaxb-api</artifactId>
         </dependency>
 
+        <!-- JAXB Runtime (确保 Java 17 运行时能找到 javax 命名空间实现) -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+
         <!-- redis 缓存操作 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <th:block th:include="include :: header('AI 智能对话')"/>
+    <style>
+        /* ===== 整体布局 ===== */
+        .ai-chat-wrapper {
+            display: flex;
+            height: 100vh;
+            background: #f5f6fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* ===== 左侧会话列表 ===== */
+        .sidebar {
+            width: 240px;
+            min-width: 240px;
+            background: #fff;
+            border-right: 1px solid #e8e8e8;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 0;
+            box-sizing: border-box;
+        }
+        .sidebar-header { padding: 0 12px 12px; }
+
+        .btn-new-chat {
+            width: 100%;
+            padding: 10px;
+            background: #f0f4ff;
+            border: 1px dashed #4f6ef7;
+            border-radius: 8px;
+            color: #4f6ef7;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.2s;
+            box-sizing: border-box;
+        }
+        .btn-new-chat:hover    { background: #e0e8ff; }
+        .btn-new-chat:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .conv-list { flex: 1; overflow-y: auto; padding: 4px 8px; }
+
+        .conv-item {
+            padding: 9px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #333;
+            transition: background 0.15s;
+        }
+        .conv-item:hover          { background: #f5f6fa; }
+        .conv-item.active         { background: #eef1ff; color: #4f6ef7; font-weight: 500; }
+
+        .conv-title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 操作按钮：CSS :hover 控制显示，无需 JS ===== */
+        .conv-actions               { display: none; gap: 4px; }
+        .conv-item:hover .conv-actions,
+        .conv-item.active .conv-actions { display: flex; }
+
+        .conv-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px 4px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        .conv-actions button:hover { background: #dde4ff; }
+
+        /* ===== 主聊天区域 ===== */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f5f6fa;
+            min-width: 0;
+        }
+
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        .welcome-title    { font-size: 28px; font-weight: 600; color: #1a1a2e; }
+        .welcome-subtitle { font-size: 15px; color: #888; }
+
+        /* ===== 消息区域 ===== */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .msg-row {
+            display: flex;
+            padding: 6px 40px;
+            gap: 14px;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .msg-row.user { flex-direction: row-reverse; }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .avatar.user-av { background: #4f6ef7; color: #fff; font-size: 12px; }
+        .avatar.ai-av   { background: #6c3be4; color: #fff; }
+
+        .bubble {
+            max-width: 72%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.7;
+            word-break: break-word;
+        }
+        .msg-row.user .bubble {
+            background: #4f6ef7;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .msg-row.assistant .bubble {
+            background: #fff;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        /* 打字光标动画 —— 纯 CSS ===== */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 0.7s step-start infinite;
+            margin-left: 1px;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .bubble pre {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            padding: 12px 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+            margin: 8px 0;
+        }
+        .bubble code          { background: #f0f0f0; padding: 2px 5px; border-radius: 4px; font-size: 13px; }
+        .bubble pre code      { background: none; padding: 0; }
+
+        /* ===== 输入区域 ===== */
+        .input-area {
+            padding: 12px 40px 16px;
+            background: #f5f6fa;
+            flex-shrink: 0;
+        }
+        .input-box {
+            max-width: 820px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 14px;
+            padding: 10px 14px 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+            min-height: 54px;
+        }
+        .input-box:focus-within { border-color: #4f6ef7; }
+
+        /* textarea 自动扩展高度由 oninput 驱动，CSS 只设边界 */
+        #msgInput {
+            flex: 1;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 140px;
+            min-height: 24px;
+            height: auto;
+            overflow-y: hidden;
+            background: transparent;
+            color: #333;
+            font-family: inherit;
+            padding: 6px 0;
+            display: block;
+        }
+        .btn-send {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #4f6ef7;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-send:hover    { background: #3a5be0; }
+        .btn-send:active   { transform: scale(0.93); }
+        .btn-send:disabled { background: #c5cae9; cursor: not-allowed; }
+        .btn-send svg      { fill: #fff; width: 16px; height: 16px; }
+
+        .input-hint {
+            max-width: 820px;
+            margin: 6px auto 0;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+        }
+
+        /* 加载动画 —— 纯 CSS ===== */
+        .loading-dots span {
+            display: inline-block;
+            width: 6px; height: 6px;
+            background: #bbb;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: dotBounce 1.2s infinite;
+        }
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dotBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30%           { transform: translateY(-6px); }
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar       { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 4px; }
+
+        /* ===== 重命名 <dialog> 样式 ===== */
+        #renameDialog {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            min-width: 300px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+        #renameDialog::backdrop { background: rgba(0,0,0,0.3); }
+        #renameDialog h4        { margin: 0 0 14px; font-size: 15px; color: #1a1a2e; }
+        #renameInput {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        #renameInput:focus     { border-color: #4f6ef7; }
+        .dialog-footer         { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+        .btn-dialog-cancel,
+        .btn-dialog-confirm {
+            padding: 6px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-dialog-cancel  { border: 1px solid #ddd; background: #fff; }
+        .btn-dialog-confirm { background: #4f6ef7; color: #fff; border: none; }
+        .btn-dialog-confirm:hover { background: #3a5be0; }
+    </style>
+</head>
+
+<body class="gray-bg">
+<div class="ai-chat-wrapper">
+
+    <!-- 左侧会话列表 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <button class="btn-new-chat" id="btnNewChat">
+                <span>✏</span> 新对话
+            </button>
+        </div>
+        <div class="conv-list" id="convList"></div>
+    </div>
+
+    <!-- 主聊天区域 -->
+    <div class="chat-main">
+
+        <!-- 欢迎屏（无会话选中时显示） -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="avatar ai-av" style="width:60px;height:60px;font-size:26px">✦</div>
+            <div class="welcome-title">你好，我是 AI 助手</div>
+            <div class="welcome-subtitle">点击左上角「新对话」开始聊天</div>
+        </div>
+
+        <!-- 消息列表 -->
+        <div class="messages-area hidden" id="messagesArea"></div>
+
+        <!-- 输入框 -->
+        <div class="input-area hidden" id="inputArea">
+            <div class="input-box">
+                <!--
+                    onkeydown / oninput 直接写在 HTML 属性上，
+                    无需 addEventListener，这两个事件天然适合内联绑定
+                -->
+                <textarea id="msgInput"
+                          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,140)+'px'"
+                          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
+                          placeholder="输入消息，Enter 发送，Shift+Enter 换行"></textarea>
+                <button class="btn-send" id="sendBtn">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="input-hint">AI 生成内容仅供参考，请注意甄别</div>
+        </div>
+    </div>
+</div>
+
+<!-- 会话列表项模板 -->
+<template id="tplConvItem">
+    <div class="conv-item">
+        <span class="conv-title"></span>
+        <div class="conv-actions">
+            <button class="btn-rename" title="重命名">✎</button>
+            <button class="btn-delete" title="删除">🗑</button>
+        </div>
+    </div>
+</template>
+
+<!-- 用户消息气泡模板 -->
+<template id="tplMsgUser">
+    <div class="msg-row user">
+        <div class="avatar user-av">我</div>
+        <div class="bubble"></div>
+    </div>
+</template>
+
+<!-- AI 消息气泡模板 -->
+<template id="tplMsgAi">
+    <div class="msg-row assistant">
+        <div class="avatar ai-av">✦</div>
+        <div class="bubble"></div>
+    </div>
+</template>
+
+<!-- 重命名 <dialog>：原生 HTML 弹窗，替代 JS prompt() -->
+<dialog id="renameDialog">
+    <h4>重命名会话</h4>
+    <input id="renameInput" maxlength="50" placeholder="请输入新名称" type="text"/>
+    <div class="dialog-footer">
+        <button class="btn-dialog-cancel" id="renameCancelBtn">取消</button>
+        <button class="btn-dialog-confirm" id="renameConfirmBtn">确认</button>
+    </div>
+</dialog>
+
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    /* ---- 全局常量 ---- */
+    var ctx = /*[[@{/}]]*/ '/';
+
+    /* ---- 全局状态 ---- */
+    var currentConvId    = null;   // 当前选中的会话 ID
+    var isStreaming       = false;  // 是否正在接收 SSE 流
+    var eventSource      = null;   // SSE 连接对象
+    var renameTargetId   = null;   // 当前正在重命名的会话 ID
+    var BTN_NEW_CHAT_HTML = '<span>✏</span> 新对话'; // 按钮标签，集中管理
+
+    /* ----
+       全局设置 CSRF Token
+       若依通过 Thymeleaf layout 在 <meta> 里注入 _csrf，
+       $.ajaxSetup 让所有 AJAX 请求自动携带，避免 POST/PUT/DELETE 被拦截返回 403
+    ---- */
+    $(function () {
+        var csrfToken  = $('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $('meta[name="_csrf_header"]').attr('content') || 'X-CSRF-TOKEN';
+        if (csrfToken) {
+            $.ajaxSetup({ headers: { [csrfHeader]: csrfToken } });
+        }
+
+        /* ---- 初始化 ---- */
+        loadConversations(true);
+
+        // 新建会话
+        $('#btnNewChat').on('click', newConversation);
+
+        // 发送消息
+        $('#sendBtn').on('click', sendMessage);
+
+        // 会话列表：用事件委托处理动态生成的条目
+        $('#convList')
+            .on('click', '.conv-item', function (e) {
+                // 点击操作按钮时不触发选中
+                if (!$(e.target).closest('.conv-actions').length) {
+                    selectConversation(Number($(this).data('id')));
+                }
+            })
+            .on('click', '.btn-rename', function (e) {
+                e.stopPropagation();
+                var id    = Number($(this).closest('.conv-item').data('id'));
+                var title = $(this).closest('.conv-item').find('.conv-title').text().trim();
+                openRenameDialog(id, title);
+            })
+            .on('click', '.btn-delete', function (e) {
+                e.stopPropagation();
+                deleteConv(Number($(this).closest('.conv-item').data('id')));
+            });
+
+        // 重命名弹窗按钮
+        $('#renameCancelBtn').on('click',  function () { document.getElementById('renameDialog').close(); });
+        $('#renameConfirmBtn').on('click', submitRename);
+        // Enter 键也能确认
+        $('#renameInput').on('keydown', function (e) {
+            if (e.key === 'Enter') submitRename();
+        });
+    });
+
+    function loadConversations(autoSelect) {
+        $.ajax({
+            url: ctx + 'ai/chat/conversations',
+            type: 'GET',
+            success: function (res) {
+                if (res.code === 0) {
+                    var list = res.data || [];
+                    renderConvList(list);
+                    if (autoSelect && list.length > 0 && !currentConvId) {
+                        selectConversation(list[0].id);
+                    }
+                } else {
+                    showConvError('加载失败：' + (res.msg || res.code));
+                }
+            },
+            error: function (xhr) {
+                showConvError(xhr.status === 302 || xhr.status === 0
+                    ? '会话已过期，请刷新重新登录'
+                    : '接口异常 HTTP ' + xhr.status);
+            }
+        });
+    }
+
+    function renderConvList(list) {
+        var $list = $('#convList').empty();
+        if (!list.length) {
+            $list.html('<div style="text-align:center;color:#aaa;font-size:13px;padding:20px 0">暂无对话记录</div>');
+            return;
+        }
+        // 用 <template> 克隆节点，不拼接 HTML 字符串
+        var tpl = document.getElementById('tplConvItem').content;
+        list.forEach(function (c) {
+            var node = tpl.cloneNode(true);
+            var item = node.querySelector('.conv-item');
+            item.dataset.id = c.id;
+            item.classList.toggle('active', c.id === currentConvId);
+            node.querySelector('.conv-title').textContent = c.title;
+            $list.append(node);
+        });
+    }
+
+    function showConvError(msg) {
+        $('#convList').html('<div style="text-align:center;color:#e74c3c;font-size:12px;padding:16px 8px">' + escHtml(msg) + '</div>');
+    }
+
+    /* 新建会话 */
+    function newConversation() {
+        var $btn = $('#btnNewChat').prop('disabled', true).html('创建中...');
+        $.ajax({
+            url: ctx + 'ai/chat/conversations',
+            type: 'POST',
+            success: function (res) {
+                $btn.prop('disabled', false).html(BTN_NEW_CHAT_HTML);
+                if (res.code === 0) {
+                    currentConvId = res.data.id;
+                    loadConversations();
+                    showChatArea([]);
+                } else {
+                    alert('新建失败：' + (res.msg || res.code));
+                }
+            },
+            error: function (xhr) {
+                $btn.prop('disabled', false).html(BTN_NEW_CHAT_HTML);
+                alert('新建失败 HTTP ' + xhr.status + (xhr.status === 403 ? '（CSRF 验证失败）' : ''));
+            }
+        });
+    }
+
+    /* 选中会话，加载历史消息 */
+    function selectConversation(id) {
+        if (isStreaming) return;
+        currentConvId = id;
+        // 更新侧栏高亮
+        $('#convList .conv-item').removeClass('active');
+        $('#convList .conv-item[data-id="' + id + '"]').addClass('active');
+
+        $.ajax({
+            url: ctx + 'ai/chat/conversations/' + id + '/messages',
+            type: 'GET',
+            success: function (res) {
+                if (res.code === 0) showChatArea(res.data || []);
+            }
+        });
+    }
+
+    /* 切换显示聊天区域 */
+    function showChatArea(messages) {
+        $('#welcomeScreen').addClass('hidden');
+        $('#messagesArea, #inputArea').removeClass('hidden');
+        var $area = $('#messagesArea').empty();
+        messages.forEach(function (m) { $area.append(buildBubbleNode(m.role, m.content)); });
+        scrollToBottom();
+        $('#msgInput').focus();
+    }
+
+    /* 退出到欢迎屏 */
+    function showWelcomeScreen() {
+        currentConvId = null;
+        $('#messagesArea, #inputArea').addClass('hidden');
+        $('#welcomeScreen').removeClass('hidden');
+        $('#messagesArea').empty();
+    }
+
+    /* 发送消息 —— SSE 流式 */
+    function sendMessage() {
+        if (isStreaming || !currentConvId) return;
+        var inp  = document.getElementById('msgInput');
+        var text = inp.value.trim();
+        if (!text) return;
+
+        // 清空输入框并重置高度
+        inp.value = '';
+        inp.style.height = 'auto';
+
+        $('#sendBtn').prop('disabled', true);
+        isStreaming = true;
+
+        // 追加用户气泡
+        $('#messagesArea').append(buildBubbleNode('user', text));
+
+        // 追加 AI 加载气泡
+        var aiNode = buildBubbleNode('assistant', '');
+        var $bubble = $(aiNode).find('.bubble');
+        $bubble.html('<div class="loading-dots"><span></span><span></span><span></span></div>');
+        $('#messagesArea').append(aiNode);
+        scrollToBottom();
+
+        if (eventSource) eventSource.close();
+
+        eventSource = new EventSource(
+            ctx + 'ai/chat/stream?conversationId=' + currentConvId
+            + '&message=' + encodeURIComponent(text)
+        );
+
+        var replyText  = '';
+        var firstChunk = true;
+
+        // 公共收尾：清除光标、关闭连接、解锁按钮
+        function resetStreaming(errMsg) {
+            if (errMsg) $bubble.html('<span style="color:#e74c3c">⚠ ' + escHtml(errMsg) + '</span>');
+            $bubble.removeClass('typing-cursor');
+            eventSource.close();
+            isStreaming = false;
+            $('#sendBtn').prop('disabled', false);
+        }
+
+        eventSource.addEventListener('message', function (e) {
+            if (firstChunk) { $bubble.html(''); firstChunk = false; }
+            replyText += e.data;
+            $bubble.html(simpleMarkdown(replyText));
+            $bubble.addClass('typing-cursor');
+            scrollToBottom();
+        });
+
+        eventSource.addEventListener('done', function () {
+            resetStreaming();
+            loadConversations(); // 刷新侧栏（自动命名标题后更新）
+        });
+
+        eventSource.addEventListener('error', function (e) {
+            resetStreaming(e.data || '服务异常，请重试');
+        });
+
+        eventSource.onerror = function () {
+            if (!isStreaming) return;
+            resetStreaming('连接断开，请检查登录状态后重试');
+        };
+    }
+
+
+    /* 打开原生 <dialog> 重命名弹窗，替代 prompt() */
+    function openRenameDialog(id, currentTitle) {
+        renameTargetId = id;
+        document.getElementById('renameInput').value = currentTitle;
+        document.getElementById('renameDialog').showModal();
+        // 自动选中文字，方便直接修改
+        document.getElementById('renameInput').select();
+    }
+    
+    /* 重命名会话 */
+    function submitRename() {
+        var newTitle = document.getElementById('renameInput').value.trim();
+        if (!newTitle) return;
+        document.getElementById('renameDialog').close();
+        $.ajax({
+            url: ctx + 'ai/chat/conversations/' + renameTargetId + '/title',
+            type: 'PUT',
+            data: { title: newTitle },
+            success: function (res) {
+                if (res.code === 0) loadConversations();
+                else alert('重命名失败：' + (res.msg || res.code));
+            },
+            error: function (xhr) { alert('重命名失败 HTTP ' + xhr.status); }
+        });
+    }
+    
+    /* 删除会话 */
+    function deleteConv(id) {
+        if (!confirm('确认删除该对话及所有消息？')) return;
+        $.ajax({
+            url: ctx + 'ai/chat/conversations/' + id,
+            type: 'DELETE',
+            success: function (res) {
+                if (res.code === 0) {
+                    if (currentConvId === id) showWelcomeScreen();
+                    loadConversations();
+                } else {
+                    alert('删除失败：' + (res.msg || res.code));
+                }
+            },
+            error: function (xhr) { alert('删除失败 HTTP ' + xhr.status); }
+        });
+    }
+
+
+    /**
+     * 用 <template> 克隆气泡节点，替代字符串拼接
+     * role: 'user' | 'assistant'
+     */
+    function buildBubbleNode(role, content) {
+        var tplId = (role === 'user') ? 'tplMsgUser' : 'tplMsgAi';
+        var node  = document.getElementById(tplId).content.cloneNode(true);
+        var bubble = node.querySelector('.bubble');
+        if (role === 'user') {
+            bubble.textContent = content;        // 用户消息纯文本，自动转义 XSS
+        } else {
+            bubble.innerHTML = simpleMarkdown(content); // AI 回复渲染 Markdown
+        }
+        return node;
+    }
+
+    /** 简易 Markdown 渲染（代码块 / 行内代码 / 加粗 / 换行） */
+    function simpleMarkdown(text) {
+        return escHtml(text)
+            .replace(/```[\w]*\n?([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+            .replace(/`([^`\n]+)`/g,              '<code>$1</code>')
+            .replace(/\*\*(.+?)\*\*/g,            '<strong>$1</strong>')
+            .replace(/\n/g,                        '<br>');
+    }
+
+    /** HTML 转义，防止 XSS */
+    function escHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function scrollToBottom() {
+        var el = document.getElementById('messagesArea');
+        if (el) el.scrollTop = el.scrollHeight;
+    }
+</script>
+</body>
+</html>
