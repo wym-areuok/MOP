@@ -59,8 +59,12 @@
     </insert>
 
     <select id="selectMessagesByConversationId" resultMap="MessageResult">
-        SELECT TOP 100 * FROM ai_message
+        SELECT * FROM (
+        SELECT TOP (#{limit}) *
+        FROM ai_message
         WHERE conversation_id = #{conversationId}
+        ORDER BY id DESC
+        ) AS t
         ORDER BY id ASC
     </select>
 

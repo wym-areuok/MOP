@@ -87,7 +87,8 @@ public class AiChatServiceImpl implements IAiChatService {
         if (conv == null) {
             return new ArrayList<>();
         }
-        return aiChatMapper.selectMessagesByConversationId(conversationId);
+        // 查询历史记录时，默认展示最近 100 条
+        return aiChatMapper.selectMessagesByConversationId(conversationId, 100);
     }
 
     @Override
@@ -166,7 +167,7 @@ public class AiChatServiceImpl implements IAiChatService {
             @Override
             public void onComplete(Response<AiMessage> response) {
                 // 6. 持久化 AI 完整回复
-                if (fullReply.length() > 0) {
+                if (fullReply != null && fullReply.length() > 0) {
                     AiMessageEntity aiMsg = new AiMessageEntity();
                     aiMsg.setConversationId(conversationId);
                     aiMsg.setRole("assistant");
@@ -188,7 +189,7 @@ public class AiChatServiceImpl implements IAiChatService {
             @Override
             public void onError(Throwable error) {
                 log.error("LangChain4j 流式调用异常", error);
-                sendSse(emitter, "error", "AI 服务异常：" + error.getMessage());
+                sendSse(emitter, "error", "AI 服务异常(请检查余额或配置)：" + error.getMessage());
                 emitter.completeWithError(error);
             }
         });
@@ -213,7 +214,9 @@ public class AiChatServiceImpl implements IAiChatService {
      * @return LangChain4j 格式的消息列表
      */
     private List<ChatMessage> buildMessages(Long conversationId) {
-        List<AiMessageEntity> history = aiChatMapper.selectMessagesByConversationId(conversationId);
+        int max = modelProps.getMaxHistoryMessages();
+        // 直接从数据库查最近的 N 条，减少内存负载
+        List<AiMessageEntity> history = aiChatMapper.selectMessagesByConversationId(conversationId, max);
 
         List<ChatMessage> list = new ArrayList<>();
 
@@ -223,11 +226,8 @@ public class AiChatServiceImpl implements IAiChatService {
             list.add(SystemMessage.from(system));
         }
 
-        // 裁剪历史消息，只保留最近 maxHistoryMessages 条
-        int max = modelProps.getMaxHistoryMessages();
-        int start = Math.max(0, history.size() - max);
-        for (int i = start; i < history.size(); i++) {
-            AiMessageEntity m = history.get(i);
+        // 既然 SQL 已经限制了条数，直接添加即可
+        for (AiMessageEntity m : history) {
             if ("user".equals(m.getRole())) {
                 list.add(UserMessage.from(m.getContent()));
             } else {

@@ -156,20 +156,16 @@ ai:
   model:
     # ── 当前启用的提供商 ────────────────────────────────────────
     # 可选值: dashscope | openai | deepseek | ollama
-    provider: dashscope
+    provider: openai
 
     # ── API Key（dashscope / openai / deepseek 需要）────────────
-    api-key: sk-xxxxxxxxxxxxxxxxxxxxxx
+    api-key: sk-waracjjjprybceerohmtxdyhmcnkvicwoayrovxkjnmptdoc
 
     # ── 模型名称 ────────────────────────────────────────────────
-    # dashscope : qwen-turbo（快/便宜）| qwen-plus（均衡）| qwen-max（最强）
-    # openai    : gpt-4o-mini | gpt-4o
-    # deepseek  : deepseek-chat | deepseek-reasoner
-    # ollama    : qwen2.5 | llama3.2 | mistral（本地运行）
-    model-name: qwen-plus
+    model-name: deepseek-ai/DeepSeek-V3
 
-    # ── Ollama 专用（本地部署时填写）────────────────────────────
-    base-url: http://localhost:11434
+    # ── 硅基流动 API 地址 ────────────────────────────
+    base-url: https://api.siliconflow.cn/v1
 
     # ── 通用参数 ────────────────────────────────────────────────
     max-tokens: 2048
@@ -177,7 +173,7 @@ ai:
     max-history-messages: 20
 
     # ── 系统提示词（支持自定义 AI 角色与行为）───────────────────
-    system-prompt: 你是一个专业、友好的 AI 助手，请用中文回答问题。
+    system-prompt: 你是一个叫牛牛的AI助手，请用中文回答问题。
 
 # ============================================================
 #  切换示例

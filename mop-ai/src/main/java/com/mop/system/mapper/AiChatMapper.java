@@ -85,9 +85,10 @@ public interface AiChatMapper {
      * 按 id 升序排列（即时间正序），最多返回 100 条
      *
      * @param conversationId 会话 ID
+     * @param limit          限制条数
      * @return 消息列表
      */
-    List<AiMessageEntity> selectMessagesByConversationId(Long conversationId);
+    List<AiMessageEntity> selectMessagesByConversationId(@Param("conversationId") Long conversationId, @Param("limit") int limit);
 
     /**
      * 物理删除指定会话下的所有消息

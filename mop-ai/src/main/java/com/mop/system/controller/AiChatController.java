@@ -9,11 +9,15 @@ import com.mop.system.domain.AiConversationEntity;
 import com.mop.system.domain.AiMessageEntity;
 import com.mop.system.service.IAiChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * AI 对话 Controller
@@ -33,6 +37,9 @@ import java.util.List;
 public class AiChatController extends BaseController {
     @Autowired
     private IAiChatService aiChatService;
+
+    @Autowired
+    private Executor aiTaskExecutor;
 
     /**
      * 跳转到 AI 对话主页面
@@ -145,10 +152,27 @@ public class AiChatController extends BaseController {
     @GetMapping(value = "/stream", produces = "text/event-stream;charset=UTF-8")
     @ResponseBody
     public SseEmitter stream(@RequestParam Long conversationId, @RequestParam String message) {
-        SseEmitter emitter = new SseEmitter(0L);
+        // 设置超时时间为0，表示永不超时，由服务端主动关闭
+        final SseEmitter emitter = new SseEmitter(0L);
         Long userId = SecurityUtils.getUserId();
-        // 新线程异步执行，当前 Tomcat 线程立即返回 emitter，不阻塞线程池
-        new Thread(() -> aiChatService.chat(conversationId, message, userId, emitter)).start();
+        // 捕获当前主线程的 SecurityContext
+        final SecurityContext context = SecurityContextHolder.getContext();
+
+        // 使用自定义线程池处理异步请求
+        CompletableFuture.runAsync(() -> {
+            try {
+                // 为子线程设置安全上下文
+                SecurityContextHolder.setContext(context);
+                aiChatService.chat(conversationId, message, userId, emitter);
+            } finally {
+                // 执行完后必须清除，防止线程池污染
+                SecurityContextHolder.clearContext();
+            }
+        }, aiTaskExecutor).exceptionally(ex -> {
+            emitter.completeWithError(ex);
+            return null;
+        });
+
         return emitter;
     }
 }

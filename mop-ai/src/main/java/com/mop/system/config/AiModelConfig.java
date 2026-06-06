@@ -7,8 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.time.Duration;
+import java.util.concurrent.Executor;
 
 /**
  * AI 模型工厂
@@ -37,6 +39,23 @@ public class AiModelConfig {
     @Autowired
     private AiModelProperties props;
 
+    /**
+     * AI 对话专用线程池
+     * 隔离 I/O 密集型任务，避免影响系统主业务
+     */
+    @Bean(name = "aiTaskExecutor")
+    public Executor aiTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(50);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("ai-chat-");
+        // 关键：当线程池满时，由调用者线程处理，起到背压作用
+        executor.setRejectedExecutionHandler(new java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
+
     @Bean
     public StreamingChatLanguageModel streamingChatLanguageModel() {
         String provider = props.getProvider();
@@ -58,6 +77,7 @@ public class AiModelConfig {
             // ---- OpenAI 官方 ----
             case "openai":
                 return OpenAiStreamingChatModel.builder()
+                        .baseUrl(props.getBaseUrl())
                         .apiKey(props.getApiKey())
                         .modelName(props.getModelName())
                         .maxTokens(props.getMaxTokens())
