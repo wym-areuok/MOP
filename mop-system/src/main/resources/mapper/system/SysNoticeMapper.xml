@@ -33,13 +33,13 @@
         <include refid="selectNoticeVo"/>
         <where>
             <if test="noticeTitle != null and noticeTitle != ''">
-                AND UPPER(notice_title) like '%' + UPPER(#{noticeTitle}) + '%'
+                AND notice_title like '%' + #{noticeTitle} + '%'
             </if>
             <if test="noticeType != null and noticeType != ''">
                 AND notice_type = #{noticeType}
             </if>
             <if test="createBy != null and createBy != ''">
-                AND UPPER(create_by) like '%' + UPPER(#{createBy}) + '%'
+                AND create_by like '%' + #{createBy} + '%'
             </if>
         </where>
         order by notice_id desc
