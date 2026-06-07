@@ -167,7 +167,7 @@ public class AiChatServiceImpl implements IAiChatService {
             @Override
             public void onComplete(Response<AiMessage> response) {
                 // 6. 持久化 AI 完整回复
-                if (fullReply != null && fullReply.length() > 0) {
+                if (fullReply.length() > 0) {
                     AiMessageEntity aiMsg = new AiMessageEntity();
                     aiMsg.setConversationId(conversationId);
                     aiMsg.setRole("assistant");
@@ -223,6 +223,7 @@ public class AiChatServiceImpl implements IAiChatService {
         // 插入系统提示词（定义 AI 的角色、行为规范）
         String system = modelProps.getSystemPrompt();
         if (system != null && !system.isEmpty()) {
+            log.debug(">>> 注入系统提示词: {}", system);
             list.add(SystemMessage.from(system));
         }
 
