@@ -150,30 +150,38 @@ xss:
 
 #  AI 模型配置 —— 添加到 ruoyi 的 application.yml
 #  切换模型只需修改 provider + 对应的 api-key / model-name
-# ============================================================
-
 ai:
   model:
     # ── 当前启用的提供商 ────────────────────────────────────────
-    # 可选值: dashscope | openai | deepseek | ollama
+    # 说明：
+    # - 这里仍然使用 openai，因为火山引擎 Ark 兼容 OpenAI API 协议
+    # - 如果你后面想区分，也可以自定义成 ark
+    # 可选值: dashscope | openai | deepseek | ollama | ark(自定义)
     provider: openai
-
-    # ── API Key（dashscope / openai / deepseek 需要）────────────
-    api-key: sk-waracjjjprybceerohmtxdyhmcnkvicwoayrovxkjnmptdoc
-
-    # ── 模型名称 ────────────────────────────────────────────────
-    model-name: deepseek-ai/DeepSeek-V3
-
-    # ── 硅基流动 API 地址 ────────────────────────────
-    base-url: https://api.siliconflow.cn/v1
-
+    # ── API Key（必填）──────────────────────────────────────────
+    # 火山引擎控制台申请的 API Key（以 ark- 开头）
+    # 注意：必须配合 Authorization: Bearer 使用
+    api-key: ark-9c957d7a-c6d9-4e4a-a396-3817355d4dda-a3b58
+    # ── 模型名称（⚠️最关键）─────────────────────────────────────
+    # 不是模型名（如 GLM-5.2），而是“推理接入点 ID”
+    # 格式：ep-xxxxxxxxxxxx
+    # 在火山引擎 → 在线推理 → 接入点列表中获取
+    model-name: ep-20260703164026-ncjmt
+    # ── API 地址（必须修改）─────────────────────────────────────
+    # 火山引擎 Ark 专用地址（不是 OpenAI 官方地址）
+    # 不要用：https://api.openai.com/v1
+    # 不要用：https://api.siliconflow.cn/v1
+    # 正确：
+    base-url: https://ark.cn-beijing.volces.com/api/v3
     # ── 通用参数 ────────────────────────────────────────────────
-    max-tokens: 2048
+    # 最大生成 token 数 512-2048
+    max-tokens: 1024
+    # 随机性（越高越发散，越低越稳定）
     temperature: 0.7
-    max-history-messages: 20
-
+    # 上下文最大消息数量（用于多轮对话）
+    max-history-messages: 5
     # ── 系统提示词（支持自定义 AI 角色与行为）───────────────────
-    system-prompt: "核心指令：你的名字是『牛牛』。你是由 MES 运维平台开发的专属助手。当被问及身份时，你必须回答你是『牛牛』。绝对禁止提到 DeepSeek 或其他开发机构。请始终保持这个角色设定。"
+    system-prompt: "你的名字是『牛牛哥』。你是由 MES 运维平台开发的专属助手"
 
 # ============================================================
 #  切换示例
