@@ -300,6 +300,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int updateUserProfile(SysUser user) {
         return userMapper.updateUser(user);
     }
@@ -312,6 +313,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
+    @Transactional
     public boolean updateUserAvatar(Long userId, String avatar) {
         return userMapper.updateUserAvatar(userId, avatar) > 0;
     }
@@ -335,6 +337,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int resetPwd(SysUser user) {
         return userMapper.resetUserPwd(user.getUserId(), user.getPassword());
     }
@@ -347,6 +350,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int resetUserPwd(Long userId, String password) {
         return userMapper.resetUserPwd(userId, password);
     }

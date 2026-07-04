@@ -10,10 +10,12 @@ import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.uuid.IdUtils;
 import com.mop.common.utils.uuid.Seq;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Objects;
 
@@ -27,6 +29,11 @@ public class FileUploadUtils {
      * 默认大小 50M
      */
     public static final long DEFAULT_MAX_SIZE = 50 * 1024 * 1024L;
+
+    /**
+     * 头像上传最大大小 10M
+     */
+    public static final long AVATAR_MAX_SIZE = 10 * 1024 * 1024L;
 
     /**
      * 默认的文件名最大长度 100
@@ -111,12 +118,21 @@ public class FileUploadUtils {
     public static final String upload(String baseDir, MultipartFile file, String[] allowedExtension, boolean useCustomNaming)
             throws FileSizeLimitExceededException, IOException, FileNameLengthLimitExceededException,
             InvalidExtensionException {
+        return upload(baseDir, file, allowedExtension, useCustomNaming, DEFAULT_MAX_SIZE);
+    }
+
+    /**
+     * 文件上传（自定义最大大小）
+     */
+    public static final String upload(String baseDir, MultipartFile file, String[] allowedExtension, boolean useCustomNaming, long maxSize)
+            throws FileSizeLimitExceededException, IOException, FileNameLengthLimitExceededException,
+            InvalidExtensionException {
         int fileNameLength = Objects.requireNonNull(file.getOriginalFilename()).length();
         if (fileNameLength > FileUploadUtils.DEFAULT_FILE_NAME_LENGTH) {
             throw new FileNameLengthLimitExceededException(FileUploadUtils.DEFAULT_FILE_NAME_LENGTH);
         }
 
-        assertAllowed(file, allowedExtension);
+        assertAllowed(file, allowedExtension, maxSize);
 
         String fileName = useCustomNaming ? uuidFilename(file) : extractFilename(file);
 
@@ -166,9 +182,23 @@ public class FileUploadUtils {
      */
     public static final void assertAllowed(MultipartFile file, String[] allowedExtension)
             throws FileSizeLimitExceededException, InvalidExtensionException {
+        assertAllowed(file, allowedExtension, DEFAULT_MAX_SIZE);
+    }
+
+    /**
+     * 文件大小校验（自定义最大大小）
+     *
+     * @param file    上传的文件
+     * @param maxSize 最大大小（字节）
+     * @return
+     * @throws FileSizeLimitExceededException 如果超出最大大小
+     * @throws InvalidExtensionException
+     */
+    public static final void assertAllowed(MultipartFile file, String[] allowedExtension, long maxSize)
+            throws FileSizeLimitExceededException, InvalidExtensionException {
         long size = file.getSize();
-        if (size > DEFAULT_MAX_SIZE) {
-            throw new FileSizeLimitExceededException(DEFAULT_MAX_SIZE / 1024 / 1024);
+        if (size > maxSize) {
+            throw new FileSizeLimitExceededException(maxSize / 1024 / 1024);
         }
 
         String fileName = file.getOriginalFilename();
@@ -188,6 +218,23 @@ public class FileUploadUtils {
                         fileName);
             } else {
                 throw new InvalidExtensionException(allowedExtension, extension, fileName);
+            }
+        }
+
+        // 对图片文件进行Magic Number校验，防止伪造扩展名
+        if (allowedExtension == MimeTypeUtils.IMAGE_EXTENSION) {
+            InputStream is = null;
+            try {
+                is = file.getInputStream();
+                byte[] bytes = IOUtils.toByteArray(is);
+                String magicExt = FileUtils.getFileExtendName(bytes);
+                if (!isAllowedExtension(magicExt, allowedExtension)) {
+                    throw new InvalidExtensionException.InvalidImageExtensionException(allowedExtension, extension, fileName);
+                }
+            } catch (IOException e) {
+                throw new InvalidExtensionException.InvalidImageExtensionException(allowedExtension, extension, fileName);
+            } finally {
+                IOUtils.closeQuietly(is);
             }
         }
     }
