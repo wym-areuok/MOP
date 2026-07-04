@@ -26,7 +26,7 @@
         <fastjson.version>2.0.61</fastjson.version>
         <oshi.version>6.10.0</oshi.version>
         <commons.io.version>2.21.0</commons.io.version>
-        <poi.version>4.1.2</poi.version>
+        <poi.version>5.3.0</poi.version>
         <velocity.version>2.3</velocity.version>
         <jwt.version>0.9.1</jwt.version>
         <maven-war-plugin.version>3.1.0</maven-war-plugin.version>
@@ -34,7 +34,7 @@
         <jaxb-runtime.version>2.3.1</jaxb-runtime.version>
         <springdoc.version>3.0.2</springdoc.version>
         <langchain4j.version>0.36.2</langchain4j.version>
-        <mssql-jdbc.version>12.8.1.jre11</mssql-jdbc.version>
+        <mssql-jdbc.version>12.10.0.jre17</mssql-jdbc.version>
     </properties>
 
     <!-- 依赖声明 -->

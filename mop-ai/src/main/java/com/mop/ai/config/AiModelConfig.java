@@ -1,4 +1,4 @@
-package com.mop.system.config;
+package com.mop.ai.config;
 
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;

@@ -64,6 +64,7 @@ public class DruidConfig {
             DataSource dataSource = SpringUtils.getBean(beanName);
             targetDataSources.put(sourceName, dataSource);
         } catch (Exception e) {
+            // 数据源Bean不存在时跳过，由DynamicDataSource自行处理默认数据源
         }
     }
 

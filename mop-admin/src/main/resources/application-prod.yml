@@ -1,0 +1,28 @@
+# 生产环境配置
+# 启动方式: java -jar mop-admin.jar --spring.profiles.active=prod
+# 生产环境敏感配置通过环境变量注入，不要在此文件中硬编码
+
+spring:
+  devtools:
+    restart:
+      enabled: false
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.mop: info
+    org.springframework: warn
+
+# 生产环境关闭 API 文档
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+# 防盗链（生产环境启用）
+referer:
+  enabled: true
+  allowed-domains: ${REFERER_ALLOWED_DOMAINS:localhost}

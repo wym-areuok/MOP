@@ -5,6 +5,8 @@ import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +35,7 @@ import java.util.List;
 @Configuration
 public class MyBatisConfig {
     static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
+    private static final Logger log = LoggerFactory.getLogger(MyBatisConfig.class);
     @Autowired
     private Environment env;
 
@@ -54,7 +57,7 @@ public class MyBatisConfig {
                             try {
                                 result.add(Class.forName(metadataReader.getClassMetadata().getClassName()).getPackage().getName());
                             } catch (ClassNotFoundException e) {
-                                e.printStackTrace();
+                                log.error("扫描typeAliasesPackage时未找到类: {}", metadataReader.getClassMetadata().getClassName(), e);
                             }
                         }
                     }
@@ -70,7 +73,7 @@ public class MyBatisConfig {
                 throw new RuntimeException("mybatis typeAliasesPackage 路径扫描错误,参数typeAliasesPackage:" + typeAliasesPackage + "未找到任何包");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("扫描typeAliasesPackage时发生IO异常: {}", typeAliasesPackage, e);
         }
         return typeAliasesPackage;
     }
@@ -84,7 +87,7 @@ public class MyBatisConfig {
                     Resource[] mappers = resourceResolver.getResources(mapperLocation);
                     resources.addAll(Arrays.asList(mappers));
                 } catch (IOException e) {
-                    // ignore
+                    log.warn("解析Mapper路径失败: {}", mapperLocation, e);
                 }
             }
         }

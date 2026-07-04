@@ -1,7 +1,7 @@
-package com.mop.system.mapper;
+package com.mop.ai.mapper;
 
-import com.mop.system.domain.AiConversationEntity;
-import com.mop.system.domain.AiMessageEntity;
+import com.mop.ai.domain.AiConversationEntity;
+import com.mop.ai.domain.AiMessageEntity;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

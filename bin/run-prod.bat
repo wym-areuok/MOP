@@ -1,6 +1,6 @@
 @echo off
 echo.
-echo [ĞÅÏ¢] Ê¹ÓÃJarÃüÁîÔËĞĞWeb¹¤³Ì£¨¿ª·¢»·¾³£©¡£
+echo [ä¿¡æ¯] ä½¿ç”¨Jarå‘½ä»¤è¿è¡ŒWebå·¥ç¨‹ï¼ˆç”Ÿäº§ç¯å¢ƒï¼‰ã€‚
 echo.
 
 cd %~dp0
@@ -8,7 +8,7 @@ cd ../mop-admin/target
 
 set JAVA_OPTS=-Xms256m -Xmx1024m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=512m
 
-java -jar %JAVA_OPTS% mop-admin.jar --spring.profiles.active=dev
+java -jar %JAVA_OPTS% mop-admin.jar --spring.profiles.active=prod
 
 cd bin
 pause

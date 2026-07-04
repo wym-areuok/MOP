@@ -10,8 +10,11 @@ import com.mop.system.domain.SysConfig;
 import com.mop.system.mapper.SysConfigMapper;
 import com.mop.system.service.ISysConfigService;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +26,8 @@ import java.util.List;
  */
 @Service
 public class SysConfigServiceImpl implements ISysConfigService {
+    private static final Logger log = LoggerFactory.getLogger(SysConfigServiceImpl.class);
+
     @Autowired
     private SysConfigMapper configMapper;
 
@@ -104,10 +109,15 @@ public class SysConfigServiceImpl implements ISysConfigService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertConfig(SysConfig config) {
         int row = configMapper.insertConfig(config);
         if (row > 0) {
-            redisCache.setCacheObject(getCacheKey(config.getConfigKey()), config.getConfigValue());
+            try {
+                redisCache.setCacheObject(getCacheKey(config.getConfigKey()), config.getConfigValue());
+            } catch (Exception e) {
+                log.error("参数缓存写入失败, configKey={}", config.getConfigKey(), e);
+            }
         }
         return row;
     }
@@ -119,15 +129,24 @@ public class SysConfigServiceImpl implements ISysConfigService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int updateConfig(SysConfig config) {
         SysConfig temp = configMapper.selectConfigById(config.getConfigId());
         if (!StringUtils.equals(temp.getConfigKey(), config.getConfigKey())) {
-            redisCache.deleteObject(getCacheKey(temp.getConfigKey()));
+            try {
+                redisCache.deleteObject(getCacheKey(temp.getConfigKey()));
+            } catch (Exception e) {
+                log.error("旧参数缓存删除失败, configKey={}", temp.getConfigKey(), e);
+            }
         }
 
         int row = configMapper.updateConfig(config);
         if (row > 0) {
-            redisCache.setCacheObject(getCacheKey(config.getConfigKey()), config.getConfigValue());
+            try {
+                redisCache.setCacheObject(getCacheKey(config.getConfigKey()), config.getConfigValue());
+            } catch (Exception e) {
+                log.error("参数缓存更新失败, configKey={}", config.getConfigKey(), e);
+            }
         }
         return row;
     }
@@ -138,6 +157,7 @@ public class SysConfigServiceImpl implements ISysConfigService {
      * @param configIds 需要删除的参数ID
      */
     @Override
+    @Transactional
     public void deleteConfigByIds(Long[] configIds) {
         for (Long configId : configIds) {
             SysConfig config = selectConfigById(configId);
@@ -145,7 +165,11 @@ public class SysConfigServiceImpl implements ISysConfigService {
                 throw new ServiceException(String.format("内置参数【%1$s】不能删除 ", config.getConfigKey()));
             }
             configMapper.deleteConfigById(configId);
-            redisCache.deleteObject(getCacheKey(config.getConfigKey()));
+            try {
+                redisCache.deleteObject(getCacheKey(config.getConfigKey()));
+            } catch (Exception e) {
+                log.error("参数缓存删除失败, configKey={}", config.getConfigKey(), e);
+            }
         }
     }
 

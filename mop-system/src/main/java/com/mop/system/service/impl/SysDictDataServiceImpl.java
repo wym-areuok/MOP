@@ -4,8 +4,11 @@ import com.mop.common.core.domain.entity.SysDictData;
 import com.mop.common.utils.DictUtils;
 import com.mop.system.mapper.SysDictDataMapper;
 import com.mop.system.service.ISysDictDataService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +19,8 @@ import java.util.List;
  */
 @Service
 public class SysDictDataServiceImpl implements ISysDictDataService {
+    private static final Logger log = LoggerFactory.getLogger(SysDictDataServiceImpl.class);
+
     @Autowired
     private SysDictDataMapper dictDataMapper;
 
@@ -59,12 +64,17 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * @param dictCodes 需要删除的字典数据ID
      */
     @Override
+    @Transactional
     public void deleteDictDataByIds(Long[] dictCodes) {
         for (Long dictCode : dictCodes) {
             SysDictData data = selectDictDataById(dictCode);
             dictDataMapper.deleteDictDataById(dictCode);
-            List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(data.getDictType());
-            DictUtils.setDictCache(data.getDictType(), dictDatas);
+            try {
+                List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(data.getDictType());
+                DictUtils.setDictCache(data.getDictType(), dictDatas);
+            } catch (Exception e) {
+                log.error("字典缓存更新失败, dictType={}", data.getDictType(), e);
+            }
         }
     }
 
@@ -75,11 +85,16 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertDictData(SysDictData data) {
         int row = dictDataMapper.insertDictData(data);
         if (row > 0) {
-            List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(data.getDictType());
-            DictUtils.setDictCache(data.getDictType(), dictDatas);
+            try {
+                List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(data.getDictType());
+                DictUtils.setDictCache(data.getDictType(), dictDatas);
+            } catch (Exception e) {
+                log.error("字典缓存更新失败, dictType={}", data.getDictType(), e);
+            }
         }
         return row;
     }
@@ -91,11 +106,16 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int updateDictData(SysDictData data) {
         int row = dictDataMapper.updateDictData(data);
         if (row > 0) {
-            List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(data.getDictType());
-            DictUtils.setDictCache(data.getDictType(), dictDatas);
+            try {
+                List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(data.getDictType());
+                DictUtils.setDictCache(data.getDictType(), dictDatas);
+            } catch (Exception e) {
+                log.error("字典缓存更新失败, dictType={}", data.getDictType(), e);
+            }
         }
         return row;
     }

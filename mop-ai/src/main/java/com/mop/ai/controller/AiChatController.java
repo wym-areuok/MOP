@@ -1,17 +1,16 @@
-package com.mop.system.controller;
+package com.mop.ai.controller;
 
+import com.mop.ai.domain.AiConversationEntity;
+import com.mop.ai.domain.AiMessageEntity;
+import com.mop.ai.service.IAiChatService;
 import com.mop.common.annotation.Log;
 import com.mop.common.core.controller.BaseController;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.enums.BusinessType;
 import com.mop.common.utils.SecurityUtils;
-import com.mop.system.domain.AiConversationEntity;
-import com.mop.system.domain.AiMessageEntity;
-import com.mop.system.service.IAiChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -32,7 +31,7 @@ import java.util.concurrent.Executor;
  *
  * @author ruoyi
  */
-@Controller
+@RestController
 @RequestMapping("/ai/chat")
 public class AiChatController extends BaseController {
     @Autowired
@@ -59,7 +58,6 @@ public class AiChatController extends BaseController {
      * @return 会话列表，按最后更新时间倒序，最多返回 50 条
      */
     @GetMapping("/conversations")
-    @ResponseBody
     public AjaxResult listConversations() {
         Long userId = SecurityUtils.getUserId();
         List<AiConversationEntity> list = aiChatService.listConversations(userId);
@@ -74,7 +72,6 @@ public class AiChatController extends BaseController {
      * @return 新建成功的会话实体（含 id、title、model 等字段）
      */
     @PostMapping("/conversations")
-    @ResponseBody
     public AjaxResult createConversation(@RequestParam(required = false) String model) {
         Long userId = SecurityUtils.getUserId();
         AiConversationEntity conv = aiChatService.createConversation(userId, model);
@@ -90,7 +87,6 @@ public class AiChatController extends BaseController {
      * @return 操作结果
      */
     @PutMapping("/conversations/{id}/title")
-    @ResponseBody
     public AjaxResult renameConversation(@PathVariable Long id, @RequestParam String title) {
         Long userId = SecurityUtils.getUserId();
         aiChatService.renameConversation(id, title, userId);
@@ -107,7 +103,6 @@ public class AiChatController extends BaseController {
      */
     @Log(title = "AI对话", businessType = BusinessType.DELETE)
     @DeleteMapping("/conversations/{id}")
-    @ResponseBody
     public AjaxResult deleteConversation(@PathVariable Long id) {
         Long userId = SecurityUtils.getUserId();
         aiChatService.deleteConversation(id, userId);
@@ -123,7 +118,6 @@ public class AiChatController extends BaseController {
      * @return 消息列表，按时间正序，最多返回 100 条
      */
     @GetMapping("/conversations/{id}/messages")
-    @ResponseBody
     public AjaxResult listMessages(@PathVariable Long id) {
         Long userId = SecurityUtils.getUserId();
         List<AiMessageEntity> messages = aiChatService.listMessages(id, userId);
@@ -150,7 +144,6 @@ public class AiChatController extends BaseController {
      * @return SseEmitter 实例（Spring 自动将其转为 text/event-stream 响应）
      */
     @GetMapping(value = "/stream", produces = "text/event-stream;charset=UTF-8")
-    @ResponseBody
     public SseEmitter stream(@RequestParam Long conversationId, @RequestParam String message) {
         // 设置超时时间为0，表示永不超时，由服务端主动关闭
         final SseEmitter emitter = new SseEmitter(0L);

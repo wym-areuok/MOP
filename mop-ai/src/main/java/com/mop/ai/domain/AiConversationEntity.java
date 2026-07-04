@@ -1,4 +1,4 @@
-package com.mop.system.domain;
+package com.mop.ai.domain;
 
 import com.mop.common.core.domain.BaseEntity;
 

@@ -1,4 +1,4 @@
-package com.mop.system.config;
+package com.mop.ai.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

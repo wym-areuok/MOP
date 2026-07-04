@@ -192,6 +192,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertDept(SysDept dept) {
         SysDept info = deptMapper.selectDeptById(dept.getParentId());
         // 如果父节点不为正常状态,则不允许新增子节点
@@ -209,6 +210,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int updateDept(SysDept dept) {
         SysDept newParentDept = deptMapper.selectDeptById(dept.getParentId());
         SysDept oldDept = deptMapper.selectDeptById(dept.getDeptId());
@@ -283,6 +285,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int deleteDeptById(Long deptId) {
         return deptMapper.deleteDeptById(deptId);
     }

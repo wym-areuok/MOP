@@ -267,6 +267,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertMenu(SysMenu menu) {
         return menuMapper.insertMenu(menu);
     }
@@ -278,6 +279,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int updateMenu(SysMenu menu) {
         return menuMapper.updateMenu(menu);
     }
@@ -310,6 +312,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int deleteMenuById(Long menuId) {
         return menuMapper.deleteMenuById(menuId);
     }

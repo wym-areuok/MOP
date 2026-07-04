@@ -1,7 +1,7 @@
-package com.mop.system.service;
+package com.mop.ai.service;
 
-import com.mop.system.domain.AiConversationEntity;
-import com.mop.system.domain.AiMessageEntity;
+import com.mop.ai.domain.AiConversationEntity;
+import com.mop.ai.domain.AiMessageEntity;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;

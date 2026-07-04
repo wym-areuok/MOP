@@ -1,0 +1,24 @@
+# 开发环境配置
+# 启动方式: java -jar mop-admin.jar --spring.profiles.active=dev
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.mop: debug
+    org.springframework: warn
+
+# Springdoc API 文档（开发环境开启）
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html

@@ -130,11 +130,10 @@ public class EscapeUtil {
     public static void main(String[] args) {
         String html = "<script>alert(1);</script>";
         String escape = EscapeUtil.escape(html);
-        // String html = "<scr<script>ipt>alert(\"XSS\")</scr<script>ipt>";
-        // String html = "<123";
-        // String html = "123>";
-        System.out.println("clean: " + EscapeUtil.clean(html));
-        System.out.println("escape: " + escape);
-        System.out.println("unescape: " + EscapeUtil.unescape(escape));
+        // 本地测试用，生产环境不会执行
+        java.util.logging.Logger logger = java.util.logging.Logger.getLogger(EscapeUtil.class.getName());
+        logger.info("clean: " + EscapeUtil.clean(html));
+        logger.info("escape: " + escape);
+        logger.info("unescape: " + EscapeUtil.unescape(escape));
     }
 }

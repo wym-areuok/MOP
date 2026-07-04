@@ -10,6 +10,8 @@ import com.mop.system.mapper.SysDictDataMapper;
 import com.mop.system.mapper.SysDictTypeMapper;
 import com.mop.system.service.ISysDictTypeService;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SysDictTypeServiceImpl implements ISysDictTypeService {
+    private static final Logger log = LoggerFactory.getLogger(SysDictTypeServiceImpl.class);
+
     @Autowired
     private SysDictTypeMapper dictTypeMapper;
 
@@ -109,6 +113,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService {
      * @param dictIds 需要删除的字典ID
      */
     @Override
+    @Transactional
     public void deleteDictTypeByIds(Long[] dictIds) {
         for (Long dictId : dictIds) {
             SysDictType dictType = selectDictTypeById(dictId);
@@ -116,7 +121,11 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService {
                 throw new ServiceException(String.format("%1$s已分配,不能删除", dictType.getDictName()));
             }
             dictTypeMapper.deleteDictTypeById(dictId);
-            DictUtils.removeDictCache(dictType.getDictType());
+            try {
+                DictUtils.removeDictCache(dictType.getDictType());
+            } catch (Exception e) {
+                log.error("字典缓存删除失败, dictType={}", dictType.getDictType(), e);
+            }
         }
     }
 
@@ -157,10 +166,15 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertDictType(SysDictType dict) {
         int row = dictTypeMapper.insertDictType(dict);
         if (row > 0) {
-            DictUtils.setDictCache(dict.getDictType(), null);
+            try {
+                DictUtils.setDictCache(dict.getDictType(), null);
+            } catch (Exception e) {
+                log.error("字典缓存初始化失败, dictType={}", dict.getDictType(), e);
+            }
         }
         return row;
     }
@@ -178,8 +192,12 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService {
         dictDataMapper.updateDictDataType(oldDict.getDictType(), dict.getDictType());
         int row = dictTypeMapper.updateDictType(dict);
         if (row > 0) {
-            List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(dict.getDictType());
-            DictUtils.setDictCache(dict.getDictType(), dictDatas);
+            try {
+                List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(dict.getDictType());
+                DictUtils.setDictCache(dict.getDictType(), dictDatas);
+            } catch (Exception e) {
+                log.error("字典缓存更新失败, dictType={}", dict.getDictType(), e);
+            }
         }
         return row;
     }

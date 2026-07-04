@@ -1,11 +1,11 @@
-package com.mop.system.service.impl;
+package com.mop.ai.service.impl;
 
+import com.mop.ai.config.AiModelProperties;
+import com.mop.ai.domain.AiConversationEntity;
+import com.mop.ai.domain.AiMessageEntity;
+import com.mop.ai.mapper.AiChatMapper;
+import com.mop.ai.service.IAiChatService;
 import com.mop.common.utils.SecurityUtils;
-import com.mop.system.config.AiModelProperties;
-import com.mop.system.domain.AiConversationEntity;
-import com.mop.system.domain.AiMessageEntity;
-import com.mop.system.mapper.AiChatMapper;
-import com.mop.system.service.IAiChatService;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;

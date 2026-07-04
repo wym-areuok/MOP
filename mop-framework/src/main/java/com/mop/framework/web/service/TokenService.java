@@ -158,6 +158,7 @@ public class TokenService {
     private String createToken(Map<String, Object> claims) {
         String token = Jwts.builder()
                 .setClaims(claims)
+                .setExpiration(new java.util.Date(System.currentTimeMillis() + expireTime * MILLIS_MINUTE))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
         return token;
     }

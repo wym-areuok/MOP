@@ -124,8 +124,7 @@ public class LogAspect {
             AsyncManager.me().execute(AsyncFactory.recordOper(operLog));
         } catch (Exception exp) {
             // 记录本地异常日志
-            log.error("异常信息:{}", exp.getMessage());
-            exp.printStackTrace();
+            log.error("操作日志记录异常", exp);
         } finally {
             TIME_THREADLOCAL.remove();
         }

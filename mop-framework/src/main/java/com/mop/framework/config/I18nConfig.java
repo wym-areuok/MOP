@@ -10,7 +10,6 @@ import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
 import java.time.Duration;
-import java.util.Locale;
 
 /**
  * 资源文件配置加载

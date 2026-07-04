@@ -1,17 +1,17 @@
 package com.mop.common.config.serializer;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.mop.common.annotation.Sensitive;
 import com.mop.common.core.domain.model.LoginUser;
 import com.mop.common.enums.DesensitizedType;
 import com.mop.common.utils.SecurityUtils;
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.DatabindException;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.ser.std.StdSerializer;
 
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -19,21 +19,19 @@ import java.util.Objects;
  *
  * @author ruoyi
  */
-public class SensitiveJsonSerializer extends StdSerializer<String> {
+public class SensitiveJsonSerializer extends JsonSerializer<String> implements ContextualSerializer {
     private final DesensitizedType desensitizedType;
 
     public SensitiveJsonSerializer() {
-        super(String.class);
         this.desensitizedType = null;
     }
 
     public SensitiveJsonSerializer(DesensitizedType desensitizedType) {
-        super(String.class);
         this.desensitizedType = desensitizedType;
     }
 
     @Override
-    public void serialize(String value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
+    public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         if (desensitizedType != null && desensitization()) {
             gen.writeString(desensitizedType.desensitizer().apply(value));
         } else {
@@ -42,12 +40,12 @@ public class SensitiveJsonSerializer extends StdSerializer<String> {
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property) throws DatabindException {
+    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
         Sensitive annotation = property.getAnnotation(Sensitive.class);
         if (Objects.nonNull(annotation) && Objects.equals(String.class, property.getType().getRawClass())) {
             return new SensitiveJsonSerializer(annotation.desensitizedType());
         }
-        return ctxt.findValueSerializer(property.getType());
+        return prov.findValueSerializer(property.getType());
     }
 
     /**

@@ -1,5 +1,8 @@
 package com.mop.common.utils.bean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.regex.Pattern;
  * @author ruoyi
  */
 public class BeanUtils extends org.springframework.beans.BeanUtils {
+    private static final Logger log = LoggerFactory.getLogger(BeanUtils.class);
     /**
      * Bean方法名中属性名开始的下标
      */
@@ -37,7 +41,7 @@ public class BeanUtils extends org.springframework.beans.BeanUtils {
         try {
             copyProperties(src, dest);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Bean属性复制失败", e);
         }
     }
 

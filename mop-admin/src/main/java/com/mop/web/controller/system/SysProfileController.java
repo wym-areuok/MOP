@@ -16,6 +16,7 @@ import com.mop.common.utils.file.MimeTypeUtils;
 import com.mop.framework.web.service.TokenService;
 import com.mop.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,7 +54,7 @@ public class SysProfileController extends BaseController {
      */
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult updateProfile(@RequestBody SysUser user) {
+    public AjaxResult updateProfile(@Validated @RequestBody SysUser user) {
         LoginUser loginUser = getLoginUser();
         SysUser currentUser = loginUser.getUser();
         currentUser.setNickName(user.getNickName());
@@ -82,6 +83,15 @@ public class SysProfileController extends BaseController {
     public AjaxResult updatePwd(@RequestBody Map<String, String> params) {
         String oldPassword = params.get("oldPassword");
         String newPassword = params.get("newPassword");
+        if (StringUtils.isEmpty(oldPassword)) {
+            return error("旧密码不能为空");
+        }
+        if (StringUtils.isEmpty(newPassword)) {
+            return error("新密码不能为空");
+        }
+        if (newPassword.length() < 6 || newPassword.length() > 20) {
+            return error("新密码长度需在6-20个字符之间");
+        }
         LoginUser loginUser = getLoginUser();
         Long userId = loginUser.getUserId();
         SysUser user = userService.selectUserById(userId);
