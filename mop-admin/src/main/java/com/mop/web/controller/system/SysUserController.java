@@ -69,12 +69,16 @@ public class SysUserController extends BaseController {
     @Log(title = "用户管理", businessType = BusinessType.IMPORT)
     @PreAuthorize("@ss.hasPermi('system:user:import')")
     @PostMapping("/importData")
-    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception {
-        ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
-        List<SysUser> userList = util.importExcel(file.getInputStream());
-        String operName = getUsername();
-        String message = userService.importUser(userList, updateSupport, operName);
-        return success(message);
+    public AjaxResult importData(MultipartFile file, boolean updateSupport) {
+        try {
+            ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
+            List<SysUser> userList = util.importExcel(file.getInputStream());
+            String operName = getUsername();
+            String message = userService.importUser(userList, updateSupport, operName);
+            return success(message);
+        } catch (Exception e) {
+            return error("导入失败：" + e.getMessage());
+        }
     }
 
     @PostMapping("/importTemplate")
