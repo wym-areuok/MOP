@@ -34,7 +34,7 @@
         <jaxb-runtime.version>2.3.1</jaxb-runtime.version>
         <springdoc.version>3.0.2</springdoc.version>
         <langchain4j.version>0.36.2</langchain4j.version>
-        <mssql-jdbc.version>12.10.0.jre17</mssql-jdbc.version>
+        <mssql-jdbc.version>12.8.1.jre11</mssql-jdbc.version>
     </properties>
 
     <!-- 依赖声明 -->

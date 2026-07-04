@@ -97,6 +97,9 @@ public class TokenService {
      * @return 令牌
      */
     public String createToken(LoginUser loginUser) {
+        // 同一用户只能在一处登录：删除该用户已有的所有旧 token
+        removeExistingTokens(loginUser);
+
         String token = IdUtils.fastUUID();
         loginUser.setToken(token);
         setUserAgent(loginUser);
@@ -106,6 +109,34 @@ public class TokenService {
         claims.put(Constants.LOGIN_USER_KEY, token);
         claims.put(Constants.JWT_USERNAME, loginUser.getUsername());
         return createToken(claims);
+    }
+
+    /**
+     * 删除同一用户已有的所有旧登录 token，实现单点登录（新登录顶掉旧登录）
+     *
+     * @param loginUser 当前登录的用户信息
+     */
+    private void removeExistingTokens(LoginUser loginUser) {
+        if (loginUser.getUserId() == null) {
+            return;
+        }
+        String pattern = CacheConstants.LOGIN_TOKEN_KEY + "*";
+        Collection<String> keys = redisCache.keys(pattern);
+        if (keys == null || keys.isEmpty()) {
+            return;
+        }
+        int removedCount = 0;
+        for (String key : keys) {
+            LoginUser existingUser = redisCache.getCacheObject(key);
+            if (existingUser != null && loginUser.getUserId().equals(existingUser.getUserId())) {
+                redisCache.deleteObject(key);
+                removedCount++;
+                log.info("用户[{}]在新设备登录，已踢出旧会话 token: {}", loginUser.getUsername(), existingUser.getToken());
+            }
+        }
+        if (removedCount > 0) {
+            log.info("用户[{}]单点登录：已删除 {} 个旧会话", loginUser.getUsername(), removedCount);
+        }
     }
 
     /**
