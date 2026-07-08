@@ -5,6 +5,7 @@ import com.mop.common.constant.UserConstants;
 import com.mop.common.core.redis.RedisCache;
 import com.mop.common.core.text.Convert;
 import com.mop.common.exception.ServiceException;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.domain.SysConfig;
 import com.mop.system.mapper.SysConfigMapper;
@@ -22,7 +23,7 @@ import java.util.List;
 /**
  * 参数配置 服务层实现
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Service
 public class SysConfigServiceImpl implements ISysConfigService {
@@ -132,6 +133,9 @@ public class SysConfigServiceImpl implements ISysConfigService {
     @Transactional
     public int updateConfig(SysConfig config) {
         SysConfig temp = configMapper.selectConfigById(config.getConfigId());
+        if (StringUtils.isNull(temp)) {
+            throw new ServiceException(MessageUtils.message("config.not.exist"));
+        }
         if (!StringUtils.equals(temp.getConfigKey(), config.getConfigKey())) {
             try {
                 redisCache.deleteObject(getCacheKey(temp.getConfigKey()));
@@ -161,8 +165,11 @@ public class SysConfigServiceImpl implements ISysConfigService {
     public void deleteConfigByIds(Long[] configIds) {
         for (Long configId : configIds) {
             SysConfig config = selectConfigById(configId);
+            if (StringUtils.isNull(config)) {
+                throw new ServiceException(MessageUtils.message("config.not.exist.by.id", configId));
+            }
             if (StringUtils.equals(UserConstants.YES, config.getConfigType())) {
-                throw new ServiceException(String.format("内置参数【%1$s】不能删除 ", config.getConfigKey()));
+                throw new ServiceException(MessageUtils.message("config.builtin.cannot.delete", config.getConfigKey()));
             }
             configMapper.deleteConfigById(configId);
             try {

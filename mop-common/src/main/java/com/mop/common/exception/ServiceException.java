@@ -3,7 +3,7 @@ package com.mop.common.exception;
 /**
  * 业务异常
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public final class ServiceException extends RuntimeException {
     private static final long serialVersionUID = 1L;

@@ -3,7 +3,7 @@ package com.mop.common.utils.file;
 /**
  * 媒体类型工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class MimeTypeUtils {
     public static final String IMAGE_PNG = "image/png";

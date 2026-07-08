@@ -3,7 +3,7 @@ package com.mop.common.core.domain.model;
 /**
  * 用户登录对象
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class LoginBody {
     /**

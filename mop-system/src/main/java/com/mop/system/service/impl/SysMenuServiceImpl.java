@@ -7,6 +7,7 @@ import com.mop.common.core.domain.entity.SysMenu;
 import com.mop.common.core.domain.entity.SysRole;
 import com.mop.common.core.text.Convert;
 import com.mop.common.exception.ServiceException;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.domain.vo.MetaVo;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * 菜单 业务层处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Service
 public class SysMenuServiceImpl implements ISysMenuService {
@@ -135,6 +136,9 @@ public class SysMenuServiceImpl implements ISysMenuService {
     @Override
     public List<Long> selectMenuListByRoleId(Long roleId) {
         SysRole role = roleMapper.selectRoleById(roleId);
+        if (StringUtils.isNull(role)) {
+            throw new ServiceException(MessageUtils.message("role.not.exist"));
+        }
         return menuMapper.selectMenuListByRoleId(roleId, role.isMenuCheckStrictly());
     }
 
@@ -301,7 +305,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
                 menuMapper.updateMenuSort(menu);
             }
         } catch (Exception e) {
-            throw new ServiceException("保存排序异常，请联系管理员");
+            throw new ServiceException(MessageUtils.message("dept.sort.save.fail"));
         }
     }
 

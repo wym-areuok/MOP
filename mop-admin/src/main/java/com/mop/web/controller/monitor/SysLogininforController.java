@@ -5,6 +5,7 @@ import com.mop.common.core.controller.BaseController;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.page.TableDataInfo;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.poi.ExcelUtil;
 import com.mop.framework.web.service.SysPasswordService;
 import com.mop.system.domain.SysLogininfor;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * 系统访问记录
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/monitor/logininfor")
@@ -44,7 +45,7 @@ public class SysLogininforController extends BaseController {
     public void export(HttpServletResponse response, SysLogininfor logininfor) {
         List<SysLogininfor> list = logininforService.selectLogininforList(logininfor);
         ExcelUtil<SysLogininfor> util = new ExcelUtil<SysLogininfor>(SysLogininfor.class);
-        util.exportExcel(response, list, "登录日志");
+        util.exportExcel(response, list, MessageUtils.message("logininfor.title"));
     }
 
     @PreAuthorize("@ss.hasPermi('monitor:logininfor:remove')")

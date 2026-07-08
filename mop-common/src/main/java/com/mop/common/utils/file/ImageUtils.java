@@ -1,6 +1,6 @@
 package com.mop.common.utils.file;
 
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import com.mop.common.constant.Constants;
 import com.mop.common.utils.StringUtils;
 import org.apache.poi.util.IOUtils;
@@ -17,7 +17,7 @@ import java.util.Arrays;
 /**
  * 图片处理工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class ImageUtils {
     private static final Logger log = LoggerFactory.getLogger(ImageUtils.class);
@@ -64,7 +64,7 @@ public class ImageUtils {
                 in = urlConnection.getInputStream();
             } else {
                 // 本机地址
-                String localPath = RuoYiConfig.getProfile();
+                String localPath = MopConfig.getProfile();
                 String downloadPath = localPath + StringUtils.substringAfter(url, Constants.RESOURCE_PREFIX);
                 in = new FileInputStream(downloadPath);
             }

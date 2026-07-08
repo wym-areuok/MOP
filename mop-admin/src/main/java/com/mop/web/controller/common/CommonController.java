@@ -1,6 +1,6 @@
 package com.mop.web.controller.common;
 
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.file.FileUploadUtils;
@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * 通用请求处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/common")
@@ -47,7 +47,7 @@ public class CommonController {
                 throw new Exception(StringUtils.format("文件名称({})非法，不允许下载。 ", fileName));
             }
             String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
-            String filePath = RuoYiConfig.getDownloadPath() + fileName;
+            String filePath = MopConfig.getDownloadPath() + fileName;
 
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
             FileUtils.setAttachmentResponseHeader(response, realFileName);
@@ -67,7 +67,7 @@ public class CommonController {
     public AjaxResult uploadFile(MultipartFile file) throws Exception {
         try {
             // 上传文件路径
-            String filePath = RuoYiConfig.getUploadPath();
+            String filePath = MopConfig.getUploadPath();
             // 上传并返回新文件名称
             String fileName = FileUploadUtils.upload(filePath, file);
             String url = serverConfig.getUrl() + fileName;
@@ -89,7 +89,7 @@ public class CommonController {
     public AjaxResult uploadFiles(List<MultipartFile> files) throws Exception {
         try {
             // 上传文件路径
-            String filePath = RuoYiConfig.getUploadPath();
+            String filePath = MopConfig.getUploadPath();
             List<String> urls = new ArrayList<String>();
             List<String> fileNames = new ArrayList<String>();
             List<String> newFileNames = new ArrayList<String>();
@@ -125,7 +125,7 @@ public class CommonController {
                 throw new Exception(StringUtils.format("资源文件({})非法，不允许下载。 ", resource));
             }
             // 本地资源路径
-            String localPath = RuoYiConfig.getProfile();
+            String localPath = MopConfig.getProfile();
             // 数据库资源地址
             String downloadPath = localPath + FileUtils.stripPrefix(resource);
             // 下载名称

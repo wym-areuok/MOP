@@ -1,5 +1,6 @@
 package com.mop.ai.config;
 
+import com.mop.common.utils.MessageUtils;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ import java.util.concurrent.Executor;
  * deepseek   —— DeepSeek（OpenAI 兼容接口）
  * ollama     —— 本地 Ollama（完全免费）
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Configuration
 public class AiModelConfig {
@@ -107,8 +108,7 @@ public class AiModelConfig {
 
             default:
                 throw new IllegalArgumentException(
-                        "不支持的 AI provider: " + provider
-                                + "，可选值: dashscope / openai / deepseek / ollama");
+                        MessageUtils.message("ai.provider.not.supported", provider));
         }
     }
 }

@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * 公告已读记录表 sys_notice_read
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class SysNoticeRead {
     /**

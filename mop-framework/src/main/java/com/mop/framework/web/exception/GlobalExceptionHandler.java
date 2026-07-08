@@ -5,6 +5,7 @@ import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.text.Convert;
 import com.mop.common.exception.DemoModeException;
 import com.mop.common.exception.ServiceException;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.html.EscapeUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +23,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 /**
  * 全局异常处理器
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -35,7 +36,7 @@ public class GlobalExceptionHandler {
     public AjaxResult handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',权限校验失败'{}'", requestURI, e.getMessage());
-        return AjaxResult.error(HttpStatus.FORBIDDEN, "没有权限，请联系管理员授权");
+        return AjaxResult.error(HttpStatus.FORBIDDEN, MessageUtils.message("exception.no.permission"));
     }
 
     /**
@@ -66,7 +67,7 @@ public class GlobalExceptionHandler {
     public AjaxResult handleMissingPathVariableException(MissingPathVariableException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求路径中缺少必需的路径变量'{}',发生系统异常.", requestURI, e);
-        return AjaxResult.error(String.format("请求路径中缺少必需的路径变量[%s]", e.getVariableName()));
+        return AjaxResult.error(MessageUtils.message("exception.missing.path.variable", e.getVariableName()));
     }
 
     /**
@@ -80,7 +81,7 @@ public class GlobalExceptionHandler {
             value = EscapeUtil.clean(value);
         }
         log.error("请求参数类型不匹配'{}',发生系统异常.", requestURI, e);
-        return AjaxResult.error(String.format("请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(), e.getRequiredType().getName(), value));
+        return AjaxResult.error(MessageUtils.message("exception.method.argument.type.mismatch", e.getName(), e.getRequiredType().getName(), value));
     }
 
     /**
@@ -90,7 +91,7 @@ public class GlobalExceptionHandler {
     public AjaxResult handleRuntimeException(RuntimeException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生未知异常.", requestURI, e);
-        return AjaxResult.error("系统内部错误，请联系管理员");
+        return AjaxResult.error(MessageUtils.message("exception.system.error"));
     }
 
     /**
@@ -100,7 +101,7 @@ public class GlobalExceptionHandler {
     public AjaxResult handleException(Exception e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生系统异常.", requestURI, e);
-        return AjaxResult.error("系统内部错误，请联系管理员");
+        return AjaxResult.error(MessageUtils.message("exception.system.error"));
     }
 
     /**
@@ -128,6 +129,6 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DemoModeException.class)
     public AjaxResult handleDemoModeException(DemoModeException e) {
-        return AjaxResult.error("演示模式，不允许操作");
+        return AjaxResult.error(MessageUtils.message("exception.demo.mode"));
     }
 }

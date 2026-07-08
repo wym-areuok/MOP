@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * 公告已读记录 服务层实现
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Service
 public class SysNoticeReadServiceImpl implements ISysNoticeReadService {

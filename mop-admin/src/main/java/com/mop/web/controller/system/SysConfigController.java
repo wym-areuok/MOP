@@ -5,6 +5,7 @@ import com.mop.common.core.controller.BaseController;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.page.TableDataInfo;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.poi.ExcelUtil;
 import com.mop.system.domain.SysConfig;
 import com.mop.system.service.ISysConfigService;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * 参数配置 信息操作处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/system/config")
@@ -44,7 +45,7 @@ public class SysConfigController extends BaseController {
     public void export(HttpServletResponse response, SysConfig config) {
         List<SysConfig> list = configService.selectConfigList(config);
         ExcelUtil<SysConfig> util = new ExcelUtil<SysConfig>(SysConfig.class);
-        util.exportExcel(response, list, "参数数据");
+        util.exportExcel(response, list, MessageUtils.message("config.export.title"));
     }
 
     /**
@@ -72,7 +73,7 @@ public class SysConfigController extends BaseController {
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysConfig config) {
         if (!configService.checkConfigKeyUnique(config)) {
-            return error("新增参数'" + config.getConfigName() + "'失败，参数键名已存在");
+            return error(MessageUtils.message("config.add.fail.key.exists", config.getConfigName()));
         }
         config.setCreateBy(getUsername());
         return toAjax(configService.insertConfig(config));
@@ -86,7 +87,7 @@ public class SysConfigController extends BaseController {
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysConfig config) {
         if (!configService.checkConfigKeyUnique(config)) {
-            return error("修改参数'" + config.getConfigName() + "'失败，参数键名已存在");
+            return error(MessageUtils.message("config.update.fail.key.exists", config.getConfigName()));
         }
         config.setUpdateBy(getUsername());
         return toAjax(configService.updateConfig(config));

@@ -5,7 +5,7 @@ import com.mop.common.utils.Arith;
 /**
  * CPU相关信息
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class Cpu {
     /**

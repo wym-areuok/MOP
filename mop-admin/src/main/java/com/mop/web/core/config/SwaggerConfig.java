@@ -1,6 +1,6 @@
 package com.mop.web.core.config;
 
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Swagger2的接口配置
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Configuration
 public class SwaggerConfig {
@@ -22,7 +22,7 @@ public class SwaggerConfig {
      * 系统基础配置
      */
     @Autowired
-    private RuoYiConfig ruoyiConfig;
+    private MopConfig mopConfig;
 
     /**
      * 自定义的 OpenAPI 对象
@@ -51,12 +51,12 @@ public class SwaggerConfig {
     public Info getApiInfo() {
         return new Info()
                 // 设置标题
-                .title("标题：若依管理系统_接口文档")
+                .title("标题：MOP管理系统_接口文档")
                 // 描述
                 .description("描述：用于管理集团旗下公司的人员信息,具体包括XXX,XXX模块...")
                 // 作者信息
-                .contact(new Contact().name(ruoyiConfig.getName()))
+                .contact(new Contact().name(mopConfig.getName()))
                 // 版本
-                .version("版本号:" + ruoyiConfig.getVersion());
+                .version("版本号:" + mopConfig.getVersion());
     }
 }

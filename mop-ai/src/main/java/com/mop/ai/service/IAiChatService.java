@@ -11,7 +11,7 @@ import java.util.List;
  * 定义会话管理和流式对话的核心业务方法
  * 具体实现见 AiChatServiceImpl，底层模型由 AiModelConfig 工厂注入
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public interface IAiChatService {
     /**

@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * 公告已读记录 数据层
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public interface SysNoticeReadMapper {
     /**

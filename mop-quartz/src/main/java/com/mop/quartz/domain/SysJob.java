@@ -17,7 +17,7 @@ import java.util.Date;
 /**
  * 定时任务调度表 sys_job
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class SysJob extends BaseEntity {
     private static final long serialVersionUID = 1L;

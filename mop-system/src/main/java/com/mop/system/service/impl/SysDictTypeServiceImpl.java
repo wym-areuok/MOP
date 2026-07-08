@@ -5,6 +5,7 @@ import com.mop.common.core.domain.entity.SysDictData;
 import com.mop.common.core.domain.entity.SysDictType;
 import com.mop.common.exception.ServiceException;
 import com.mop.common.utils.DictUtils;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.mapper.SysDictDataMapper;
 import com.mop.system.mapper.SysDictTypeMapper;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * 字典 业务层处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Service
 public class SysDictTypeServiceImpl implements ISysDictTypeService {
@@ -118,7 +119,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService {
         for (Long dictId : dictIds) {
             SysDictType dictType = selectDictTypeById(dictId);
             if (dictDataMapper.countDictDataByType(dictType.getDictType()) > 0) {
-                throw new ServiceException(String.format("%1$s已分配,不能删除", dictType.getDictName()));
+                throw new ServiceException(MessageUtils.message("dict.delete.assigned", dictType.getDictName()));
             }
             dictTypeMapper.deleteDictTypeById(dictId);
             try {

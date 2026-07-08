@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 /**
  * 数据脱敏注解
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})

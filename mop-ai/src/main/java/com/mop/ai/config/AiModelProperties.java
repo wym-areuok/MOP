@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
  * AI 模型统一配置属性
  * 对应 application.yml 中 ai.model.* 节点
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Component
 @ConfigurationProperties(prefix = "ai.model")

@@ -8,7 +8,7 @@ import com.mop.common.utils.sql.SqlUtil;
 /**
  * 分页工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class PageUtils extends PageHelper {
     /**

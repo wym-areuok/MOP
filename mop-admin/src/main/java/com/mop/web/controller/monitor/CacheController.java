@@ -2,8 +2,10 @@ package com.mop.web.controller.monitor;
 
 import com.mop.common.constant.CacheConstants;
 import com.mop.common.core.domain.AjaxResult;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.domain.SysCache;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,7 +17,7 @@ import java.util.*;
 /**
  * 缓存监控
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/monitor/cache")
@@ -24,14 +26,15 @@ public class CacheController {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    {
-        caches.add(new SysCache(CacheConstants.LOGIN_TOKEN_KEY, "用户信息"));
-        caches.add(new SysCache(CacheConstants.SYS_CONFIG_KEY, "配置信息"));
-        caches.add(new SysCache(CacheConstants.SYS_DICT_KEY, "数据字典"));
-        caches.add(new SysCache(CacheConstants.CAPTCHA_CODE_KEY, "验证码"));
-        caches.add(new SysCache(CacheConstants.REPEAT_SUBMIT_KEY, "防重提交"));
-        caches.add(new SysCache(CacheConstants.RATE_LIMIT_KEY, "限流处理"));
-        caches.add(new SysCache(CacheConstants.PWD_ERR_CNT_KEY, "密码错误次数"));
+    @PostConstruct
+    private void initCacheNames() {
+        caches.add(new SysCache(CacheConstants.LOGIN_TOKEN_KEY, MessageUtils.message("cache.name.user_info")));
+        caches.add(new SysCache(CacheConstants.SYS_CONFIG_KEY, MessageUtils.message("cache.name.config")));
+        caches.add(new SysCache(CacheConstants.SYS_DICT_KEY, MessageUtils.message("cache.name.dict")));
+        caches.add(new SysCache(CacheConstants.CAPTCHA_CODE_KEY, MessageUtils.message("cache.name.captcha")));
+        caches.add(new SysCache(CacheConstants.REPEAT_SUBMIT_KEY, MessageUtils.message("cache.name.repeat_submit")));
+        caches.add(new SysCache(CacheConstants.RATE_LIMIT_KEY, MessageUtils.message("cache.name.rate_limit")));
+        caches.add(new SysCache(CacheConstants.PWD_ERR_CNT_KEY, MessageUtils.message("cache.name.pwd_err_cnt")));
     }
 
     @SuppressWarnings("deprecation")

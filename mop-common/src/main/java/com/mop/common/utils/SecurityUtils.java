@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * 安全服务工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class SecurityUtils {
 
@@ -28,7 +28,7 @@ public class SecurityUtils {
         try {
             return getLoginUser().getUserId();
         } catch (Exception e) {
-            throw new ServiceException("获取用户ID异常", HttpStatus.UNAUTHORIZED);
+            throw new ServiceException(MessageUtils.message("security.user.id.exception"), HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -39,7 +39,7 @@ public class SecurityUtils {
         try {
             return getLoginUser().getDeptId();
         } catch (Exception e) {
-            throw new ServiceException("获取部门ID异常", HttpStatus.UNAUTHORIZED);
+            throw new ServiceException(MessageUtils.message("security.dept.id.exception"), HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -50,7 +50,7 @@ public class SecurityUtils {
         try {
             return getLoginUser().getUsername();
         } catch (Exception e) {
-            throw new ServiceException("获取用户账户异常", HttpStatus.UNAUTHORIZED);
+            throw new ServiceException(MessageUtils.message("security.username.exception"), HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -61,7 +61,7 @@ public class SecurityUtils {
         try {
             return (LoginUser) getAuthentication().getPrincipal();
         } catch (Exception e) {
-            throw new ServiceException("获取用户信息异常", HttpStatus.UNAUTHORIZED);
+            throw new ServiceException(MessageUtils.message("security.user.info.exception"), HttpStatus.UNAUTHORIZED);
         }
     }
 

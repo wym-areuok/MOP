@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 /**
  * 通知公告表 sys_notice
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class SysNotice extends BaseEntity {
     private static final long serialVersionUID = 1L;

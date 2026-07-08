@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 /**
  * Bean 工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class BeanUtils extends org.springframework.beans.BeanUtils {
     private static final Logger log = LoggerFactory.getLogger(BeanUtils.class);

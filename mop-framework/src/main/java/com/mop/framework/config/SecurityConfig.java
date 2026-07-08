@@ -22,7 +22,7 @@ import org.springframework.web.filter.CorsFilter;
 /**
  * spring security配置
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Configuration

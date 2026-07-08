@@ -2,6 +2,7 @@ package com.mop.system.service.impl;
 
 import com.mop.common.constant.UserConstants;
 import com.mop.common.exception.ServiceException;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.domain.SysPost;
 import com.mop.system.mapper.SysPostMapper;
@@ -15,7 +16,7 @@ import java.util.List;
 /**
  * 岗位信息 服务层处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Service
 public class SysPostServiceImpl implements ISysPostService {
@@ -133,7 +134,7 @@ public class SysPostServiceImpl implements ISysPostService {
         for (Long postId : postIds) {
             SysPost post = selectPostById(postId);
             if (countUserPostById(postId) > 0) {
-                throw new ServiceException(String.format("%1$s已分配,不能删除", post.getPostName()));
+                throw new ServiceException(MessageUtils.message("post.delete.assigned"));
             }
         }
         return postMapper.deletePostByIds(postIds);

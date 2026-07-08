@@ -3,7 +3,7 @@ package com.mop.common.constant;
 /**
  * 缓存的key 常量
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class CacheConstants {
     /**

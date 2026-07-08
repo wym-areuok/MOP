@@ -3,7 +3,7 @@ package com.mop.common.enums;
 /**
  * 操作人类别
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public enum OperatorType {
     /**

@@ -1,6 +1,6 @@
 package com.mop.framework.config;
 
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import com.mop.common.constant.Constants;
 import com.mop.framework.interceptor.RepeatSubmitInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 通用配置
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Configuration
 public class ResourcesConfig implements WebMvcConfigurer {
@@ -30,7 +30,7 @@ public class ResourcesConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         /** 本地文件上传路径 */
         registry.addResourceHandler(Constants.RESOURCE_PREFIX + "/**")
-                .addResourceLocations("file:" + RuoYiConfig.getProfile() + "/");
+                .addResourceLocations("file:" + MopConfig.getProfile() + "/");
 
         /** swagger配置 */
         registry.addResourceHandler("/swagger-ui/**")

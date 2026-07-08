@@ -1,6 +1,6 @@
 package com.mop.common.utils.file;
 
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import com.mop.common.constant.Constants;
 import com.mop.common.exception.file.FileNameLengthLimitExceededException;
 import com.mop.common.exception.file.FileSizeLimitExceededException;
@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * 文件上传工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class FileUploadUtils {
     /**
@@ -43,7 +43,7 @@ public class FileUploadUtils {
     /**
      * 默认上传的地址
      */
-    private static String defaultBaseDir = RuoYiConfig.getProfile();
+    private static String defaultBaseDir = MopConfig.getProfile();
 
     public static String getDefaultBaseDir() {
         return defaultBaseDir;
@@ -167,7 +167,7 @@ public class FileUploadUtils {
     }
 
     public static final String getPathFileName(String uploadDir, String fileName) throws IOException {
-        int dirLastIndex = RuoYiConfig.getProfile().length() + 1;
+        int dirLastIndex = MopConfig.getProfile().length() + 1;
         String currentDir = StringUtils.substring(uploadDir, dirLastIndex);
         return Constants.RESOURCE_PREFIX + "/" + currentDir + "/" + fileName;
     }

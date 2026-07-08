@@ -1,6 +1,7 @@
 package com.mop.common.core.domain;
 
 import com.mop.common.constant.HttpStatus;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.Objects;
 /**
  * 操作消息提醒
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class AjaxResult extends HashMap<String, Object> {
     /**
@@ -64,7 +65,7 @@ public class AjaxResult extends HashMap<String, Object> {
      * @return 成功消息
      */
     public static AjaxResult success() {
-        return AjaxResult.success("操作成功");
+        return AjaxResult.success(MessageUtils.message("common.operation.success"));
     }
 
     /**
@@ -73,7 +74,7 @@ public class AjaxResult extends HashMap<String, Object> {
      * @return 成功消息
      */
     public static AjaxResult success(Object data) {
-        return AjaxResult.success("操作成功", data);
+        return AjaxResult.success(MessageUtils.message("common.operation.success"), data);
     }
 
     /**
@@ -124,7 +125,7 @@ public class AjaxResult extends HashMap<String, Object> {
      * @return 错误消息
      */
     public static AjaxResult error() {
-        return AjaxResult.error("操作失败");
+        return AjaxResult.error(MessageUtils.message("common.operation.fail"));
     }
 
     /**

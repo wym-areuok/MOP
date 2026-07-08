@@ -5,7 +5,7 @@ import com.mop.common.utils.StringUtils;
 /**
  * 缓存信息
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class SysCache {
     /**

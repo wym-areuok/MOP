@@ -12,7 +12,7 @@ import java.util.Arrays;
 /**
  * 代码生成器 工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class GenUtils {
     /**
@@ -188,7 +188,7 @@ public class GenUtils {
      * @return 替换后的名字
      */
     public static String replaceText(String text) {
-        return RegExUtils.replaceAll(text, "(?:表|若依)", "");
+        return RegExUtils.replaceAll(text, "^表", "");
     }
 
     /**

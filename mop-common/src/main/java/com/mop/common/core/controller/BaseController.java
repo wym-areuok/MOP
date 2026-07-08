@@ -8,10 +8,7 @@ import com.mop.common.core.domain.model.LoginUser;
 import com.mop.common.core.page.PageDomain;
 import com.mop.common.core.page.TableDataInfo;
 import com.mop.common.core.page.TableSupport;
-import com.mop.common.utils.DateUtils;
-import com.mop.common.utils.PageUtils;
-import com.mop.common.utils.SecurityUtils;
-import com.mop.common.utils.StringUtils;
+import com.mop.common.utils.*;
 import com.mop.common.utils.sql.SqlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +22,7 @@ import java.util.List;
 /**
  * web层通用数据处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class BaseController {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -76,7 +73,7 @@ public class BaseController {
     protected TableDataInfo getDataTable(List<?> list) {
         TableDataInfo rspData = new TableDataInfo();
         rspData.setCode(HttpStatus.SUCCESS);
-        rspData.setMsg("查询成功");
+        rspData.setMsg(MessageUtils.message("common.query.success"));
         rspData.setRows(list);
         rspData.setTotal(new PageInfo(list).getTotal());
         return rspData;

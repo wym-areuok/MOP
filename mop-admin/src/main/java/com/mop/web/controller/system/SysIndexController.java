@@ -1,8 +1,9 @@
 package com.mop.web.controller.system;
 
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.domain.entity.SysUser;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.service.ISysUserService;
@@ -17,7 +18,7 @@ import java.util.Map;
 /**
  * 首页
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 public class SysIndexController {
@@ -25,7 +26,7 @@ public class SysIndexController {
      * 系统基础配置
      */
     @Autowired
-    private RuoYiConfig ruoyiConfig;
+    private MopConfig mopConfig;
 
     @Autowired
     private ISysUserService userService;
@@ -35,7 +36,7 @@ public class SysIndexController {
      */
     @RequestMapping("/")
     public String index() {
-        return StringUtils.format("欢迎使用{}后台管理框架，当前版本：v{}，请通过前端地址访问。", ruoyiConfig.getName(), ruoyiConfig.getVersion());
+        return StringUtils.format(MessageUtils.message("sys.index.welcome"), mopConfig.getName(), mopConfig.getVersion());
     }
 
     /**
@@ -45,17 +46,17 @@ public class SysIndexController {
     public AjaxResult unlockScreen(@RequestBody Map<String, String> body) {
         String password = body.get("password");
         if (StringUtils.isEmpty(password)) {
-            return AjaxResult.error("密码不能为空");
+            return AjaxResult.error(MessageUtils.message("user.password.cannot.empty"));
         }
         String username = SecurityUtils.getUsername();
         SysUser user = userService.selectUserByUserName(username);
         if (user == null) {
-            return AjaxResult.error("服务器超时，请重新登录");
+            return AjaxResult.error(MessageUtils.message("user.login.timeout"));
         }
         if (!SecurityUtils.matchesPassword(password, user.getPassword())) {
-            return AjaxResult.error("密码错误，请重新输入");
+            return AjaxResult.error(MessageUtils.message("user.password.wrong"));
         }
 
-        return AjaxResult.success("解锁成功");
+        return AjaxResult.success(MessageUtils.message("user.unlock.success"));
     }
 }

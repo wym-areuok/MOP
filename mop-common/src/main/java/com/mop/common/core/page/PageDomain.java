@@ -5,7 +5,7 @@ import com.mop.common.utils.StringUtils;
 /**
  * 分页数据
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class PageDomain {
     /**

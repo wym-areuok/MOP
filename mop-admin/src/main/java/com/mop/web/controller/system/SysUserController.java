@@ -8,6 +8,7 @@ import com.mop.common.core.domain.entity.SysRole;
 import com.mop.common.core.domain.entity.SysUser;
 import com.mop.common.core.page.TableDataInfo;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.poi.ExcelUtil;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * 用户信息
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/system/user")
@@ -63,7 +64,7 @@ public class SysUserController extends BaseController {
     public void export(HttpServletResponse response, SysUser user) {
         List<SysUser> list = userService.selectUserList(user);
         ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
-        util.exportExcel(response, list, "用户数据");
+        util.exportExcel(response, list, MessageUtils.message("user.export.title"));
     }
 
     @Log(title = "用户管理", businessType = BusinessType.IMPORT)
@@ -77,14 +78,14 @@ public class SysUserController extends BaseController {
             String message = userService.importUser(userList, updateSupport, operName);
             return success(message);
         } catch (Exception e) {
-            return error("导入失败：" + e.getMessage());
+            return error(MessageUtils.message("user.import.fail") + e.getMessage());
         }
     }
 
     @PostMapping("/importTemplate")
     public void importTemplate(HttpServletResponse response) {
         ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
-        util.importTemplateExcel(response, "用户数据");
+        util.importTemplateExcel(response, MessageUtils.message("user.export.title"));
     }
 
     /**
@@ -117,11 +118,11 @@ public class SysUserController extends BaseController {
         deptService.checkDeptDataScope(user.getDeptId());
         roleService.checkRoleDataScope(user.getRoleIds());
         if (!userService.checkUserNameUnique(user)) {
-            return error("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
+            return error(MessageUtils.message("user.add.fail.username.exists", user.getUserName()));
         } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user)) {
-            return error("新增用户'" + user.getUserName() + "'失败，手机号码已存在");
+            return error(MessageUtils.message("user.add.fail.phone.exists", user.getUserName()));
         } else if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(user)) {
-            return error("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+            return error(MessageUtils.message("user.add.fail.email.exists", user.getUserName()));
         }
         user.setCreateBy(getUsername());
         user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
@@ -140,11 +141,11 @@ public class SysUserController extends BaseController {
         deptService.checkDeptDataScope(user.getDeptId());
         roleService.checkRoleDataScope(user.getRoleIds());
         if (!userService.checkUserNameUnique(user)) {
-            return error("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
+            return error(MessageUtils.message("user.update.fail.username.exists", user.getUserName()));
         } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user)) {
-            return error("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
+            return error(MessageUtils.message("user.update.fail.phone.exists", user.getUserName()));
         } else if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(user)) {
-            return error("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+            return error(MessageUtils.message("user.update.fail.email.exists", user.getUserName()));
         }
         user.setUpdateBy(getUsername());
         return toAjax(userService.updateUser(user));
@@ -158,7 +159,7 @@ public class SysUserController extends BaseController {
     @DeleteMapping("/{userIds}")
     public AjaxResult remove(@PathVariable Long[] userIds) {
         if (ArrayUtils.contains(userIds, getUserId())) {
-            return error("当前用户不能删除");
+            return error(MessageUtils.message("user.delete.current.not.allow"));
         }
         return toAjax(userService.deleteUserByIds(userIds));
     }

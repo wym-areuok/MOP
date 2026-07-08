@@ -6,6 +6,7 @@ import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.domain.entity.SysDictType;
 import com.mop.common.core.page.TableDataInfo;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.poi.ExcelUtil;
 import com.mop.system.service.ISysDictTypeService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * 数据字典信息
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/system/dict/type")
@@ -41,7 +42,7 @@ public class SysDictTypeController extends BaseController {
     public void export(HttpServletResponse response, SysDictType dictType) {
         List<SysDictType> list = dictTypeService.selectDictTypeList(dictType);
         ExcelUtil<SysDictType> util = new ExcelUtil<SysDictType>(SysDictType.class);
-        util.exportExcel(response, list, "字典类型");
+        util.exportExcel(response, list, MessageUtils.message("dict.export.title"));
     }
 
     /**
@@ -61,7 +62,7 @@ public class SysDictTypeController extends BaseController {
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysDictType dict) {
         if (!dictTypeService.checkDictTypeUnique(dict)) {
-            return error("新增字典'" + dict.getDictName() + "'失败，字典类型已存在");
+            return error(MessageUtils.message("dict.add.fail.type.exists", dict.getDictName()));
         }
         dict.setCreateBy(getUsername());
         return toAjax(dictTypeService.insertDictType(dict));
@@ -75,7 +76,7 @@ public class SysDictTypeController extends BaseController {
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysDictType dict) {
         if (!dictTypeService.checkDictTypeUnique(dict)) {
-            return error("修改字典'" + dict.getDictName() + "'失败，字典类型已存在");
+            return error(MessageUtils.message("dict.update.fail.type.exists", dict.getDictName()));
         }
         dict.setUpdateBy(getUsername());
         return toAjax(dictTypeService.updateDictType(dict));

@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * 字典工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class DictUtils {
     /**

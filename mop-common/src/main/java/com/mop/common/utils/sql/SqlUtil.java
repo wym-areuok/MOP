@@ -1,12 +1,13 @@
 package com.mop.common.utils.sql;
 
 import com.mop.common.exception.UtilException;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 
 /**
  * sql操作工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class SqlUtil {
     /**
@@ -27,10 +28,10 @@ public class SqlUtil {
      */
     public static String escapeOrderBySql(String value) {
         if (StringUtils.isNotEmpty(value) && !isValidOrderBySql(value)) {
-            throw new UtilException("参数不符合规范，不能进行查询");
+            throw new UtilException(MessageUtils.message("sql.param.invalid"));
         }
         if (StringUtils.length(value) > ORDER_BY_MAX_LENGTH) {
-            throw new UtilException("参数已超过最大限制，不能进行查询");
+            throw new UtilException(MessageUtils.message("sql.param.exceed.max"));
         }
         return value;
     }
@@ -53,7 +54,7 @@ public class SqlUtil {
         String[] sqlKeywords = StringUtils.split(SQL_REGEX, "\\|");
         for (String sqlKeyword : sqlKeywords) {
             if (StringUtils.indexOfIgnoreCase(normalizedValue, sqlKeyword) > -1) {
-                throw new UtilException("请求参数包含敏感关键词'" + sqlKeyword + "'，可能存在安全风险");
+                throw new UtilException(MessageUtils.message("sql.keyword.risk", sqlKeyword));
             }
         }
     }

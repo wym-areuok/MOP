@@ -3,7 +3,7 @@ package com.mop.common.utils.sign;
 /**
  * Base64工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public final class Base64 {
     static private final int BASELENGTH = 128;

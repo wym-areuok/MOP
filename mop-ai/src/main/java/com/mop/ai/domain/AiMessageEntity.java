@@ -7,7 +7,7 @@ import java.util.Date;
  * 对应数据库表 ai_message
  * 每条记录代表一次对话中的单条消息（用户发送或 AI 回复）
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class AiMessageEntity {
     /**

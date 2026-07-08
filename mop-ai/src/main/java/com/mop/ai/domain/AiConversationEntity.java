@@ -8,7 +8,7 @@ import com.mop.common.core.domain.BaseEntity;
  * 每条记录代表一个独立的对话会话，包含该会话的基本信息和状态
  * 继承 BaseEntity 获得 createBy、createTime、updateTime 等公共字段
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class AiConversationEntity extends BaseEntity {
     private static final long serialVersionUID = 1L;

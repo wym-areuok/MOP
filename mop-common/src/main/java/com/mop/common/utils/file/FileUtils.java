@@ -1,6 +1,6 @@
 package com.mop.common.utils.file;
 
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import com.mop.common.constant.Constants;
 import com.mop.common.utils.DateUtils;
 import com.mop.common.utils.StringUtils;
@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * 文件处理工具类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class FileUtils {
     public static String FILENAME_PATTERN = "[a-zA-Z0-9_\\-\\|\\.\\u4e00-\\u9fa5]+";
@@ -59,7 +59,7 @@ public class FileUtils {
      * @throws IOException IO异常
      */
     public static String writeImportBytes(byte[] data) throws IOException {
-        return writeBytes(data, RuoYiConfig.getImportPath());
+        return writeBytes(data, MopConfig.getImportPath());
     }
 
     /**
@@ -224,7 +224,7 @@ public class FileUtils {
     }
 
     /**
-     * 获取文件名称 /profile/upload/2022/04/16/ruoyi.png -- ruoyi.png
+     * 获取文件名称 /profile/upload/2022/04/16/mop.png -- mop.png
      *
      * @param fileName 路径名称
      * @return 没有文件路径的名称
@@ -240,7 +240,7 @@ public class FileUtils {
     }
 
     /**
-     * 获取不带后缀文件名称 /profile/upload/2022/04/16/ruoyi.png -- ruoyi
+     * 获取不带后缀文件名称 /profile/upload/2022/04/16/mop.png -- mop
      *
      * @param fileName 路径名称
      * @return 没有文件路径和后缀的名称

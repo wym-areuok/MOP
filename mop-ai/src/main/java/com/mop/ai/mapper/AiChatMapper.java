@@ -11,7 +11,7 @@ import java.util.List;
  * 对应 mapper/ai/AiChatMapper.xml
  * 提供会话和消息的增删改查操作
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public interface AiChatMapper {
     // ================================================================

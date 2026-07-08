@@ -3,7 +3,7 @@ package com.mop.common.enums;
 /**
  * 限流类型
  *
- * @author ruoyi
+ * @author weiyiming
  */
 
 public enum LimitType {

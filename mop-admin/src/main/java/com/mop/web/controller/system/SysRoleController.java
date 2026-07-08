@@ -8,6 +8,7 @@ import com.mop.common.core.domain.entity.SysRole;
 import com.mop.common.core.domain.entity.SysUser;
 import com.mop.common.core.page.TableDataInfo;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.poi.ExcelUtil;
 import com.mop.framework.web.service.SysPermissionService;
 import com.mop.framework.web.service.TokenService;
@@ -26,7 +27,7 @@ import java.util.List;
 /**
  * 角色信息
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/system/role")
@@ -60,7 +61,7 @@ public class SysRoleController extends BaseController {
     public void export(HttpServletResponse response, SysRole role) {
         List<SysRole> list = roleService.selectRoleList(role);
         ExcelUtil<SysRole> util = new ExcelUtil<SysRole>(SysRole.class);
-        util.exportExcel(response, list, "角色数据");
+        util.exportExcel(response, list, MessageUtils.message("role.export.title"));
     }
 
     /**
@@ -81,9 +82,9 @@ public class SysRoleController extends BaseController {
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysRole role) {
         if (!roleService.checkRoleNameUnique(role)) {
-            return error("新增角色'" + role.getRoleName() + "'失败，角色名称已存在");
+            return error(MessageUtils.message("role.add.fail.name.exists", role.getRoleName()));
         } else if (!roleService.checkRoleKeyUnique(role)) {
-            return error("新增角色'" + role.getRoleName() + "'失败，角色权限已存在");
+            return error(MessageUtils.message("role.add.fail.key.exists", role.getRoleName()));
         }
         role.setCreateBy(getUsername());
         return toAjax(roleService.insertRole(role));
@@ -100,9 +101,9 @@ public class SysRoleController extends BaseController {
         roleService.checkRoleAllowed(role);
         roleService.checkRoleDataScope(role.getRoleId());
         if (!roleService.checkRoleNameUnique(role)) {
-            return error("修改角色'" + role.getRoleName() + "'失败，角色名称已存在");
+            return error(MessageUtils.message("role.update.fail.name.exists", role.getRoleName()));
         } else if (!roleService.checkRoleKeyUnique(role)) {
-            return error("修改角色'" + role.getRoleName() + "'失败，角色权限已存在");
+            return error(MessageUtils.message("role.update.fail.key.exists", role.getRoleName()));
         }
         role.setUpdateBy(getUsername());
 
@@ -111,7 +112,7 @@ public class SysRoleController extends BaseController {
             tokenService.refreshPermissionByRoleId(role.getRoleId(), permissionService);
             return success();
         }
-        return error("修改角色'" + role.getRoleName() + "'失败，请联系管理员");
+        return error(MessageUtils.message("role.update.fail", role.getRoleName()));
     }
 
     /**

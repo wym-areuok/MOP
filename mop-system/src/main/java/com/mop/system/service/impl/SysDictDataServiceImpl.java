@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * 字典 业务层处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Service
 public class SysDictDataServiceImpl implements ISysDictDataService {

@@ -2,7 +2,7 @@ package com.mop.common.utils.ip;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import com.mop.common.constant.Constants;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.http.HttpUtils;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 获取地址类
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class AddressUtils {
     // IP地址查询
@@ -26,7 +26,7 @@ public class AddressUtils {
         if (IpUtils.internalIp(ip)) {
             return "内网IP";
         }
-        if (RuoYiConfig.isAddressEnabled()) {
+        if (MopConfig.isAddressEnabled()) {
             try {
                 String rspStr = HttpUtils.sendGet(IP_URL, "ip=" + ip + "&json=true", Constants.GBK);
                 if (StringUtils.isEmpty(rspStr)) {

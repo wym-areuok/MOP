@@ -5,6 +5,7 @@ import com.mop.ai.domain.AiConversationEntity;
 import com.mop.ai.domain.AiMessageEntity;
 import com.mop.ai.mapper.AiChatMapper;
 import com.mop.ai.service.IAiChatService;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
@@ -29,7 +30,7 @@ import java.util.List;
  * 核心设计思路： 业务代码只依赖 LangChain4j 的 StreamingChatLanguageModel 接口， 不感知底层是哪个厂商的模型。 切换模型（通义千问 / DeepSeek / OpenAI / 本地
  * Ollama） 只需修改 application.yml 中的 ai.model.provider，本类代码零改动。
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Service
 public class AiChatServiceImpl implements IAiChatService {
@@ -126,7 +127,7 @@ public class AiChatServiceImpl implements IAiChatService {
         // 1. 鉴权：会话必须属于当前用户
         AiConversationEntity conv = aiChatMapper.selectConversationById(conversationId, userId);
         if (conv == null) {
-            sendSse(emitter, "error", "会话不存在或无权限");
+            sendSse(emitter, "error", MessageUtils.message("ai.conversation.not.found"));
             return;
         }
 
@@ -189,7 +190,7 @@ public class AiChatServiceImpl implements IAiChatService {
             @Override
             public void onError(Throwable error) {
                 log.error("LangChain4j 流式调用异常", error);
-                sendSse(emitter, "error", "AI 服务异常(请检查余额或配置)：" + error.getMessage());
+                sendSse(emitter, "error", MessageUtils.message("ai.service.error") + error.getMessage());
                 emitter.completeWithError(error);
             }
         });

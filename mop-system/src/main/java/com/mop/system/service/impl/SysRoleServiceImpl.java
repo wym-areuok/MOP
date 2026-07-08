@@ -4,6 +4,7 @@ import com.mop.common.annotation.DataScope;
 import com.mop.common.constant.UserConstants;
 import com.mop.common.core.domain.entity.SysRole;
 import com.mop.common.exception.ServiceException;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.spring.SpringUtils;
@@ -24,7 +25,7 @@ import java.util.*;
 /**
  * 角色 业务层处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Service
 public class SysRoleServiceImpl implements ISysRoleService {
@@ -163,7 +164,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
     @Override
     public void checkRoleAllowed(SysRole role) {
         if (StringUtils.isNotNull(role.getRoleId()) && role.isAdmin()) {
-            throw new ServiceException("不允许操作超级管理员角色");
+            throw new ServiceException(MessageUtils.message("role.not.allow.operate.admin"));
         }
     }
 
@@ -180,7 +181,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
                 role.setRoleId(roleId);
                 List<SysRole> roles = SpringUtils.getAopProxy(this).selectRoleList(role);
                 if (StringUtils.isEmpty(roles)) {
-                    throw new ServiceException("没有权限访问角色数据！");
+                    throw new ServiceException(MessageUtils.message("role.no.data.scope"));
                 }
             }
         }
@@ -326,8 +327,11 @@ public class SysRoleServiceImpl implements ISysRoleService {
             checkRoleAllowed(new SysRole(roleId));
             checkRoleDataScope(roleId);
             SysRole role = selectRoleById(roleId);
+            if (StringUtils.isNull(role)) {
+                throw new ServiceException(MessageUtils.message("role.not.exist"));
+            }
             if (countUserRoleByRoleId(roleId) > 0) {
-                throw new ServiceException(String.format("%1$s已分配,不能删除", role.getRoleName()));
+                throw new ServiceException(MessageUtils.message("role.assigned.cannot.delete", role.getRoleName()));
             }
         }
         // 删除角色与菜单关联

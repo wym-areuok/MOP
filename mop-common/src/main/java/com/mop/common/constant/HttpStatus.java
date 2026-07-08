@@ -3,7 +3,7 @@ package com.mop.common.constant;
 /**
  * 返回状态码
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class HttpStatus {
     /**

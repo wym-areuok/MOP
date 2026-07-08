@@ -4,12 +4,13 @@ import com.mop.common.annotation.Excel;
 import com.mop.common.annotation.Excel.ColumnType;
 import com.mop.common.annotation.Excel.Type;
 import com.mop.common.annotation.Excels;
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.text.Convert;
 import com.mop.common.exception.UtilException;
 import com.mop.common.utils.DateUtils;
 import com.mop.common.utils.DictUtils;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.file.FileTypeUtils;
 import com.mop.common.utils.file.FileUtils;
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
 /**
  * Excel相关处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 public class ExcelUtil<T> {
     public static final String SEPARATOR = ",";
@@ -172,7 +173,7 @@ public class ExcelUtil<T> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static AjaxResult exportMultiSheet(List<ExcelSheet<?>> sheets) {
         if (sheets == null || sheets.isEmpty()) {
-            return AjaxResult.error("导出数据不能为空");
+            return AjaxResult.error(MessageUtils.message("excel.export.empty"));
         }
         SXSSFWorkbook wb = buildWorkbook(sheets);
         OutputStream out = null;
@@ -184,7 +185,7 @@ public class ExcelUtil<T> {
             return AjaxResult.success(filename);
         } catch (Exception e) {
             log.error("多Sheet导出Excel异常{}", e.getMessage());
-            throw new UtilException("导出Excel失败，请联系网站管理员！");
+            throw new UtilException(MessageUtils.message("excel.export.fail"));
         } finally {
             IOUtils.closeQuietly(wb);
             IOUtils.closeQuietly(out);
@@ -477,7 +478,7 @@ public class ExcelUtil<T> {
         // 如果指定sheet名,则取指定sheet中的内容 否则默认指向第1个sheet
         Sheet sheet = StringUtils.isNotEmpty(sheetName) ? wb.getSheet(sheetName) : wb.getSheetAt(0);
         if (sheet == null) {
-            throw new IOException("文件sheet不存在");
+            throw new IOException(MessageUtils.message("excel.sheet.not.exist"));
         }
         boolean isXSSFWorkbook = !(wb instanceof HSSFWorkbook);
         Map<String, List<PictureData>> pictures = null;
@@ -494,7 +495,7 @@ public class ExcelUtil<T> {
             // 获取表头
             Row heard = sheet.getRow(titleNum);
             if (heard == null) {
-                throw new UtilException("文件标题行为空，请检查Excel文件格式");
+                throw new UtilException(MessageUtils.message("excel.header.empty"));
             }
             for (int i = 0; i < heard.getLastCellNum(); i++) {
                 Cell cell = heard.getCell(i);
@@ -751,7 +752,7 @@ public class ExcelUtil<T> {
             return AjaxResult.success(filename);
         } catch (Exception e) {
             log.error("导出Excel异常{}", e.getMessage());
-            throw new UtilException("导出Excel失败，请联系网站管理员！");
+            throw new UtilException(MessageUtils.message("excel.export.fail"));
         } finally {
             IOUtils.closeQuietly(wb);
             IOUtils.closeQuietly(out);
@@ -1351,7 +1352,7 @@ public class ExcelUtil<T> {
      * @param filename 文件名称
      */
     public String getAbsoluteFile(String filename) {
-        String downloadPath = RuoYiConfig.getDownloadPath() + filename;
+        String downloadPath = MopConfig.getDownloadPath() + filename;
         File desc = new File(downloadPath);
         if (!desc.getParentFile().exists()) {
             desc.getParentFile().mkdirs();

@@ -6,6 +6,7 @@ import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.domain.entity.SysDictData;
 import com.mop.common.core.page.TableDataInfo;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.poi.ExcelUtil;
 import com.mop.system.service.ISysDictDataService;
@@ -22,7 +23,7 @@ import java.util.List;
 /**
  * 数据字典信息
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/system/dict/data")
@@ -47,7 +48,7 @@ public class SysDictDataController extends BaseController {
     public void export(HttpServletResponse response, SysDictData dictData) {
         List<SysDictData> list = dictDataService.selectDictDataList(dictData);
         ExcelUtil<SysDictData> util = new ExcelUtil<SysDictData>(SysDictData.class);
-        util.exportExcel(response, list, "字典数据");
+        util.exportExcel(response, list, MessageUtils.message("dict.data.export.title"));
     }
 
     /**

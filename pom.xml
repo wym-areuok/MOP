@@ -8,10 +8,6 @@
     <artifactId>mop</artifactId>
     <version>3.9.2</version>
 
-    <name>mop</name>
-    <url>http://www.ruoyi.vip</url>
-    <description>MesOpsPlatform</description>
-
     <properties>
         <mop.version>3.9.2</mop.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

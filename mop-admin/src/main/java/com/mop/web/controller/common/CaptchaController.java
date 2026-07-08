@@ -1,7 +1,7 @@
 package com.mop.web.controller.common;
 
 import com.google.code.kaptcha.Producer;
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import com.mop.common.constant.CacheConstants;
 import com.mop.common.constant.Constants;
 import com.mop.common.core.domain.AjaxResult;
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 验证码操作处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 public class CaptchaController {
@@ -60,7 +60,7 @@ public class CaptchaController {
         BufferedImage image = null;
 
         // 生成验证码
-        String captchaType = RuoYiConfig.getCaptchaType();
+        String captchaType = MopConfig.getCaptchaType();
         if ("math".equals(captchaType)) {
             String capText = captchaProducerMath.createText();
             capStr = capText.substring(0, capText.lastIndexOf("@"));

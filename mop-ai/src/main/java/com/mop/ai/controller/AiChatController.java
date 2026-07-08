@@ -29,7 +29,7 @@ import java.util.concurrent.Executor;
  * 接口路径前缀：/ai/chat
  * 页面模板路径：templates/ai/chat.html
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/ai/chat")
@@ -96,7 +96,7 @@ public class AiChatController extends BaseController {
     /**
      * 删除会话（逻辑删除会话 + 物理删除该会话下所有消息）
      * DELETE /ai/chat/conversations/{id}
-     * 操作记录写入若依操作日志
+     * 操作记录写入操作日志
      *
      * @param id 会话 ID（路径参数）
      * @return 操作结果

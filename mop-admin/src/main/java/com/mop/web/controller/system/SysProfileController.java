@@ -1,13 +1,14 @@
 package com.mop.web.controller.system;
 
 import com.mop.common.annotation.Log;
-import com.mop.common.config.RuoYiConfig;
+import com.mop.common.config.MopConfig;
 import com.mop.common.core.controller.BaseController;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.domain.entity.SysUser;
 import com.mop.common.core.domain.model.LoginUser;
 import com.mop.common.enums.BusinessType;
 import com.mop.common.utils.DateUtils;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.file.FileUploadUtils;
@@ -26,7 +27,7 @@ import java.util.Map;
 /**
  * 个人信息 业务处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/system/user/profile")
@@ -66,27 +67,27 @@ public class SysProfileController extends BaseController {
             String phonenumber = (String) params.get("phonenumber");
             String sex = (String) params.get("sex");
             if (StringUtils.isEmpty(nickName)) {
-                return error("用户昵称不能为空");
+                return error(MessageUtils.message("profile.nickname.not.empty"));
             }
             currentUser.setNickName(nickName);
             currentUser.setEmail(email);
             currentUser.setPhonenumber(phonenumber);
             currentUser.setSex(sex);
             if (StringUtils.isNotEmpty(phonenumber) && !userService.checkPhoneUnique(currentUser)) {
-                return error("修改用户'" + loginUser.getUsername() + "'失败，手机号码已存在");
+                return error(MessageUtils.message("profile.update.fail.phone.exists", loginUser.getUsername()));
             }
             if (StringUtils.isNotEmpty(email) && !userService.checkEmailUnique(currentUser)) {
-                return error("修改用户'" + loginUser.getUsername() + "'失败，邮箱账号已存在");
+                return error(MessageUtils.message("profile.update.fail.email.exists", loginUser.getUsername()));
             }
             if (userService.updateUserProfile(currentUser) > 0) {
                 // 更新缓存用户信息
                 tokenService.setLoginUser(loginUser);
                 return success();
             }
-            return error("修改个人信息异常，请联系管理员");
+            return error(MessageUtils.message("profile.update.fail"));
         } catch (Exception e) {
             log.error("修改个人信息失败", e);
-            return error("修改个人信息异常，请联系管理员");
+            return error(MessageUtils.message("profile.update.fail"));
         }
     }
 
@@ -100,23 +101,23 @@ public class SysProfileController extends BaseController {
             String oldPassword = params.get("oldPassword");
             String newPassword = params.get("newPassword");
             if (StringUtils.isEmpty(oldPassword)) {
-                return error("旧密码不能为空");
+                return error(MessageUtils.message("profile.password.old.not.empty"));
             }
             if (StringUtils.isEmpty(newPassword)) {
-                return error("新密码不能为空");
+                return error(MessageUtils.message("profile.password.new.not.empty"));
             }
             if (newPassword.length() < 6 || newPassword.length() > 20) {
-                return error("新密码长度需在6-20个字符之间");
+                return error(MessageUtils.message("profile.password.length.invalid"));
             }
             LoginUser loginUser = getLoginUser();
             Long userId = loginUser.getUserId();
             SysUser user = userService.selectUserById(userId);
             String password = user.getPassword();
             if (!SecurityUtils.matchesPassword(oldPassword, password)) {
-                return error("修改密码失败，旧密码错误");
+                return error(MessageUtils.message("profile.password.old.wrong"));
             }
             if (SecurityUtils.matchesPassword(newPassword, password)) {
-                return error("新密码不能与旧密码相同");
+                return error(MessageUtils.message("profile.password.same"));
             }
             newPassword = SecurityUtils.encryptPassword(newPassword);
             if (userService.resetUserPwd(userId, newPassword) > 0) {
@@ -126,10 +127,10 @@ public class SysProfileController extends BaseController {
                 tokenService.setLoginUser(loginUser);
                 return success();
             }
-            return error("修改密码异常，请联系管理员");
+            return error(MessageUtils.message("profile.password.update.fail"));
         } catch (Exception e) {
             log.error("修改密码失败", e);
-            return error("修改密码异常，请联系管理员");
+            return error(MessageUtils.message("profile.password.update.fail"));
         }
     }
 
@@ -142,11 +143,11 @@ public class SysProfileController extends BaseController {
         try {
             if (!file.isEmpty()) {
                 LoginUser loginUser = getLoginUser();
-                String avatar = FileUploadUtils.upload(RuoYiConfig.getAvatarPath(), file, MimeTypeUtils.IMAGE_EXTENSION, true, FileUploadUtils.AVATAR_MAX_SIZE);
+                String avatar = FileUploadUtils.upload(MopConfig.getAvatarPath(), file, MimeTypeUtils.IMAGE_EXTENSION, true, FileUploadUtils.AVATAR_MAX_SIZE);
                 if (userService.updateUserAvatar(loginUser.getUserId(), avatar)) {
                     String oldAvatar = loginUser.getUser().getAvatar();
                     if (StringUtils.isNotEmpty(oldAvatar)) {
-                        FileUtils.deleteFile(RuoYiConfig.getProfile() + FileUtils.stripPrefix(oldAvatar));
+                        FileUtils.deleteFile(MopConfig.getProfile() + FileUtils.stripPrefix(oldAvatar));
                     }
                     AjaxResult ajax = AjaxResult.success();
                     ajax.put("imgUrl", avatar);
@@ -156,10 +157,10 @@ public class SysProfileController extends BaseController {
                     return ajax;
                 }
             }
-            return error("上传图片异常，请联系管理员");
+            return error(MessageUtils.message("profile.avatar.upload.fail"));
         } catch (Exception e) {
             log.error("上传头像失败", e);
-            return error("上传图片异常，请联系管理员");
+            return error(MessageUtils.message("profile.avatar.upload.fail"));
         }
     }
 }

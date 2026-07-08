@@ -7,6 +7,7 @@ import com.mop.common.core.domain.entity.SysDept;
 import com.mop.common.core.domain.entity.SysRole;
 import com.mop.common.core.text.Convert;
 import com.mop.common.exception.ServiceException;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.spring.SpringUtils;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * 部门管理 服务实现
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @Service
 public class SysDeptServiceImpl implements ISysDeptService {
@@ -103,6 +104,9 @@ public class SysDeptServiceImpl implements ISysDeptService {
     @Override
     public List<Long> selectDeptListByRoleId(Long roleId) {
         SysRole role = roleMapper.selectRoleById(roleId);
+        if (StringUtils.isNull(role)) {
+            throw new ServiceException(MessageUtils.message("role.not.exist"));
+        }
         return deptMapper.selectDeptListByRoleId(roleId, role.isDeptCheckStrictly());
     }
 
@@ -180,7 +184,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
             dept.setDeptId(deptId);
             List<SysDept> depts = SpringUtils.getAopProxy(this).selectDeptList(dept);
             if (StringUtils.isEmpty(depts)) {
-                throw new ServiceException("没有权限访问部门数据！");
+                throw new ServiceException(MessageUtils.message("dept.no.data.scope"));
             }
         }
     }
@@ -195,9 +199,12 @@ public class SysDeptServiceImpl implements ISysDeptService {
     @Transactional
     public int insertDept(SysDept dept) {
         SysDept info = deptMapper.selectDeptById(dept.getParentId());
+        if (StringUtils.isNull(info)) {
+            throw new ServiceException(MessageUtils.message("dept.parent.not.exist"));
+        }
         // 如果父节点不为正常状态,则不允许新增子节点
         if (!UserConstants.DEPT_NORMAL.equals(info.getStatus())) {
-            throw new ServiceException("部门停用，不允许新增");
+            throw new ServiceException(MessageUtils.message("dept.not.allow.add"));
         }
         dept.setAncestors(info.getAncestors() + "," + dept.getParentId());
         return deptMapper.insertDept(dept);
@@ -274,7 +281,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
                 deptMapper.updateDeptSort(dept);
             }
         } catch (Exception e) {
-            throw new ServiceException("保存排序异常，请联系管理员");
+            throw new ServiceException(MessageUtils.message("dept.sort.save.fail"));
         }
     }
 

@@ -401,7 +401,7 @@
 
     /* ----
        全局设置 CSRF Token
-       若依通过 Thymeleaf layout 在 <meta> 里注入 _csrf，
+       通过 Thymeleaf layout 在 <meta> 里注入 _csrf，
        $.ajaxSetup 让所有 AJAX 请求自动携带，避免 POST/PUT/DELETE 被拦截返回 403
     ---- */
     $(function () {

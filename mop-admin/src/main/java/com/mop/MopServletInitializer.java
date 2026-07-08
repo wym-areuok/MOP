@@ -6,11 +6,11 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 /**
  * web容器中进行部署
  *
- * @author ruoyi
+ * @author weiyiming
  */
-public class MOPServletInitializer extends SpringBootServletInitializer {
+public class MopServletInitializer extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(MOPApplication.class);
+        return application.sources(MopApplication.class);
     }
 }

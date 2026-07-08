@@ -6,6 +6,7 @@ import com.mop.common.core.controller.BaseController;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.domain.entity.SysDept;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.service.ISysDeptService;
 import org.apache.commons.lang3.ArrayUtils;
@@ -20,7 +21,7 @@ import java.util.Map;
 /**
  * 部门信息
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/system/dept")
@@ -67,7 +68,7 @@ public class SysDeptController extends BaseController {
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysDept dept) {
         if (!deptService.checkDeptNameUnique(dept)) {
-            return error("新增部门'" + dept.getDeptName() + "'失败，部门名称已存在");
+            return error(MessageUtils.message("dept.add.fail.name.exists", dept.getDeptName()));
         }
         dept.setCreateBy(getUsername());
         return toAjax(deptService.insertDept(dept));
@@ -83,11 +84,11 @@ public class SysDeptController extends BaseController {
         Long deptId = dept.getDeptId();
         deptService.checkDeptDataScope(deptId);
         if (!deptService.checkDeptNameUnique(dept)) {
-            return error("修改部门'" + dept.getDeptName() + "'失败，部门名称已存在");
+            return error(MessageUtils.message("dept.update.fail.name.exists", dept.getDeptName()));
         } else if (dept.getParentId().equals(deptId)) {
-            return error("修改部门'" + dept.getDeptName() + "'失败，上级部门不能是自己");
+            return error(MessageUtils.message("dept.update.fail.parent.invalid", dept.getDeptName()));
         } else if (StringUtils.equals(UserConstants.DEPT_DISABLE, dept.getStatus()) && deptService.selectNormalChildrenDeptById(deptId) > 0) {
-            return error("该部门包含未停用的子部门！");
+            return error(MessageUtils.message("dept.update.fail.children.not.disabled"));
         }
         dept.setUpdateBy(getUsername());
         return toAjax(deptService.updateDept(dept));
@@ -114,10 +115,10 @@ public class SysDeptController extends BaseController {
     @DeleteMapping("/{deptId}")
     public AjaxResult remove(@PathVariable Long deptId) {
         if (deptService.hasChildByDeptId(deptId)) {
-            return warn("存在下级部门,不允许删除");
+            return warn(MessageUtils.message("dept.delete.child.exists"));
         }
         if (deptService.checkDeptExistUser(deptId)) {
-            return warn("部门存在用户,不允许删除");
+            return warn(MessageUtils.message("dept.delete.user.exists"));
         }
         deptService.checkDeptDataScope(deptId);
         return toAjax(deptService.deleteDeptById(deptId));

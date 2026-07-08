@@ -5,6 +5,7 @@ import com.mop.common.core.controller.BaseController;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.page.TableDataInfo;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.poi.ExcelUtil;
 import com.mop.system.domain.SysPost;
 import com.mop.system.service.ISysPostService;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * 岗位信息操作处理
  *
- * @author ruoyi
+ * @author weiyiming
  */
 @RestController
 @RequestMapping("/system/post")
@@ -44,7 +45,7 @@ public class SysPostController extends BaseController {
     public void export(HttpServletResponse response, SysPost post) {
         List<SysPost> list = postService.selectPostList(post);
         ExcelUtil<SysPost> util = new ExcelUtil<SysPost>(SysPost.class);
-        util.exportExcel(response, list, "岗位数据");
+        util.exportExcel(response, list, MessageUtils.message("post.export.title"));
     }
 
     /**
@@ -64,9 +65,9 @@ public class SysPostController extends BaseController {
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysPost post) {
         if (!postService.checkPostNameUnique(post)) {
-            return error("新增岗位'" + post.getPostName() + "'失败，岗位名称已存在");
+            return error(MessageUtils.message("post.add.fail.name.exists", post.getPostName()));
         } else if (!postService.checkPostCodeUnique(post)) {
-            return error("新增岗位'" + post.getPostName() + "'失败，岗位编码已存在");
+            return error(MessageUtils.message("post.add.fail.code.exists", post.getPostName()));
         }
         post.setCreateBy(getUsername());
         return toAjax(postService.insertPost(post));
@@ -80,9 +81,9 @@ public class SysPostController extends BaseController {
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysPost post) {
         if (!postService.checkPostNameUnique(post)) {
-            return error("修改岗位'" + post.getPostName() + "'失败，岗位名称已存在");
+            return error(MessageUtils.message("post.update.fail.name.exists", post.getPostName()));
         } else if (!postService.checkPostCodeUnique(post)) {
-            return error("修改岗位'" + post.getPostName() + "'失败，岗位编码已存在");
+            return error(MessageUtils.message("post.update.fail.code.exists", post.getPostName()));
         }
         post.setUpdateBy(getUsername());
         return toAjax(postService.updatePost(post));
