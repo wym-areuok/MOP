@@ -10,6 +10,7 @@ import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.page.TableDataInfo;
 import com.mop.common.core.text.Convert;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import com.mop.common.utils.sql.SqlUtil;
 import com.mop.generator.config.GenConfig;
@@ -135,7 +136,7 @@ public class GenController extends BaseController {
             return AjaxResult.success();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            return AjaxResult.error("创建表结构异常");
+            return AjaxResult.error(MessageUtils.message("gen.create.table.fail"));
         }
     }
 
@@ -191,7 +192,7 @@ public class GenController extends BaseController {
     @GetMapping("/genCode/{tableName}")
     public AjaxResult genCode(@PathVariable("tableName") String tableName) {
         if (!GenConfig.isAllowOverwrite()) {
-            return AjaxResult.error("【系统预设】不允许生成文件覆盖到本地");
+            return AjaxResult.error(MessageUtils.message("gen.codegen.local.overwrite.deny"));
         }
         genTableService.generatorCode(tableName);
         return success();

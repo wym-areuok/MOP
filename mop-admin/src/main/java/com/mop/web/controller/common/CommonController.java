@@ -2,6 +2,7 @@ package com.mop.web.controller.common;
 
 import com.mop.common.config.MopConfig;
 import com.mop.common.core.domain.AjaxResult;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.file.FileUploadUtils;
 import com.mop.common.utils.file.FileUtils;
@@ -44,7 +45,7 @@ public class CommonController {
     public void fileDownload(String fileName, Boolean delete, HttpServletResponse response, HttpServletRequest request) {
         try {
             if (!FileUtils.checkAllowDownload(fileName)) {
-                throw new Exception(StringUtils.format("文件名称({})非法，不允许下载。 ", fileName));
+                throw new Exception(MessageUtils.message("common.download.filename.illegal", fileName));
             }
             String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
             String filePath = MopConfig.getDownloadPath() + fileName;
@@ -122,7 +123,7 @@ public class CommonController {
             throws Exception {
         try {
             if (!FileUtils.checkAllowDownload(resource)) {
-                throw new Exception(StringUtils.format("资源文件({})非法，不允许下载。 ", resource));
+                throw new Exception(MessageUtils.message("common.download.resource.illegal", resource));
             }
             // 本地资源路径
             String localPath = MopConfig.getProfile();

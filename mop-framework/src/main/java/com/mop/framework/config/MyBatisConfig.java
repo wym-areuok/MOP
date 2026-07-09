@@ -1,5 +1,6 @@
 package com.mop.framework.config;
 
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -70,7 +71,7 @@ public class MyBatisConfig {
             if (allResult.size() > 0) {
                 typeAliasesPackage = String.join(",", (String[]) allResult.toArray(new String[0]));
             } else {
-                throw new RuntimeException("mybatis typeAliasesPackage 路径扫描错误,参数typeAliasesPackage:" + typeAliasesPackage + "未找到任何包");
+                throw new RuntimeException(MessageUtils.message("mybatis.typealiases.scan.error", typeAliasesPackage));
             }
         } catch (IOException e) {
             log.error("扫描typeAliasesPackage时发生IO异常: {}", typeAliasesPackage, e);
