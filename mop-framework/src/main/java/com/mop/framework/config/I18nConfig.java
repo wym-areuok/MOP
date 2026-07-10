@@ -26,13 +26,16 @@ public class I18nConfig implements WebMvcConfigurer {
         // Cookie 有效期（30天）
         clr.setCookieMaxAge(Duration.ofDays(30));
         clr.setCookiePath("/");
+        // BCP 47 语言标签模式：原生解析 zh-CN、en-US 等标准格式
+        // 与前端 vue-i18n、HTML lang 属性、HTTP Accept-Language 统一标准
+        clr.setLanguageTagCompliant(true);
         return clr;
     }
 
     @Bean
     public LocaleChangeInterceptor localeChangeInterceptor() {
         LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
-        // 参数名（也支持 URL 参数 ?lang=en_US 切换语言）
+        // 参数名（也支持 URL 参数 ?lang=zh-CN 切换语言，BCP 47 格式）
         lci.setParamName("lang");
         return lci;
     }

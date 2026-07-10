@@ -152,6 +152,18 @@
 
 ---
 
+## 六、前端架构与国际化 (Frontend Architecture & i18n)
+
+MOP 前端是一套独立的前端工程（**MOPUI**），基于 **Vue 3 + Element Plus + Vite** 构建，负责界面渲染、状态管理、路由与动态权限加载，并通过统一的
+Axios 请求层与后端 REST API 交互。为适配多语言用户，前后端协同实现了一套完整的国际化（i18n）方案——详见文末「第五部分：前端架构与国际化」。
+
+## 七、AI 智能模块 (mop-ai)
+
+系统内置独立的 **mop-ai** 模块，基于 **LangChain4j** 集成大语言模型（LLM），提供会话式 AI 对话能力，支持 SSE
+流式输出（打字机效果）与多轮会话管理——详见文末「第六部分：AI 智能模块」。
+
+---
+
 ## 第一部分：系统管理 (System Management)
 
 “系统管理”是整个平台的控制中枢与数据基石。它包含了维护系统正常运转所需的所有基础数据和权限配置功能。
@@ -172,7 +184,7 @@
 * **技术实现逻辑：**
     * **前端：**
         * **视图：** `views/system/user/index.vue`
-        * **交互：** 使用 Element UI 的 `el-table`、`el-pagination`、`el-form`、`el-dialog` 等组件构建。左侧会显示部门树（
+        * **交互：** 使用 **Element Plus** 的 `el-table`、`el-pagination`、`el-form`、`el-dialog` 等组件构建。左侧会显示部门树（
           `el-tree`），点击部门可按部门筛选用户。
         * **API调用：** 所有与后端的交互都通过 `api/system/user.js` 中封装的 `Axios` 请求函数完成。
     * **后端：**
@@ -485,7 +497,7 @@
 
 ---
 
-## 第三部分：系统工具 (System Tools)
+## 第四部分：系统工具 (System Tools)
 
 “系统工具”是为开发者提供的、旨在提升开发效率的辅助功能。
 
@@ -542,3 +554,124 @@
       `@RestController` 和 `@RequestMapping` 等注解的类和方法，并根据这些信息生成一个符合OpenAPI 3规范的JSON描述文件。
     * **前端展现：** “系统接口”这个菜单页面，实际上是一个指向SpringDoc自带的UI界面的 `iframe` 或重定向。这个UI（通常在
       `/swagger-ui.html` 或 `/doc.html`）会加载上述的JSON描述文件，并将其渲染成用户友好的可交互文档。
+
+---
+
+## 第五部分：前端架构与国际化 (Frontend Architecture & i18n)
+
+MOP 前端是一套**完全独立的前端工程（MOPUI）**，与后端通过 REST API 解耦。它负责界面渲染、状态管理、路由与动态权限加载，是整个平台面向用户的“门面”。
+
+### 5.1. 技术栈 (Tech Stack)
+
+| 分类     | 技术选型                                                                                                            | 说明                                             |
+|--------|-----------------------------------------------------------------------------------------------------------------|------------------------------------------------|
+| 框架     | **Vue 3.5** (Composition API)                                                                                   | 前端核心框架                                         |
+| UI 组件库 | **Element Plus 2.13**                                                                                           | RuoYi-Vue3 标配组件库（注意：**非** Vue2 时代的 Element UI） |
+| 构建工具   | **Vite 6.4**                                                                                                    | 开发服务器 + 生产打包，内置 `/dev-api` 代理转发至后端 `:8080`     |
+| 状态管理   | **Pinia 3.0**                                                                                                   | 替代 Vuex，管理用户、权限、设置、语言等全局状态                     |
+| 路由     | **vue-router 4.6**                                                                                              | 支持动态路由注册                                       |
+| 国际化    | **vue-i18n 9.14**                                                                                               | 多语言消息管理                                        |
+| HTTP   | **Axios 1.13**                                                                                                  | 统一请求封装                                         |
+| 其他     | echarts 5.6 / @vueup/vue-quill 1.2（富文本）/ vuedraggable 4.1 / jsencrypt 3.3（密码 RSA 加密）/ js-cookie 3.0 / nprogress | 图表、编辑、拖拽、安全、状态                                 |
+
+### 5.2. 工程结构
+
+```
+src/
+├── api/          # 按域划分的 Axios 请求封装 (ai / monitor / system / tool)
+├── assets/       # 样式与静态资源
+├── components/   # 公共组件 (Pagination / RightToolbar / DictTag / Editor / SvgIcon ...)
+├── directive/    # 自定义指令 (hasPermi / hasRole / copyText)
+├── lang/         # 国际化语言包 (zh-CN.js / en-US.js) 与 i18n 实例
+├── layout/       # 布局 (Sidebar / Navbar / TagsView / AppMain)
+├── plugins/      # 插件 (tab / auth / cache / modal / download)
+├── router/       # 路由 (常量路由 + 动态路由)
+├── store/        # Pinia 状态 (user / permission / settings / locale / tagsView ...)
+├── utils/        # 工具 (request / auth / dict / mop ...)
+├── views/        # 业务页面 (约 99 个 .vue)
+├── App.vue / main.js / permission.js / settings.js
+```
+
+### 5.3. 请求层与拦截器 (Request Layer)
+
+* **封装位置：** `utils/request.js`，基于 Axios 创建实例。
+* **统一拦截：**
+    * **请求拦截：** 自动从 `Admin-Token` Cookie 读取 JWT 并注入 `Authorization: Bearer <token>`；注入语言 `language`
+      Cookie 供后端 i18n 识别。
+    * **响应拦截：** 统一处理 `401`（自动清理会话并跳转登录）、业务错误码（以 `ElMessage` 弹出后端返回的标准化提示）、以及下载/流式等特殊响应。
+* **代理：** 开发环境通过 Vite 的 `server.proxy` 将 `/dev-api` 转发到 `http://localhost:8080`，避免跨域。
+
+### 5.4. 状态管理与动态路由 (State & Dynamic Routing)
+
+* **用户态 (`store/user`)：** 登录后拉取用户信息，缓存 `roles`、`permissions`、`avatar` 等。
+* **权限态 (`store/permission`)：** 调用后端 `getRouters()` 获取当前用户可访问的菜单，由 `generateRoutes()` 转换为 Vue
+  Router 路由配置，再通过 `router.addRoute()` 动态注册。
+* **路由守卫 (`permission.js`)：** `router.beforeEach` 中完成「Token 校验 → 拉取用户信息 → 生成动态路由 →
+  重定向目标页」的标准前后端分离鉴权流程；同时驱动锁屏、白名单等逻辑。
+
+### 5.5. 前端权限指令 (Permission Directives)
+
+* `v-hasPermi`：按钮级操作权限，比对 `useUserStore().permissions` 与指令值（如 `['system:user:add']`），无权限时从 DOM 移除元素。
+* `v-hasRole`：角色级控制，超级管理员 `admin` 拥有全部权限（`*:*:*`）。
+* 二者与后端 `@PreAuthorize("@ss.hasPermi('...')")` 形成前后端双重校验（详见第一章 1.2 节）。
+
+### 5.6. 国际化方案 (Internationalization)
+
+前后端协同实现「一套代码、多语言」：
+
+#### A. 前端 (vue-i18n)
+
+* **语言包：** `src/lang/zh-CN.js` 与 `en-US.js`，以中文为 key、中英双语约 **500 个条目**，中英文严格对称。
+* **语言标识：** 采用 **BCP 47** 国际标准（`zh-CN` / `en-US`）。
+* **存储与切换：** 语言偏好写入 `language` Cookie；`LangSelect` 组件切换时更新 Cookie 并刷新界面。
+* **Element Plus 联动：** 在 `lang/index.js` 中将 Element Plus 自带的 `zh-cn` / `en` 语言包与业务语言包合并，使组件内部文案（分页、日期选择器等）同步切换。
+* **菜单名映射：** `menu` 命名空间以**后端返回的 `menu_name` 为中文 key**，映射到对应翻译，实现动态菜单的多语言显示。
+
+#### B. 后端 (Spring MessageSource)
+
+* **解析器：** `I18nConfig` 配置 `CookieLocaleResolver("language")` 并 `setLanguageTagCompliant(true)`，原生解析 BCP 47
+  格式；同时注册 `LocaleChangeInterceptor`（支持 `?lang=zh-CN` 切换）。
+* **取消息：** `MessageUtils.message(code, args)` 委托给 Spring `MessageSource`，按 `LocaleContextHolder.getLocale()`
+  返回对应语言文本。
+* **资源文件：** `messages.properties`（默认/中文）与 `messages_en_US.properties`（英文）。
+* **回退策略：** `application.yml` 中配置 `spring.messages.fallback-to-system-locale: false`，使 `zh-CN`
+  在找不到专用文件时回退到默认中文资源，而非回退到 JVM 系统语言（避免中文界面下后端返回英文提示）。
+
+---
+
+## 第六部分：AI 智能模块 (mop-ai)
+
+系统内置独立的 **mop-ai** 模块，将大语言模型（LLM）能力无缝集成到管理后台，提供类 ChatGPT 的企业内部 AI 对话体验。
+
+### 6.1. 模块定位与技术选型
+
+* **独立模块：** `mop-ai`，作为 Maven 子模块依赖 `mop-common`。
+* **LLM 集成：** 基于 **LangChain4j 0.36**（含 `langchain4j-open-ai` 适配），可对接 OpenAI、通义千问（DashScope）、DeepSeek 等兼容
+  OpenAI 协议的模型；默认模型在 `application.yml` 中配置。
+* **流式输出：** 依赖 Spring Boot Web 的 `SseEmitter` 实现 Server-Sent Events 流式推送。
+
+### 6.2. 接口设计 (`AiChatController`，前缀 `/ai/chat`)
+
+| 方法     | 路径                                     | 说明                             |
+|--------|----------------------------------------|--------------------------------|
+| GET    | `/ai/chat/conversations`               | 获取当前登录用户的会话列表（按更新时间倒序，最多 50 条） |
+| POST   | `/ai/chat/conversations`               | 新建会话（可指定 `model`，不传则用默认模型）     |
+| PUT    | `/ai/chat/conversations/{id}/title`    | 重命名会话标题                        |
+| DELETE | `/ai/chat/conversations/{id}`          | 删除会话（逻辑删会话 + 物理删消息，记录操作日志）     |
+| GET    | `/ai/chat/conversations/{id}/messages` | 获取指定会话的消息历史（最多 100 条）          |
+| GET    | `/ai/chat/stream`                      | **SSE 流式对话**，实时推送 AI 回复        |
+
+### 6.3. 流式对话工作原理
+
+1. 前端通过原生 `EventSource` 连接 `GET /ai/chat/stream?conversationId=&message=`。
+2. 后端创建 `SseEmitter`（timeout=0，由服务端在对话完成后主动关闭），并交由自定义线程池 `aiTaskExecutor` **异步**执行，避免占用
+   Tomcat 业务线程。
+3. AI 每生成一个 token，即通过 `emitter.send()` 实时推送给前端，前端渲染出「打字机」效果。
+4. 推送的事件类型：`message`（文本片段）、`done`（完成）、`error`（异常）。
+5. 子线程执行前显式传递 `SecurityContext`，执行后清理，防止线程池上下文污染。
+
+### 6.4. 安全与多租户隔离
+
+* **归属校验：** 所有会话/消息接口均通过 `SecurityUtils.getUserId()` 限定当前用户，并校验会话归属，防止越权查看他人对话内容。
+* **权限一致：** 复用全局登录认证与 `@Log` 操作日志体系，AI 会话的删除等操作同样记入审计日志。
+* **前端集成：** 前端 `views/ai/chat.vue` 提供会话管理（创建/重命名/删除）、Markdown 渲染与 SSE 实时接收，与后端接口一一对应。

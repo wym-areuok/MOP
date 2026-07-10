@@ -53,6 +53,10 @@ spring:
     basename: i18n/messages
     # 找不到key时返回code本身，不抛出NoSuchMessageException
     use-code-as-default-message: true
+    # 关键修复：关闭"回退到JVM系统语言"
+    # 默认 true 时，locale=zh-CN 找不到 messages_zh_CN.properties 会回退到英文系统语言(en_US)
+    # 设为 false 后，zh-CN 会正确回退到默认 messages.properties（中文）
+    fallback-to-system-locale: false
   profiles:
     active: druid
   # 文件上传
