@@ -131,7 +131,7 @@ public class LoginUser implements UserDetails {
     @JSONField(serialize = false)
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return user != null && "0".equals(user.getDelFlag());
     }
 
     /**
@@ -142,7 +142,7 @@ public class LoginUser implements UserDetails {
     @JSONField(serialize = false)
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return user != null && !"1".equals(user.getStatus());
     }
 
     /**
@@ -164,7 +164,7 @@ public class LoginUser implements UserDetails {
     @JSONField(serialize = false)
     @Override
     public boolean isEnabled() {
-        return true;
+        return user != null && !"1".equals(user.getStatus());
     }
 
     public Long getLoginTime() {

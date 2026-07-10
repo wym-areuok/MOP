@@ -6,10 +6,10 @@
 
     <groupId>com.mop</groupId>
     <artifactId>mop</artifactId>
-    <version>3.9.2</version>
+    <version>2.0.0</version>
 
     <properties>
-        <mop.version>3.9.2</mop.version>
+        <mop.version>2.0.0</mop.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>

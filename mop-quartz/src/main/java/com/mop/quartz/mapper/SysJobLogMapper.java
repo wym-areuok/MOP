@@ -61,4 +61,12 @@ public interface SysJobLogMapper {
      * 清空任务日志
      */
     public void cleanJobLog();
+
+    /**
+     * 清理过期任务日志（删除指定天数之前的日志）
+     *
+     * @param days 保留天数
+     * @return 删除数量
+     */
+    public int cleanExpiredJobLog(int days);
 }

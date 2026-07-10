@@ -98,7 +98,7 @@ public class SysDictTypeController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('system:dict:remove')")
     @Log(title = "字典类型", businessType = BusinessType.CLEAN)
-    @DeleteMapping("/refreshCache")
+    @PostMapping("/refreshCache")
     public AjaxResult refreshCache() {
         dictTypeService.resetDictCache();
         return success();

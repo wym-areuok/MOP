@@ -113,6 +113,8 @@ public class TokenService {
 
     /**
      * 删除同一用户已有的所有旧登录 token，实现单点登录（新登录顶掉旧登录）
+     * 注意：使用 redisTemplate.keys() 在大量在线用户时可能存在性能影响，
+     * 如果在线用户量 >1000，建议为每个用户的 token 维护单独的索引集合
      *
      * @param loginUser 当前登录的用户信息
      */

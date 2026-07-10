@@ -5,6 +5,7 @@ import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.text.Convert;
 import com.mop.common.exception.DemoModeException;
 import com.mop.common.exception.ServiceException;
+import com.mop.common.exception.user.UserException;
 import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.html.EscapeUtil;
@@ -82,6 +83,15 @@ public class GlobalExceptionHandler {
         }
         log.error("请求参数类型不匹配'{}',发生系统异常.", requestURI, e);
         return AjaxResult.error(MessageUtils.message("exception.method.argument.type.mismatch", e.getName(), e.getRequiredType().getName(), value));
+    }
+
+    /**
+     * 用户相关异常（验证码错误、用户不存在、密码错误等）
+     */
+    @ExceptionHandler(UserException.class)
+    public AjaxResult handleUserException(UserException e) {
+        log.error(e.getMessage(), e);
+        return AjaxResult.error(e.getMessage());
     }
 
     /**

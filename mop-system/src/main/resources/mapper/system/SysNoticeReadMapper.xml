@@ -11,13 +11,14 @@
         <result property="readTime" column="read_time"/>
     </resultMap>
 
-    <!-- 新增已读记录 -->
+    <!-- 新增已读记录（幂等） -->
     <insert id="insertNoticeRead" parameterType="SysNoticeRead">
-        IF NOT EXISTS (SELECT 1 FROM sys_notice_read WHERE notice_id = #{noticeId} AND user_id = #{userId})
-        BEGIN
-        insert into sys_notice_read (notice_id, user_id, read_time)
-        values (#{noticeId}, #{userId}, getdate())
-        END
+        MERGE INTO sys_notice_read AS target
+        USING (SELECT #{noticeId} AS notice_id, #{userId} AS user_id) AS source
+        ON target.notice_id = source.notice_id AND target.user_id = source.user_id
+        WHEN NOT MATCHED THEN
+        INSERT (notice_id, user_id, read_time)
+        VALUES (#{noticeId}, #{userId}, getdate());
     </insert>
 
     <!-- 查询未读数量：正常状态公告 减去 当前用户已读数 -->

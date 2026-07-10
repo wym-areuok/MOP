@@ -109,7 +109,7 @@ public class SysConfigController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('system:config:remove')")
     @Log(title = "参数管理", businessType = BusinessType.CLEAN)
-    @DeleteMapping("/refreshCache")
+    @PostMapping("/refreshCache")
     public AjaxResult refreshCache() {
         configService.resetConfigCache();
         return success();

@@ -46,7 +46,10 @@ public class SysDeptController extends BaseController {
     @GetMapping("/list/exclude/{deptId}")
     public AjaxResult excludeChild(@PathVariable(value = "deptId", required = false) Long deptId) {
         List<SysDept> depts = deptService.selectDeptList(new SysDept());
-        depts.removeIf(d -> d.getDeptId().intValue() == deptId || ArrayUtils.contains(StringUtils.split(d.getAncestors(), ","), deptId + ""));
+        if (deptId != null) {
+            depts.removeIf(d -> deptId.equals(d.getDeptId())
+                    || ArrayUtils.contains(StringUtils.split(d.getAncestors(), ","), deptId.toString()));
+        }
         return success(depts);
     }
 
@@ -101,8 +104,13 @@ public class SysDeptController extends BaseController {
     @Log(title = "保存部门排序", businessType = BusinessType.UPDATE)
     @PutMapping("/updateSort")
     public AjaxResult updateSort(@RequestBody Map<String, String> params) {
-        String[] deptIds = params.get("deptIds").split(",");
-        String[] orderNums = params.get("orderNums").split(",");
+        String deptIdsStr = params.get("deptIds");
+        String orderNumsStr = params.get("orderNums");
+        if (StringUtils.isEmpty(deptIdsStr) || StringUtils.isEmpty(orderNumsStr)) {
+            return error(MessageUtils.message("dept.sort.param.empty"));
+        }
+        String[] deptIds = deptIdsStr.split(",");
+        String[] orderNums = orderNumsStr.split(",");
         deptService.updateDeptSort(deptIds, orderNums);
         return success();
     }

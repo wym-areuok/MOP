@@ -1,4 +1,21 @@
-# 数据源配置
+# ===================================================================
+# Druid 数据源基准配置（第 2 层加载）
+#
+# 加载位置: application.yml → 【application-druid.yml】→ application-{dev|prod}.yml
+#
+# 作用: 存放所有环境通用的 Druid 连接池参数、驱动类、SQL 过滤器配置
+#       开发和生产的差异配置（IP、密码、池大小）写在各自的 profile 文件中
+#
+# ⚠️ 修改原则:
+#   本文件定义"所有环境都一样的默认值"
+#   dev/prod 仅覆盖需要差异化的配置项（如 url、password、minIdle、maxActive）
+#   不要在 dev/prod 中重复本文件已有的相同配置——后者会自动覆盖同名 key
+#
+# 最终生效值示例（激活 prod 时）:
+#   druid.yml 定义:    initialSize=10, maxActive=20, url=localhost
+#   prod.yml 覆盖:     maxActive=50, url=127.0.0.1
+#   最终生效:           initialSize=10（继承）, maxActive=50（覆盖）, url=127.0.0.1（覆盖）
+# ===================================================================
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource

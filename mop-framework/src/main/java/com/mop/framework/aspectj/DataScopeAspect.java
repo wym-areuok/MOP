@@ -14,6 +14,8 @@ import com.mop.framework.security.context.PermissionContextHolder;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ public class DataScopeAspect {
      * 数据权限过滤关键字
      */
     public static final String DATA_SCOPE = "dataScope";
+    private static final Logger log = LoggerFactory.getLogger(DataScopeAspect.class);
 
     /**
      * 数据范围过滤
@@ -42,6 +45,29 @@ public class DataScopeAspect {
      * @param permission 权限字符
      */
     public static void dataScopeFilter(JoinPoint joinPoint, SysUser user, String userAlias, String deptAlias, String userField, String deptField, String permission) {
+        // 安全校验：别名参数只允许字母、数字、下划线
+        // 校验失败时记录日志并设置空条件（不返回任何数据），防止数据泄露
+        if (StringUtils.isNotEmpty(deptAlias) && !deptAlias.matches("^[a-zA-Z0-9_]+$")) {
+            log.error("数据权限过滤参数异常 - deptAlias 包含非法字符: {}", deptAlias);
+            setEmptyDataScope(joinPoint);
+            return;
+        }
+        if (StringUtils.isNotEmpty(userAlias) && !userAlias.matches("^[a-zA-Z0-9_]+$")) {
+            log.error("数据权限过滤参数异常 - userAlias 包含非法字符: {}", userAlias);
+            setEmptyDataScope(joinPoint);
+            return;
+        }
+        if (StringUtils.isNotEmpty(deptField) && !deptField.matches("^[a-zA-Z0-9_]+$")) {
+            log.error("数据权限过滤参数异常 - deptField 包含非法字符: {}", deptField);
+            setEmptyDataScope(joinPoint);
+            return;
+        }
+        if (StringUtils.isNotEmpty(userField) && !userField.matches("^[a-zA-Z0-9_]+$")) {
+            log.error("数据权限过滤参数异常 - userField 包含非法字符: {}", userField);
+            setEmptyDataScope(joinPoint);
+            return;
+        }
+
         StringBuilder sqlString = new StringBuilder();
         List<String> conditions = new ArrayList<String>();
         List<String> scopeCustomIds = new ArrayList<String>();
@@ -96,6 +122,17 @@ public class DataScopeAspect {
                 BaseEntity baseEntity = (BaseEntity) params;
                 baseEntity.getParams().put(DATA_SCOPE, " AND (" + sqlString.substring(4) + ")");
             }
+        }
+    }
+
+    /**
+     * 参数校验失败时设置空数据权限（不返回任何数据），安全兜底
+     */
+    private static void setEmptyDataScope(final JoinPoint joinPoint) {
+        Object params = joinPoint.getArgs()[0];
+        if (StringUtils.isNotNull(params) && params instanceof BaseEntity) {
+            BaseEntity baseEntity = (BaseEntity) params;
+            baseEntity.getParams().put(DATA_SCOPE, " AND 1=0");
         }
     }
 

@@ -1,24 +1,89 @@
-# 开发环境配置
-# 启动方式: java -jar mop-admin.jar --spring.profiles.active=dev
-
-spring:
-  devtools:
-    restart:
-      enabled: true
+# ===================================================================
+# MOP 开发环境配置（第 3 层加载，仅写与 druid.yml 不同的配置）
+#
+# 加载位置: application.yml → application-druid.yml → 【application-dev.yml】
+# 规则: 本文件只写与 application-druid.yml 不同的配置项，相同部分自动继承
+#
+# 激活方式:
+#   IDEA Run/Debug 配置中 Active profiles: dev
+#   或命令行: java -jar mop-admin.jar --spring.profiles.active=dev
+#   mvn 启动: mvn spring-boot:run -Dspring-boot.run.profiles=dev
+#
+# 说明:
+#   1. 使用本地 localhost 的 SQL Server + Redis，无需密码
+#   2. 启用 Spring DevTools 热部署（修改代码自动重启）
+#   3. 日志级别 debug，便于排查问题
+#   4. Swagger 接口文档开启（http://localhost:8080/swagger-ui.html）
+#   5. Druid 监控面板开启（http://localhost:8080/druid/，admin/123456）
+#   6. 防盗链关闭（便于本地前端联调）
+#
+# 配置来源说明:
+#   本文件中 未写 的 datasource 配置项全部继承自 application-druid.yml:
+#     type, driverClassName, initialSize, maxWait, connectTimeout,
+#     socketTimeout, validationQuery, filter.stat, filter.wall 等
+#   如果需要为开发环境单独设置某个值，直接在本文件添加即可覆盖
+#
+# 注意事项:
+#   - 本文件包含数据库/Redis/AI 连接信息，仓库为私有，可放心提交
+#   - 切勿将本文件中的配置用于生产环境
+# ===================================================================
 
 server:
   port: 8080
+  tomcat:
+    threads:
+      max: 800
+      min-spare: 100
 
 logging:
   level:
     com.mop: debug
     org.springframework: warn
 
-# Springdoc API 文档（开发环境开启）
+# ---------- 开发环境 JWT 密钥 ----------
+token:
+  secret: MOP-2026-Dev-Token-Key-d9kF3pL7sW1xY5zB2aC6dE8fH0jM4nQ
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      password:
+      timeout: 10s
+      lettuce:
+        pool:
+          min-idle: 0
+          max-idle: 8
+          max-active: 8
+          max-wait: -1ms
+  # ---------- 数据库配置 ----------
+  # 开发环境与 application-druid.yml 完全一致，无需覆盖任何 datasource 配置
+
+# ---------- 开发环境 Swagger ----------
 springdoc:
-  api-docs:
-    enabled: true
-    path: /v3/api-docs
   swagger-ui:
     enabled: true
-    path: /swagger-ui.html
+
+# ---------- 开发环境安全策略 ----------
+referer:
+  enabled: false
+
+xss:
+  enabled: true
+
+# ---------- 开发环境 Quartz ----------
+quartz:
+  jobTimeoutMinutes: 30
+
+# ---------- 开发环境 AI 模型 ----------
+ai:
+  model:
+    provider: openai
+    api-key: ark-9c957d7a-c6d9-4e4a-a396-3817355d4dda-a3b58
+    model-name: ep-20260703164026-ncjmt
+    base-url: https://ark.cn-beijing.volces.com/api/v3

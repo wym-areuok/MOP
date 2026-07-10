@@ -82,6 +82,7 @@ public class SysUserController extends BaseController {
         }
     }
 
+    @PreAuthorize("@ss.hasPermi('system:user:import')")
     @PostMapping("/importTemplate")
     public void importTemplate(HttpServletResponse response) {
         ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);

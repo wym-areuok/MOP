@@ -72,6 +72,10 @@
         truncate table sys_job_log
     </update>
 
+    <delete id="cleanExpiredJobLog" parameterType="int">
+        delete from sys_job_log where create_time &lt; DATEADD(DAY, -#{days}, GETDATE())
+    </delete>
+
     <insert id="insertJobLog" parameterType="SysJobLog">
         insert into sys_job_log(
         <if test="jobLogId != null and jobLogId != 0">job_log_id,</if>

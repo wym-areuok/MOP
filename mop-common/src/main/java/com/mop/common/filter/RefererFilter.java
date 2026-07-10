@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,13 +40,20 @@ public class RefererFilter implements Filter {
             return;
         }
 
-        // 检查Referer是否在允许的域名列表中
+        // 检查Referer是否在允许的域名列表中（精确匹配host，防止绕过）
         boolean allowed = false;
-        for (String domain : allowedDomains) {
-            if (referer.contains(domain)) {
-                allowed = true;
-                break;
+        try {
+            URL refererUrl = new URL(referer);
+            String refererHost = refererUrl.getHost();
+            for (String domain : allowedDomains) {
+                String trimmedDomain = domain.trim();
+                if (refererHost.equals(trimmedDomain) || refererHost.endsWith("." + trimmedDomain)) {
+                    allowed = true;
+                    break;
+                }
             }
+        } catch (Exception e) {
+            allowed = false;
         }
 
         // 根据检查结果决定是否放行

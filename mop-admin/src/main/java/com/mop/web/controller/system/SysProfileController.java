@@ -1,6 +1,7 @@
 package com.mop.web.controller.system;
 
 import com.mop.common.annotation.Log;
+import com.mop.common.annotation.RateLimiter;
 import com.mop.common.config.MopConfig;
 import com.mop.common.core.controller.BaseController;
 import com.mop.common.core.domain.AjaxResult;
@@ -137,6 +138,7 @@ public class SysProfileController extends BaseController {
     /**
      * 头像上传
      */
+    @RateLimiter(key = "avatar", count = 3, time = 60)
     @Log(title = "用户头像", businessType = BusinessType.UPDATE)
     @PostMapping("/avatar")
     public AjaxResult avatar(@RequestParam("avatarfile") MultipartFile file) {
