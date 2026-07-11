@@ -205,7 +205,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int insertRole(SysRole role) {
         // 新增角色信息
         roleMapper.insertRole(role);
@@ -219,7 +219,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateRole(SysRole role) {
         // 修改角色信息
         roleMapper.updateRole(role);
@@ -246,7 +246,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int authDataScope(SysRole role) {
         // 修改角色信息
         roleMapper.updateRole(role);
@@ -263,9 +263,13 @@ public class SysRoleServiceImpl implements ISysRoleService {
      */
     public int insertRoleMenu(SysRole role) {
         int rows = 1;
+        Long[] menuIds = role.getMenuIds();
+        if (menuIds == null || menuIds.length == 0) {
+            return rows;
+        }
         // 新增用户与角色管理
         List<SysRoleMenu> list = new ArrayList<SysRoleMenu>();
-        for (Long menuId : role.getMenuIds()) {
+        for (Long menuId : menuIds) {
             SysRoleMenu rm = new SysRoleMenu();
             rm.setRoleId(role.getRoleId());
             rm.setMenuId(menuId);
@@ -284,9 +288,13 @@ public class SysRoleServiceImpl implements ISysRoleService {
      */
     public int insertRoleDept(SysRole role) {
         int rows = 1;
+        Long[] deptIds = role.getDeptIds();
+        if (deptIds == null || deptIds.length == 0) {
+            return rows;
+        }
         // 新增角色与部门（数据权限）管理
         List<SysRoleDept> list = new ArrayList<SysRoleDept>();
-        for (Long deptId : role.getDeptIds()) {
+        for (Long deptId : deptIds) {
             SysRoleDept rd = new SysRoleDept();
             rd.setRoleId(role.getRoleId());
             rd.setDeptId(deptId);
@@ -305,7 +313,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int deleteRoleById(Long roleId) {
         // 删除角色与菜单关联
         roleMenuMapper.deleteRoleMenuByRoleId(roleId);
@@ -321,7 +329,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int deleteRoleByIds(Long[] roleIds) {
         for (Long roleId : roleIds) {
             checkRoleAllowed(new SysRole(roleId));

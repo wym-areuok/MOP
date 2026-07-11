@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -71,6 +72,9 @@ public class SysUserController extends BaseController {
     @PreAuthorize("@ss.hasPermi('system:user:import')")
     @PostMapping("/importData")
     public AjaxResult importData(MultipartFile file, boolean updateSupport) {
+        if (file == null || file.isEmpty()) {
+            return error(MessageUtils.message("user.import.file.empty"));
+        }
         try {
             ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
             List<SysUser> userList = util.importExcel(file.getInputStream());
@@ -99,6 +103,9 @@ public class SysUserController extends BaseController {
         if (StringUtils.isNotNull(userId)) {
             userService.checkUserDataScope(userId);
             SysUser sysUser = userService.selectUserById(userId);
+            if (sysUser == null) {
+                return error(MessageUtils.message("user.not.exists"));
+            }
             ajax.put(AjaxResult.DATA_TAG, sysUser);
             ajax.put("postIds", postService.selectPostListByUserId(userId));
             ajax.put("roleIds", sysUser.getRoles().stream().map(SysRole::getRoleId).collect(Collectors.toList()));
@@ -171,10 +178,18 @@ public class SysUserController extends BaseController {
     @PreAuthorize("@ss.hasPermi('system:user:resetPwd')")
     @Log(title = "用户管理", businessType = BusinessType.UPDATE)
     @PutMapping("/resetPwd")
-    public AjaxResult resetPwd(@RequestBody SysUser user) {
+    public AjaxResult resetPwd(@RequestBody Map<String, Object> params) {
+        Object userIdObj = params.get("userId");
+        Object passwordObj = params.get("password");
+        if (userIdObj == null || passwordObj == null) {
+            return error(MessageUtils.message("user.resetpwd.params.missing"));
+        }
+        Long userId = Long.valueOf(userIdObj.toString());
+        String password = (String) passwordObj;
+        SysUser user = new SysUser(userId);
         userService.checkUserAllowed(user);
-        userService.checkUserDataScope(user.getUserId());
-        user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
+        userService.checkUserDataScope(userId);
+        user.setPassword(SecurityUtils.encryptPassword(password));
         user.setUpdateBy(getUsername());
         return toAjax(userService.resetPwd(user));
     }
@@ -185,9 +200,18 @@ public class SysUserController extends BaseController {
     @PreAuthorize("@ss.hasPermi('system:user:edit')")
     @Log(title = "用户管理", businessType = BusinessType.UPDATE)
     @PutMapping("/changeStatus")
-    public AjaxResult changeStatus(@RequestBody SysUser user) {
+    public AjaxResult changeStatus(@RequestBody Map<String, Object> params) {
+        Object userIdObj = params.get("userId");
+        Object statusObj = params.get("status");
+        if (userIdObj == null || statusObj == null) {
+            return error(MessageUtils.message("user.changestatus.params.missing"));
+        }
+        Long userId = Long.valueOf(userIdObj.toString());
+        String status = (String) statusObj;
+        SysUser user = new SysUser(userId);
         userService.checkUserAllowed(user);
-        userService.checkUserDataScope(user.getUserId());
+        userService.checkUserDataScope(userId);
+        user.setStatus(status);
         user.setUpdateBy(getUsername());
         return toAjax(userService.updateUserStatus(user));
     }

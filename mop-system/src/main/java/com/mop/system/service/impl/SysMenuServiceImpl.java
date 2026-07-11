@@ -271,7 +271,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int insertMenu(SysMenu menu) {
         return menuMapper.insertMenu(menu);
     }
@@ -283,7 +283,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateMenu(SysMenu menu) {
         return menuMapper.updateMenu(menu);
     }
@@ -295,7 +295,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * @param orderNums 排序ID
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateMenuSort(String[] menuIds, String[] orderNums) {
         try {
             for (int i = 0; i < menuIds.length; i++) {
@@ -316,7 +316,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int deleteMenuById(Long menuId) {
         return menuMapper.deleteMenuById(menuId);
     }

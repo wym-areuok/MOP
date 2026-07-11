@@ -4,9 +4,12 @@ import com.mop.ai.domain.AiConversationEntity;
 import com.mop.ai.domain.AiMessageEntity;
 import com.mop.ai.service.IAiChatService;
 import com.mop.common.annotation.Log;
+import com.mop.common.annotation.RateLimiter;
 import com.mop.common.core.controller.BaseController;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.exception.ServiceException;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
@@ -129,10 +132,12 @@ public class AiChatController extends BaseController {
      * GET /ai/chat/stream?conversationId=xxx&message=xxx
      * <p>
      * 工作原理：
-     * 1. 创建 SseEmitter（timeout=0 不超时，由服务端在对话完成后主动关闭）
+     * 1. 创建 SseEmitter（timeout=300秒，防止恶意长连接）
      * 2. 启动新线程异步调用 AI 接口，避免占用 Tomcat 线程池
      * 3. AI 每生成一个 token，通过 emitter 实时推送给前端
-     * 4. 前端使用原生 EventSource API 接收，实现打字机效果
+     * 4. 前端使用 fetch + ReadableStream 接收，实现打字机效果
+     * <p>
+     * 限流：同一用户每分钟最多 10 次对话请求
      * <p>
      * 前端监听的事件类型：
      * message —— 收到一个 token 片段
@@ -140,13 +145,21 @@ public class AiChatController extends BaseController {
      * error   —— 服务端发生异常
      *
      * @param conversationId 会话 ID
-     * @param message        用户输入的消息内容
+     * @param message        用户输入的消息内容（最长 4000 字符）
      * @return SseEmitter 实例（Spring 自动将其转为 text/event-stream 响应）
      */
+    @RateLimiter(key = "ai-chat", count = 10, time = 60)
     @GetMapping(value = "/stream", produces = "text/event-stream;charset=UTF-8")
     public SseEmitter stream(@RequestParam Long conversationId, @RequestParam String message) {
-        // 设置超时时间为0，表示永不超时，由服务端主动关闭
-        final SseEmitter emitter = new SseEmitter(0L);
+        // 输入校验：防止空消息和超长消息消耗 Token
+        if (message == null || message.trim().isEmpty()) {
+            throw new ServiceException(MessageUtils.message("ai.message.empty"));
+        }
+        if (message.length() > 4000) {
+            throw new ServiceException(MessageUtils.message("ai.message.too.long"));
+        }
+        // 设置超时时间为 300 秒（5 分钟），由服务端主动关闭或超时自动关闭
+        final SseEmitter emitter = new SseEmitter(300000L);
         Long userId = SecurityUtils.getUserId();
         // 捕获当前主线程的 SecurityContext
         final SecurityContext context = SecurityContextHolder.getContext();

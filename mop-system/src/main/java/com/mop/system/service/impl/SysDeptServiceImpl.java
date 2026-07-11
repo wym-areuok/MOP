@@ -196,7 +196,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int insertDept(SysDept dept) {
         SysDept info = deptMapper.selectDeptById(dept.getParentId());
         if (StringUtils.isNull(info)) {
@@ -217,7 +217,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateDept(SysDept dept) {
         SysDept newParentDept = deptMapper.selectDeptById(dept.getParentId());
         SysDept oldDept = deptMapper.selectDeptById(dept.getDeptId());
@@ -271,7 +271,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
      * @param orderNums 排序数组
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateDeptSort(String[] deptIds, String[] orderNums) {
         try {
             for (int i = 0; i < deptIds.length; i++) {
@@ -292,7 +292,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int deleteDeptById(Long deptId) {
         return deptMapper.deleteDeptById(deptId);
     }

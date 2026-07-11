@@ -111,8 +111,8 @@ public class SysMenu extends BaseEntity {
         this.menuId = menuId;
     }
 
-    @NotBlank(message = "菜单名称不能为空")
-    @Size(min = 0, max = 50, message = "菜单名称长度不能超过50个字符")
+    @NotBlank(message = "{menu.name.not.blank}")
+    @Size(min = 0, max = 50, message = "{menu.name.size}")
     public String getMenuName() {
         return menuName;
     }
@@ -137,7 +137,7 @@ public class SysMenu extends BaseEntity {
         this.parentId = parentId;
     }
 
-    @NotNull(message = "显示顺序不能为空")
+    @NotNull(message = "{menu.sort.not.null}")
     public Integer getOrderNum() {
         return orderNum;
     }
@@ -146,7 +146,7 @@ public class SysMenu extends BaseEntity {
         this.orderNum = orderNum;
     }
 
-    @Size(min = 0, max = 200, message = "路由地址不能超过200个字符")
+    @Size(min = 0, max = 200, message = "{menu.path.size}")
     public String getPath() {
         return path;
     }
@@ -155,7 +155,7 @@ public class SysMenu extends BaseEntity {
         this.path = path;
     }
 
-    @Size(min = 0, max = 200, message = "组件路径不能超过255个字符")
+    @Size(min = 0, max = 255, message = "{menu.component.size}")
     public String getComponent() {
         return component;
     }
@@ -196,7 +196,7 @@ public class SysMenu extends BaseEntity {
         this.isCache = isCache;
     }
 
-    @NotBlank(message = "菜单类型不能为空")
+    @NotBlank(message = "{menu.type.not.blank}")
     public String getMenuType() {
         return menuType;
     }
@@ -221,7 +221,7 @@ public class SysMenu extends BaseEntity {
         this.status = status;
     }
 
-    @Size(min = 0, max = 100, message = "权限标识长度不能超过100个字符")
+    @Size(min = 0, max = 100, message = "{menu.perms.size}")
     public String getPerms() {
         return perms;
     }

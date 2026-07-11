@@ -5,6 +5,7 @@ import com.mop.ai.domain.AiConversationEntity;
 import com.mop.ai.domain.AiMessageEntity;
 import com.mop.ai.mapper.AiChatMapper;
 import com.mop.ai.service.IAiChatService;
+import com.mop.common.core.domain.model.LoginUser;
 import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import dev.langchain4j.data.message.AiMessage;
@@ -66,7 +67,13 @@ public class AiChatServiceImpl implements IAiChatService {
         conv.setUserId(userId);
         conv.setTitle("新对话");
         conv.setModel(model == null ? modelProps.getModelName() : model);
-        conv.setCreateBy(SecurityUtils.getLoginUser().getUser().getUserName());
+        // 安全获取用户名，防止 SecurityContext 中无用户信息时 NPE
+        String userName = "system";
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        if (loginUser != null && loginUser.getUser() != null && loginUser.getUser().getUserName() != null) {
+            userName = loginUser.getUser().getUserName();
+        }
+        conv.setCreateBy(userName);
         aiChatMapper.insertConversation(conv);
         return conv;
     }

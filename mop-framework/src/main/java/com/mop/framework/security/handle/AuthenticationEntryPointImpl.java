@@ -3,8 +3,8 @@ package com.mop.framework.security.handle;
 import com.alibaba.fastjson2.JSON;
 import com.mop.common.constant.HttpStatus;
 import com.mop.common.core.domain.AjaxResult;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.ServletUtils;
-import com.mop.common.utils.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
@@ -27,7 +27,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint, S
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e)
             throws IOException {
         int code = HttpStatus.UNAUTHORIZED;
-        String msg = StringUtils.format("请求访问：{}，认证失败，无法访问系统资源", request.getRequestURI());
+        String msg = MessageUtils.message("auth.fail.message", request.getRequestURI());
         ServletUtils.renderString(response, JSON.toJSONString(AjaxResult.error(code, msg)));
     }
 }

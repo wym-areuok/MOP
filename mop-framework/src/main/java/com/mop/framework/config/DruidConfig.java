@@ -9,6 +9,8 @@ import com.mop.common.utils.spring.SpringUtils;
 import com.mop.framework.config.properties.DruidProperties;
 import com.mop.framework.datasource.DynamicDataSource;
 import jakarta.servlet.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -28,6 +30,8 @@ import java.util.Map;
  */
 @Configuration
 public class DruidConfig {
+    private static final Logger log = LoggerFactory.getLogger(DruidConfig.class);
+
     @Bean
     @ConfigurationProperties("spring.datasource.druid.master")
     public DataSource masterDataSource(DruidProperties druidProperties) {
@@ -64,7 +68,7 @@ public class DruidConfig {
             DataSource dataSource = SpringUtils.getBean(beanName);
             targetDataSources.put(sourceName, dataSource);
         } catch (Exception e) {
-            // 数据源Bean不存在时跳过，由DynamicDataSource自行处理默认数据源
+            log.debug("从库数据源 [{}] 未配置或获取失败，跳过: {}", beanName, e.getMessage());
         }
     }
 

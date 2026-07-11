@@ -100,6 +100,8 @@ public class CacheController {
     @PreAuthorize("@ss.hasPermi('monitor:cache:list')")
     @DeleteMapping("/clearCacheAll")
     public AjaxResult clearCacheAll() {
+        // WARNING: redisTemplate.keys("*") 在生产环境会阻塞 Redis！
+        // 仅应在维护窗口或内部环境使用，严禁在生产高峰期调用。
         Collection<String> cacheKeys = redisTemplate.keys("*");
         redisTemplate.delete(cacheKeys);
         return AjaxResult.success();

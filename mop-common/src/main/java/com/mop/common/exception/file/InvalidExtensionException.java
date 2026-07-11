@@ -1,5 +1,7 @@
 package com.mop.common.exception.file;
 
+import com.mop.common.utils.MessageUtils;
+
 import java.util.Arrays;
 
 /**
@@ -15,7 +17,7 @@ public class InvalidExtensionException extends FileUploadException {
     private String filename;
 
     public InvalidExtensionException(String[] allowedExtension, String extension, String filename) {
-        super("文件[" + filename + "]后缀[" + extension + "]不正确，请上传" + Arrays.toString(allowedExtension) + "格式");
+        super(MessageUtils.message("file.upload.invalid.extension", filename, extension, Arrays.toString(allowedExtension)));
         this.allowedExtension = allowedExtension;
         this.extension = extension;
         this.filename = filename;

@@ -37,6 +37,8 @@ public class SysUserOnlineController extends BaseController {
     @PreAuthorize("@ss.hasPermi('monitor:online:list')")
     @GetMapping("/list")
     public TableDataInfo list(String ipaddr, String userName) {
+        // NOTE: 使用 KEYS 命令扫描特定前缀的 key，仅扫描 login_tokens: 开头的少量 key。
+        // 生产环境若在线用户数超过 10000+，建议改用 SCAN 命令或维护在线用户 Set 集合。
         Collection<String> keys = redisCache.keys(CacheConstants.LOGIN_TOKEN_KEY + "*");
         List<SysUserOnline> userOnlineList = new ArrayList<SysUserOnline>();
         for (String key : keys) {
@@ -63,7 +65,7 @@ public class SysUserOnlineController extends BaseController {
     @Log(title = "在线用户", businessType = BusinessType.FORCE)
     @DeleteMapping("/{tokenId}")
     public AjaxResult forceLogout(@PathVariable String tokenId) {
-        redisCache.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
+        userOnlineService.forceLogout(tokenId);
         return success();
     }
 }

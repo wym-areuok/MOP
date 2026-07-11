@@ -44,4 +44,11 @@ public interface ISysUserOnlineService {
      * @return 在线用户
      */
     public SysUserOnline loginUserToUserOnline(LoginUser user);
+
+    /**
+     * 强退用户
+     *
+     * @param tokenId 用户token
+     */
+    public void forceLogout(String tokenId);
 }

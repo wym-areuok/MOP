@@ -62,7 +62,7 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
      * @return 结果
      */
 #if($table.sub)
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
 #end
     @Override
     public int insert${ClassName}(${ClassName} ${className})
@@ -88,7 +88,7 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
      * @return 结果
      */
 #if($table.sub)
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
 #end
     @Override
     public int update${ClassName}(${ClassName} ${className})
@@ -112,7 +112,7 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
      * @return 结果
      */
 #if($table.sub)
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
 #end
     @Override
     public int delete${ClassName}By${pkColumn.capJavaField}s(${pkColumn.javaType}[] ${pkColumn.javaField}s)
@@ -130,7 +130,7 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
      * @return 结果
      */
 #if($table.sub)
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
 #end
     @Override
     public int delete${ClassName}By${pkColumn.capJavaField}(${pkColumn.javaType} ${pkColumn.javaField})

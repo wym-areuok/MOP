@@ -227,7 +227,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int insertUser(SysUser user) {
         // 新增用户信息
         int rows = userMapper.insertUser(user);
@@ -256,7 +256,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateUser(SysUser user) {
         Long userId = user.getUserId();
         // 删除用户与角色关联
@@ -277,7 +277,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @param roleIds 角色组
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void insertUserAuth(Long userId, Long[] roleIds) {
         userRoleMapper.deleteUserRoleByUserId(userId);
         insertUserRole(userId, roleIds);
@@ -301,7 +301,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateUserProfile(SysUser user) {
         return userMapper.updateUser(user);
     }
@@ -314,7 +314,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateUserAvatar(Long userId, String avatar) {
         return userMapper.updateUserAvatar(userId, avatar) > 0;
     }
@@ -327,6 +327,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @param loginDate 登录时间
      * @return 结果
      */
+    @Override
     public void updateLoginInfo(Long userId, String loginIp, Date loginDate) {
         userMapper.updateLoginInfo(userId, loginIp, loginDate);
     }
@@ -338,7 +339,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int resetPwd(SysUser user) {
         return userMapper.resetUserPwd(user.getUserId(), user.getPassword());
     }
@@ -351,7 +352,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int resetUserPwd(Long userId, String password) {
         return userMapper.resetUserPwd(userId, password);
     }
@@ -412,7 +413,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int deleteUserById(Long userId) {
         // 删除用户与角色关联
         userRoleMapper.deleteUserRoleByUserId(userId);
@@ -428,7 +429,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int deleteUserByIds(Long[] userIds) {
         for (Long userId : userIds) {
             checkUserAllowed(new SysUser(userId));
@@ -450,7 +451,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public String importUser(List<SysUser> userList, Boolean isUpdateSupport, String operName) {
         if (StringUtils.isNull(userList) || userList.size() == 0) {
             throw new ServiceException(MessageUtils.message("user.import.empty"));

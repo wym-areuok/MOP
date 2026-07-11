@@ -81,7 +81,7 @@ public class SysNoticeController extends BaseController {
     public AjaxResult listTop() {
         Long userId = getUserId();
         List<SysNotice> list = noticeReadService.selectNoticeListWithReadStatus(userId, 5);
-        long unreadCount = list.stream().filter(n -> !n.getIsRead()).count();
+        long unreadCount = list.stream().filter(n -> !Boolean.TRUE.equals(n.getIsRead())).count();
         AjaxResult result = AjaxResult.success(list);
         result.put("unreadCount", unreadCount);
         return result;
@@ -125,13 +125,12 @@ public class SysNoticeController extends BaseController {
     }
 
     /**
-     * 删除通知公告
+     * 删除通知公告（级联清理已由 Service 层处理）
      */
     @PreAuthorize("@ss.hasPermi('system:notice:remove')")
     @Log(title = "通知公告", businessType = BusinessType.DELETE)
     @DeleteMapping("/{noticeIds}")
     public AjaxResult remove(@PathVariable Long[] noticeIds) {
-        noticeReadService.deleteByNoticeIds(noticeIds);
         return toAjax(noticeService.deleteNoticeByIds(noticeIds));
     }
 }

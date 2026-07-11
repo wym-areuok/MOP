@@ -5,6 +5,7 @@ import com.mop.common.core.controller.BaseController;
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.common.core.page.TableDataInfo;
 import com.mop.common.enums.BusinessType;
+import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.poi.ExcelUtil;
 import com.mop.quartz.domain.SysJobLog;
 import com.mop.quartz.service.ISysJobLogService;
@@ -46,7 +47,7 @@ public class SysJobLogController extends BaseController {
     public void export(HttpServletResponse response, SysJobLog sysJobLog) {
         List<SysJobLog> list = jobLogService.selectJobLogList(sysJobLog);
         ExcelUtil<SysJobLog> util = new ExcelUtil<SysJobLog>(SysJobLog.class);
-        util.exportExcel(response, list, "调度日志");
+        util.exportExcel(response, list, MessageUtils.message("joblog.export.title"));
     }
 
     /**

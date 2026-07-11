@@ -1,9 +1,12 @@
 package com.mop.system.service.impl;
 
+import com.mop.common.constant.CacheConstants;
 import com.mop.common.core.domain.model.LoginUser;
+import com.mop.common.core.redis.RedisCache;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.domain.SysUserOnline;
 import com.mop.system.service.ISysUserOnlineService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,6 +16,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SysUserOnlineServiceImpl implements ISysUserOnlineService {
+    @Autowired
+    private RedisCache redisCache;
+
     /**
      * 通过登录地址查询信息
      *
@@ -82,5 +88,15 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService {
             sysUserOnline.setDeptName(user.getUser().getDept().getDeptName());
         }
         return sysUserOnline;
+    }
+
+    /**
+     * 强退用户
+     *
+     * @param tokenId 用户token
+     */
+    @Override
+    public void forceLogout(String tokenId) {
+        redisCache.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
     }
 }

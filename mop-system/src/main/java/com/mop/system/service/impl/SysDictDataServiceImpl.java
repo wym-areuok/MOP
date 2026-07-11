@@ -64,7 +64,7 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * @param dictCodes 需要删除的字典数据ID
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteDictDataByIds(Long[] dictCodes) {
         for (Long dictCode : dictCodes) {
             SysDictData data = selectDictDataById(dictCode);
@@ -85,7 +85,7 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int insertDictData(SysDictData data) {
         int row = dictDataMapper.insertDictData(data);
         if (row > 0) {
@@ -106,7 +106,7 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateDictData(SysDictData data) {
         int row = dictDataMapper.updateDictData(data);
         if (row > 0) {

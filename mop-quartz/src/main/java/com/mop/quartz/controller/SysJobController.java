@@ -53,7 +53,7 @@ public class SysJobController extends BaseController {
     public void export(HttpServletResponse response, SysJob sysJob) {
         List<SysJob> list = jobService.selectJobList(sysJob);
         ExcelUtil<SysJob> util = new ExcelUtil<SysJob>(SysJob.class);
-        util.exportExcel(response, list, "定时任务");
+        util.exportExcel(response, list, MessageUtils.message("job.export.title"));
     }
 
     /**
@@ -73,17 +73,17 @@ public class SysJobController extends BaseController {
     @PostMapping
     public AjaxResult add(@RequestBody SysJob job) throws SchedulerException, TaskException {
         if (!CronUtils.isValid(job.getCronExpression())) {
-            return error(MessageUtils.message("job.cron.invalid", "新增", job.getJobName()));
+            return error(MessageUtils.message("job.cron.invalid", MessageUtils.message("common.add"), job.getJobName()));
         } else if (StringUtils.containsIgnoreCase(job.getInvokeTarget(), Constants.LOOKUP_RMI)) {
-            return error(MessageUtils.message("job.target.rmi", "新增", job.getJobName()));
+            return error(MessageUtils.message("job.target.rmi", MessageUtils.message("common.add"), job.getJobName()));
         } else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), new String[]{Constants.LOOKUP_LDAP, Constants.LOOKUP_LDAPS})) {
-            return error(MessageUtils.message("job.target.ldap", "新增", job.getJobName()));
+            return error(MessageUtils.message("job.target.ldap", MessageUtils.message("common.add"), job.getJobName()));
         } else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), new String[]{Constants.HTTP, Constants.HTTPS})) {
-            return error(MessageUtils.message("job.target.http", "新增", job.getJobName()));
+            return error(MessageUtils.message("job.target.http", MessageUtils.message("common.add"), job.getJobName()));
         } else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), Constants.JOB_ERROR_STR)) {
-            return error(MessageUtils.message("job.target.illegal", "新增", job.getJobName()));
+            return error(MessageUtils.message("job.target.illegal", MessageUtils.message("common.add"), job.getJobName()));
         } else if (!ScheduleUtils.whiteList(job.getInvokeTarget())) {
-            return error(MessageUtils.message("job.target.not.whitelist", "新增", job.getJobName()));
+            return error(MessageUtils.message("job.target.not.whitelist", MessageUtils.message("common.add"), job.getJobName()));
         }
         job.setCreateBy(getUsername());
         return toAjax(jobService.insertJob(job));
@@ -97,17 +97,17 @@ public class SysJobController extends BaseController {
     @PutMapping
     public AjaxResult edit(@RequestBody SysJob job) throws SchedulerException, TaskException {
         if (!CronUtils.isValid(job.getCronExpression())) {
-            return error(MessageUtils.message("job.cron.invalid", "修改", job.getJobName()));
+            return error(MessageUtils.message("job.cron.invalid", MessageUtils.message("common.edit"), job.getJobName()));
         } else if (StringUtils.containsIgnoreCase(job.getInvokeTarget(), Constants.LOOKUP_RMI)) {
-            return error(MessageUtils.message("job.target.rmi", "修改", job.getJobName()));
+            return error(MessageUtils.message("job.target.rmi", MessageUtils.message("common.edit"), job.getJobName()));
         } else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), new String[]{Constants.LOOKUP_LDAP, Constants.LOOKUP_LDAPS})) {
-            return error(MessageUtils.message("job.target.ldap", "修改", job.getJobName()));
+            return error(MessageUtils.message("job.target.ldap", MessageUtils.message("common.edit"), job.getJobName()));
         } else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), new String[]{Constants.HTTP, Constants.HTTPS})) {
-            return error(MessageUtils.message("job.target.http", "修改", job.getJobName()));
+            return error(MessageUtils.message("job.target.http", MessageUtils.message("common.edit"), job.getJobName()));
         } else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), Constants.JOB_ERROR_STR)) {
-            return error(MessageUtils.message("job.target.illegal", "修改", job.getJobName()));
+            return error(MessageUtils.message("job.target.illegal", MessageUtils.message("common.edit"), job.getJobName()));
         } else if (!ScheduleUtils.whiteList(job.getInvokeTarget())) {
-            return error(MessageUtils.message("job.target.not.whitelist", "修改", job.getJobName()));
+            return error(MessageUtils.message("job.target.not.whitelist", MessageUtils.message("common.edit"), job.getJobName()));
         }
         job.setUpdateBy(getUsername());
         return toAjax(jobService.updateJob(job));

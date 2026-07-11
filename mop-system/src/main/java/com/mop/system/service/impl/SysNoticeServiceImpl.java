@@ -2,6 +2,7 @@ package com.mop.system.service.impl;
 
 import com.mop.system.domain.SysNotice;
 import com.mop.system.mapper.SysNoticeMapper;
+import com.mop.system.service.ISysNoticeReadService;
 import com.mop.system.service.ISysNoticeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ import java.util.List;
 public class SysNoticeServiceImpl implements ISysNoticeService {
     @Autowired
     private SysNoticeMapper noticeMapper;
+
+    @Autowired
+    private ISysNoticeReadService noticeReadService;
 
     /**
      * 查询公告信息
@@ -63,24 +67,26 @@ public class SysNoticeServiceImpl implements ISysNoticeService {
     }
 
     /**
-     * 删除公告对象
+     * 删除公告对象（级联清理已读记录）
      *
      * @param noticeId 公告ID
      * @return 结果
      */
     @Override
     public int deleteNoticeById(Long noticeId) {
+        noticeReadService.deleteByNoticeIds(new Long[]{noticeId});
         return noticeMapper.deleteNoticeById(noticeId);
     }
 
     /**
-     * 批量删除公告信息
+     * 批量删除公告信息（级联清理已读记录）
      *
      * @param noticeIds 需要删除的公告ID
      * @return 结果
      */
     @Override
     public int deleteNoticeByIds(Long[] noticeIds) {
+        noticeReadService.deleteByNoticeIds(noticeIds);
         return noticeMapper.deleteNoticeByIds(noticeIds);
     }
 }
