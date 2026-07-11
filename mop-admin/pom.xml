@@ -24,10 +24,16 @@
             <optional>true</optional> <!-- 表示依赖不会传递 -->
         </dependency>
 
-        <!-- spring-doc -->
+        <!-- Knife4j UI（仅前端资源，接口扫描由 SpringDoc 处理） -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-ui</artifactId>
+        </dependency>
+        <!-- SpringDoc OpenAPI（接口扫描 + OpenAPI 规范生成） -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
 
         <!-- SQL Server 驱动 -->

@@ -12,7 +12,8 @@ import com.mop.common.utils.ip.IpUtils;
 import com.mop.common.utils.uuid.IdUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +51,16 @@ public class TokenService {
     private int expireTime;
     @Autowired
     private RedisCache redisCache;
+
+    /**
+     * JWT 密钥对象（jjwt 0.12.x 要求 SecretKey，启动时从配置初始化）
+     */
+    private SecretKey secretKey;
+
+    @PostConstruct
+    private void initKey() {
+        secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
     /**
      * 获取用户身份信息
@@ -189,11 +203,11 @@ public class TokenService {
      * @return 令牌
      */
     private String createToken(Map<String, Object> claims) {
-        String token = Jwts.builder()
-                .setClaims(claims)
-                .setExpiration(new java.util.Date(System.currentTimeMillis() + expireTime * MILLIS_MINUTE))
-                .signWith(SignatureAlgorithm.HS512, secret).compact();
-        return token;
+        return Jwts.builder()
+                .claims(claims)
+                .expiration(new Date(System.currentTimeMillis() + expireTime * MILLIS_MINUTE))
+                .signWith(secretKey)
+                .compact();
     }
 
     /**
@@ -204,9 +218,10 @@ public class TokenService {
      */
     private Claims parseToken(String token) {
         return Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token)
-                .getBody();
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     /**

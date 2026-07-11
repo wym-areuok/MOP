@@ -134,6 +134,8 @@ springdoc:
     tags-sorter: alpha
   group-configs:
     - group: 'default'
-      display-name: '测试模块'
       paths-to-match: '/**'
-      packages-to-scan: com.mop.web.controller.tool
+      # Knife4j 文档扫描包配置
+      # 仅扫描本项目自行开发的业务模块
+      # 后续新增业务模块时追加包路径即可，例如：com.mop.ai,com.mop.mes
+      packages-to-scan: com.mop.ai

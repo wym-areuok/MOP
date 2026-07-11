@@ -10,7 +10,7 @@
 |------------|-----------------------------------------------------|--------|
 | **运行环境**   | JDK                                                 | 17+    |
 | **核心框架**   | Spring Boot                                         | 4.0.3  |
-| **安全框架**   | Spring Security + JWT                               | 0.9.1  |
+| **安全框架**   | Spring Security + JWT                               | 0.12.6 |
 | **ORM**    | MyBatis Spring Boot Starter                         | 4.0.1  |
 | **数据库**    | SQL Server（Microsoft JDBC Driver）                   | 12.8.1 |
 | **连接池**    | Druid                                               | 1.2.28 |
@@ -18,7 +18,7 @@
 | **分页**     | PageHelper                                          | 2.1.1  |
 | **定时任务**   | Quartz                                              | —      |
 | **JSON**   | Fastjson2                                           | 2.0.61 |
-| **API 文档** | SpringDoc OpenAPI (Swagger 3)                       | 3.0.2  |
+| **API 文档** | SpringDoc OpenAPI 3.0.2 + Knife4j 4.5.0             | —      |
 | **代码生成**   | Apache Velocity                                     | 2.3    |
 | **Excel**  | Apache POI                                          | 5.3.0  |
 | **系统监控**   | OSHI                                                | 6.10.0 |
@@ -159,11 +159,11 @@ java -jar mop-admin/target/mop-admin.jar --spring.profiles.active=prod
 
 ## 后端访问地址
 
-| 地址                                            | 说明                |
-|-----------------------------------------------|-------------------|
-| `http://localhost:8080`                       | 应用地址              |
-| `http://localhost:8080/swagger-ui/index.html` | Swagger 文档（仅 dev） |
-| `http://localhost:8080/druid`                 | Druid 监控面板        |
+| 地址                               | 说明                  |
+|----------------------------------|---------------------|
+| `http://localhost:8080`          | 应用地址                |
+| `http://localhost:8080/doc.html` | Knife4j 接口文档（仅 dev） |
+| `http://localhost:8080/druid`    | Druid 监控面板          |
 
 ### 默认管理员账号
 
