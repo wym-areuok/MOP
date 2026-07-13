@@ -4,28 +4,44 @@
 # 加载位置: application.yml → 【application-druid.yml】→ application-{dev|prod}.yml
 #
 # 作用: 存放所有环境通用的 Druid 连接池参数、驱动类、SQL 过滤器配置
-#       开发和生产的差异配置（IP、密码、池大小）写在各自的 profile 文件中
+#       开发环境直接使用下面的默认值（连接本地 localhost）。
+#       生产环境在 application-prod.yml 中通过 ${ENV}（无默认值）覆盖。
+#
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║         关于 ${ENV_NAME:默认值} 中冒号歧义的说明                            ║
+# ╠══════════════════════════════════════════════════════════════════════════╣
+# ║                                                                          ║
+# ║  语法: ${环境变量名:默认值}                                                 ║
+# ║                                                                          ║
+# ║  Spring 的规则: 变量名之后的 第一个 : 是分隔符，后面全部内容都属于默认值。    ║
+# ║                                                                          ║
+# ║  示例: ${MOP_DB_URL:jdbc:sqlserver://localhost:1433;DatabaseName=mes}    ║
+# ║          ↑ 变量名    ↑ 分隔符  ↑──────── 默认值（含额外的 :）──────────↑     ║
+# ║                                                                          ║
+# ║  Spring 不会把 jdbc:sqlserver 中的 : 当成第二个分隔符，                       ║
+# ║  第一个 : 之后的 整个字符串 就是默认值。                                      ║
+# ║                                                                          ║
+# ║  本文件保留默认值是为了开发环境开箱即用；                                      ║
+# ║  生产环境（application-prod.yml）中已去掉所有默认值，强制环境变量注入。          ║
+# ║                                                                          ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
 #
 # ⚠️ 修改原则:
 #   本文件定义"所有环境都一样的默认值"
-#   dev/prod 仅覆盖需要差异化的配置项（如 url、password、minIdle、maxActive）
+#   敏感字段采用环境变量占位（${ENV:default}），default 仅用于开发兼容
+#   dev/prod 仅覆盖需要差异化的配置项（如 url、minIdle、maxActive）
 #   不要在 dev/prod 中重复本文件已有的相同配置——后者会自动覆盖同名 key
-#
-# 最终生效值示例（激活 prod 时）:
-#   druid.yml 定义:    initialSize=10, maxActive=20, url=localhost
-#   prod.yml 覆盖:     maxActive=50, url=127.0.0.1
-#   最终生效:           initialSize=10（继承）, maxActive=50（覆盖）, url=127.0.0.1（覆盖）
 # ===================================================================
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     druid:
-      # 主库数据源
+      # 主库数据源（环境变量优先；默认值用于兼容现有本地配置）
       master:
-        url: jdbc:sqlserver://localhost:1433;DatabaseName=mes_ops_platform;TrustServerCertificate=true;sendStringParametersAsUnicode=true
-        username: root
-        password: root
+        url: ${MOP_DB_URL:jdbc:sqlserver://localhost:1433;DatabaseName=mes_ops_platform;TrustServerCertificate=true;sendStringParametersAsUnicode=true}
+        username: ${MOP_DB_USERNAME:root}
+        password: ${MOP_DB_PASSWORD:root}
       # 从库数据源
       slave:
         # 从数据源开关/默认关闭
@@ -63,9 +79,9 @@ spring:
         # 设置白名单，不填则允许所有访问
         allow:
         url-pattern: /druid/*
-        # 控制台管理用户名和密码
-        login-username: admin
-        login-password: 123456
+        # 控制台管理用户名和密码（环境变量注入，默认保持现有值）
+        login-username: ${MOP_DRUID_USERNAME:admin}
+        login-password: ${MOP_DRUID_PASSWORD:123456}
       filter:
         stat:
           enabled: true

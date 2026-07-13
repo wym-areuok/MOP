@@ -22,6 +22,10 @@ public class JobInvokeUtil {
      */
     public static void invokeMethod(SysJob sysJob) throws Exception {
         String invokeTarget = sysJob.getInvokeTarget();
+        // 执行时二次白名单校验，防止绕过 Controller 层直接篡改数据库绕过安全检查（深度防御）
+        if (!ScheduleUtils.whiteList(invokeTarget)) {
+            throw new SecurityException("Invoke target not in whitelist: " + invokeTarget);
+        }
         String beanName = getBeanName(invokeTarget);
         String methodName = getMethodName(invokeTarget);
         List<Object[]> methodParams = getMethodParams(invokeTarget);

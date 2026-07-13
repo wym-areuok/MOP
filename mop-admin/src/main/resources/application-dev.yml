@@ -10,11 +10,11 @@
 #   mvn 启动: mvn spring-boot:run -Dspring-boot.run.profiles=dev
 #
 # 说明:
-#   1. 使用本地 localhost 的 SQL Server + Redis，无需密码
+#   1. 默认连接本地 localhost 的 SQL Server + Redis（可被环境变量覆盖）
 #   2. 启用 Spring DevTools 热部署（修改代码自动重启）
 #   3. 日志级别 debug，便于排查问题
 #   4. Swagger 接口文档开启（http://localhost:8080/swagger-ui.html）
-#   5. Druid 监控面板开启（http://localhost:8080/druid/，admin/123456）
+#   5. Druid 监控面板开启（账号密码由 application-druid.yml 的环境变量控制）
 #   6. 防盗链关闭（便于本地前端联调）
 #
 # 配置来源说明:
@@ -24,8 +24,9 @@
 #   如果需要为开发环境单独设置某个值，直接在本文件添加即可覆盖
 #
 # 注意事项:
-#   - 本文件包含数据库/Redis/AI 连接信息，仓库为私有，可放心提交
-#   - 切勿将本文件中的配置用于生产环境
+#   - 敏感信息采用 ${ENV:默认值} 格式，开发环境开箱即用
+#   - 关于默认值中出现 :（如 JDBC URL）的解析规则请参考 application-druid.yml 顶部注释
+#   - 生产环境请使用 application-prod.yml + 生产专用环境变量（无默认值，强制注入）
 # ===================================================================
 
 server:
@@ -40,9 +41,9 @@ logging:
     com.mop: debug
     org.springframework: warn
 
-# ---------- 开发环境 JWT 密钥 ----------
+# ---------- 开发环境 JWT 密钥（环境变量注入，默认值仅用于本地兼容） ----------
 token:
-  secret: MOP-2026-Dev-Token-Key-d9kF3pL7sW1xY5zB2aC6dE8fH0jM4nQ
+  secret: ${MOP_DEV_TOKEN_SECRET:MOP-2026-Dev-Token-Key-d9kF3pL7sW1xY5zB2aC6dE8fH0jM4nQ}
 
 spring:
   devtools:
@@ -53,7 +54,7 @@ spring:
       host: localhost
       port: 6379
       database: 0
-      password:
+      password: ${MOP_DEV_REDIS_PASSWORD:}
       timeout: 10s
       lettuce:
         pool:
@@ -80,10 +81,10 @@ xss:
 quartz:
   jobTimeoutMinutes: 30
 
-# ---------- 开发环境 AI 模型 ----------
+# ---------- 开发环境 AI 模型（敏感字段优先走环境变量） ----------
 ai:
   model:
     provider: openai
-    api-key: ark-9c957d7a-c6d9-4e4a-a396-3817355d4dda-a3b58
+    api-key: ${MOP_DEV_AI_API_KEY:ark-9c957d7a-c6d9-4e4a-a396-3817355d4dda-a3b58}
     model-name: ep-20260703164026-ncjmt
     base-url: https://ark.cn-beijing.volces.com/api/v3

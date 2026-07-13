@@ -166,7 +166,6 @@ public class SysJobServiceImpl implements ISysJobService {
      * @param job 调度信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public boolean run(SysJob job) throws SchedulerException {
         boolean result = false;
         Long jobId = job.getJobId();

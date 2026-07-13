@@ -69,7 +69,7 @@
     </delete>
 
     <update id="cleanJobLog">
-        truncate table sys_job_log
+        delete from sys_job_log
     </update>
 
     <delete id="cleanExpiredJobLog" parameterType="int">

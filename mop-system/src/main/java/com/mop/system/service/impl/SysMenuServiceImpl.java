@@ -305,7 +305,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
                 menuMapper.updateMenuSort(menu);
             }
         } catch (Exception e) {
-            throw new ServiceException(MessageUtils.message("dept.sort.save.fail"));
+            throw new ServiceException(MessageUtils.message("menu.sort.save.fail"));
         }
     }
 

@@ -38,7 +38,25 @@
 # 启动方式:
 #   开发（IDEA 默认）: mvn spring-boot:run
 #   开发（JAR）:       java -jar mop-admin.jar --spring.profiles.active=dev
-#   生产:              java -jar mop-admin.jar --spring.profiles.active=prod
+#   生产（推荐）:      java -jar mop-admin.jar --spring.profiles.active=druid,prod
+#
+# 环境变量说明:
+#   - 配置值优先级：环境变量 > yml 中默认值
+#   - 占位符语法：${ENV_NAME:默认值}
+#     注意：${ENV_NAME:defaultValue} 中，变量名之后的 第一个 : 是分隔符，
+#     后面的全部内容都属于默认值。即使默认值中包含额外的 :（如 JDBC URL），
+#     Spring 也不会把它们当成新的分隔符。
+#   - 开发环境（druid + dev profile）：保留了默认值，本地直接启动即可
+#   - 生产环境（druid + prod profile）：已去掉所有默认值，必须注入环境变量
+#   - 未设置环境变量且无默认值时，Spring 启动会直接报错（IllegalArgumentException）
+#
+# 关键环境变量（可按环境注入）：
+#   JWT:   MOP_TOKEN_SECRET / MOP_DEV_TOKEN_SECRET / MOP_PROD_TOKEN_SECRET
+#   DB:    MOP_DB_URL / MOP_DB_USERNAME / MOP_DB_PASSWORD
+#          MOP_PROD_DB_URL / MOP_PROD_DB_USERNAME / MOP_PROD_DB_PASSWORD
+#   DRUID: MOP_DRUID_USERNAME / MOP_DRUID_PASSWORD / MOP_PROD_DRUID_PASSWORD
+#   REDIS: MOP_DEV_REDIS_PASSWORD / MOP_PROD_REDIS_PASSWORD
+#   AI:    MOP_DEV_AI_API_KEY / MOP_PROD_AI_API_KEY / MOP_PROD_AI_MODEL_NAME
 # ===================================================================
 
 # 项目相关配置
@@ -62,8 +80,9 @@ server:
 # Token 公共配置
 token:
   header: Authorization
-  # 兜底密钥: 仅当未指定 dev/prod profile 时使用，生产环境必须由 prod.yml 覆盖
-  secret: default-secret-NOT-FOR-PRODUCTION
+  # 公共 JWT 密钥（环境变量优先；默认值仅用于未设置 profile/变量时的兼容兜底）
+  # 生产环境建议通过 MOP_PROD_TOKEN_SECRET 注入，不依赖默认值
+  secret: ${MOP_TOKEN_SECRET:default-secret-NOT-FOR-PRODUCTION}
   expireTime: 30
 
 # MyBatis 配置（全环境一致）

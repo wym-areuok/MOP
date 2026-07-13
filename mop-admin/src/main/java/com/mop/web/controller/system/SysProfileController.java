@@ -113,6 +113,9 @@ public class SysProfileController extends BaseController {
             LoginUser loginUser = getLoginUser();
             Long userId = loginUser.getUserId();
             SysUser user = userService.selectUserById(userId);
+            if (StringUtils.isNull(user)) {
+                return error(MessageUtils.message("user.not.exists"));
+            }
             String password = user.getPassword();
             if (!SecurityUtils.matchesPassword(oldPassword, password)) {
                 return error(MessageUtils.message("profile.password.old.wrong"));

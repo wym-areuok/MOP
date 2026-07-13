@@ -89,7 +89,8 @@ public class DictUtils {
         }
         Map<String, String> dictMap = datas.stream().collect(HashMap::new, (map, dict) -> map.put(dict.getDictValue(), dict.getDictLabel()), Map::putAll);
         if (!StringUtils.contains(dictValue, separator)) {
-            return dictMap.getOrDefault(dictValue, StringUtils.EMPTY);
+            String result = dictMap.get(dictValue);
+            return result != null ? result : StringUtils.EMPTY;
         }
         StringBuilder labelBuilder = new StringBuilder();
         for (String seperatedValue : dictValue.split(separator)) {
@@ -116,7 +117,8 @@ public class DictUtils {
         }
         Map<String, String> dictMap = datas.stream().collect(HashMap::new, (map, dict) -> map.put(dict.getDictLabel(), dict.getDictValue()), Map::putAll);
         if (!StringUtils.contains(dictLabel, separator)) {
-            return dictMap.getOrDefault(dictLabel, StringUtils.EMPTY);
+            String result = dictMap.get(dictLabel);
+            return result != null ? result : StringUtils.EMPTY;
         }
         StringBuilder valueBuilder = new StringBuilder();
         for (String seperatedValue : dictLabel.split(separator)) {
