@@ -93,23 +93,27 @@ spring:
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
-  # ---------- 数据源基础设施常量（技术选型，所有环境一致） ----------
+  # ---------- 多数据源动态路由 ----------
   datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
-    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    dynamic:
+      primary: master
+      strict: false
+      lazy: true              # 外部数据源懒加载，首次访问时才创建连接池
+      # Druid 连接池公共参数（初始/最小/最大连接数由各环境控制）
+      druid:
+        maxWait: 60000
+        connectTimeout: 30000
+        socketTimeout: 60000
+        timeBetweenEvictionRunsMillis: 60000
+        minEvictableIdleTimeMillis: 300000
+        maxEvictableIdleTimeMillis: 900000
+        validationQuery: SELECT 1
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+
+    # ---------- Druid 监控面板（由 druid-spring-boot-4-starter 管理）----------
     druid:
-      # 从库数据源（所有环境默认关闭）
-      slave:
-        enabled: false
-        url:
-        username:
-        password:
-      # 连接检测（SQL Server 标准做法）
-      validationQuery: SELECT 1
-      testWhileIdle: true
-      testOnBorrow: false
-      testOnReturn: false
-      # Web 监控
       webStatFilter:
         enabled: true
       # Druid 控制台基础配置（具体 allow / 账号密码由各环境控制）

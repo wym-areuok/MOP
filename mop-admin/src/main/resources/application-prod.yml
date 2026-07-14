@@ -16,7 +16,7 @@
 #
 # ⚠️ 部署前请将以下占位符替换为真实值:
 #   - token.secret            → 生产 JWT 密钥（高强度随机字符串）
-#   - datasource.master.*     → 生产数据库连接信息
+#   - datasource.*.url/username/password → 所有数据源（master + server_a~e）的连接信息
 #   - redis.password          → 生产 Redis 密码（无密码则留空）
 #   - statViewServlet.login-password → Druid 控制台强密码
 #   - ai.api-key              → 生产 AI API Key
@@ -68,37 +68,57 @@ spring:
           max-wait: -1ms
   # ---------- 数据库配置 ----------
   datasource:
+    dynamic:
+      # Druid 连接池大小（生产环境）
+      druid:
+        initialSize: 10
+        minIdle: 20
+        maxActive: 50
+      datasource:
+        master:
+          driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:sqlserver://<请填写生产数据库IP>:1433;DatabaseName=mes_ops_platform;TrustServerCertificate=true;sendStringParametersAsUnicode=true
+          username: <请填写生产数据库账号>
+          password: <请填写生产数据库密码>
+        server_a:
+          driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:sqlserver://<请填写A服务器IP>:1433;DatabaseName=<请填写入口库名>;TrustServerCertificate=true;sendStringParametersAsUnicode=true
+          username: <请填写A服务器账号>
+          password: <请填写A服务器密码>
+        server_b:
+          driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:sqlserver://<请填写B服务器IP>:1433;DatabaseName=<请填写入口库名>;TrustServerCertificate=true;sendStringParametersAsUnicode=true
+          username: <请填写B服务器账号>
+          password: <请填写B服务器密码>
+        server_c:
+          driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:sqlserver://<请填写C服务器IP>:1433;DatabaseName=<请填写入口库名>;TrustServerCertificate=true;sendStringParametersAsUnicode=true
+          username: <请填写C服务器账号>
+          password: <请填写C服务器密码>
+        server_d:
+          driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:sqlserver://<请填写D服务器IP>:1433;DatabaseName=<请填写入口库名>;TrustServerCertificate=true;sendStringParametersAsUnicode=true
+          username: <请填写D服务器账号>
+          password: <请填写D服务器密码>
+        server_e:
+          driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:sqlserver://<请填写E服务器IP>:1433;DatabaseName=<请填写入口库名>;TrustServerCertificate=true;sendStringParametersAsUnicode=true
+          username: <请填写E服务器账号>
+          password: <请填写E服务器密码>
+
+    # Druid 控制台访问控制
     druid:
-      # 主库数据源（生产环境数据库）
-      master:
-        url: jdbc:sqlserver://<请填写生产数据库IP>:1433;DatabaseName=mes_ops_platform;TrustServerCertificate=true;sendStringParametersAsUnicode=true
-        username: <请填写生产数据库账号>
-        password: <请填写生产数据库密码>
-      # 初始连接数
-      initialSize: 10
-      # 最小连接池数量（生产环境调大）
-      minIdle: 20
-      # 最大连接池数量（根据并发量调整）
-      maxActive: 50
-      # 配置获取连接等待超时的时间
-      maxWait: 60000
-      # 配置连接超时时间
-      connectTimeout: 30000
-      # 配置网络超时时间
-      socketTimeout: 60000
-      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
-      timeBetweenEvictionRunsMillis: 60000
-      # 配置一个连接在池中最小生存的时间，单位是毫秒
-      minEvictableIdleTimeMillis: 300000
-      # 配置一个连接在池中最大生存的时间，单位是毫秒
-      maxEvictableIdleTimeMillis: 900000
-      # Druid 控制台访问控制
       statViewServlet:
         # 仅允许本机或内网 IP 访问
         allow: 127.0.0.1
         login-username: admin
         login-password: <请填写Druid控制台强密码>
-      # SQL 防火墙
       filter:
         wall:
           config:

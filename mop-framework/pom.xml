@@ -35,6 +35,21 @@
             <artifactId>druid-spring-boot-4-starter</artifactId>
         </dependency>
 
+        <!-- 动态多数据源 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>dynamic-datasource-spring-boot4-starter</artifactId>
+            <exclusions>
+                <!-- dynamic-datasource 传递依赖的 mybatis-spring 2.1.2 与 Spring 7.0.5 不兼容。
+                     Maven 最近者胜策略使其优先于 mybatis-spring-boot-starter 的 4.0.0，
+                     需排除后由 mybatis-spring-boot-starter 提供正确版本 -->
+                <exclusion>
+                    <groupId>org.mybatis</groupId>
+                    <artifactId>mybatis-spring</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- 验证码 -->
         <dependency>
             <groupId>pro.fessional</groupId>

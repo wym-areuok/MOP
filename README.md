@@ -14,6 +14,7 @@
 | **ORM**    | MyBatis Spring Boot Starter                         | 4.0.1  |
 | **数据库**    | SQL Server（Microsoft JDBC Driver）                   | 12.8.1 |
 | **连接池**    | Druid                                               | 1.2.28 |
+| **多数据源**   | dynamic-datasource（baomidou）                        | 4.5.0  |
 | **缓存**     | Redis（Lettuce 客户端）                                  | —      |
 | **分页**     | PageHelper                                          | 2.1.1  |
 | **定时任务**   | Quartz                                              | —      |
@@ -138,7 +139,7 @@ java -jar mop-admin/target/mop-admin.jar --spring.profiles.active=prod
 | 参数值    | 环境   | Swagger | 日志级别  | 防盗链 |
 |--------|------|---------|-------|-----|
 | `dev`  | 开发环境 | 开启      | DEBUG | 关闭  |
-| `prod` | 生产环境 | 关闭      | INFO  | 开启  |
+| `prod` | 生产环境 | 关闭      | WARN  | 开启  |
 
 ---
 
@@ -176,7 +177,7 @@ java -jar mop-admin/target/mop-admin.jar --spring.profiles.active=prod
 
 AI 对话模块支持多厂商切换，配置文件中的 `ai.model` 节点分散在两个层中：
 
-**application.yml（公共角色定义）**：
+**application.yml（AI 模型公共参数）**：
 
 ```yaml
 ai:
@@ -238,10 +239,45 @@ ai:
 
 ## 配置文件说明
 
-| 文件                           | 说明                   |
-|------------------------------|----------------------|
-| `application.yml`            | 公共配置：框架选型、策略参数、技术栈常量 |
-| `application-dev.yml`        | 开发环境完整配置（明文，开箱即用）    |
-| `application-prod.yml`       | 生产环境完整配置（明文，按需填写）    |
-| `logback.xml`                | 日志配置                 |
-| `mybatis/mybatis-config.xml` | MyBatis 全局配置         |
+| 文件                           | 说明                        |
+|------------------------------|---------------------------|
+| `application.yml`            | 公共配置：框架选型、多数据源路由、Druid 监控 |
+| `application-dev.yml`        | 开发环境完整配置（明文，开箱即用）         |
+| `application-prod.yml`       | 生产环境完整配置（明文，按需填写）         |
+| `logback.xml`                | 日志配置                      |
+| `mybatis/mybatis-config.xml` | MyBatis 全局配置              |
+
+## 多数据源配置
+
+项目基于 [baomidou/dynamic-datasource](https://github.com/baomidou/dynamic-datasource) 实现多数据源路由。
+
+### 数据源列表
+
+| 数据源名       | 说明         | 控制方式          |
+|------------|------------|---------------|
+| `master`   | MOP 主数据源   | 永远启用          |
+| `server_a` | A服务器-产线MES | yml 配置 + 字典开关 |
+| `server_b` | B服务器-仓储WMS | yml 配置 + 字典开关 |
+| `server_c` | C服务器-质量QMS | yml 配置 + 字典开关 |
+| `server_d` | D服务器-设备EAM | yml 配置 + 字典开关 |
+| `server_e` | E服务器-报表BI  | yml 配置 + 字典开关 |
+
+### 使用方式
+
+```java
+@DS("server_a")
+public List<Order> getOrders() {
+    // 跨库查询：库名.dbo.表名
+    return jdbcTemplate.queryForList(
+        "SELECT * FROM mes_production.dbo.work_order");
+}
+```
+
+### 外部数据源开关
+
+通过字典管理 > `datasource_switch` 控制外部数据源启用/停用：
+
+- `dictValue='Y'`：启用
+- `dictValue='N'`：停用
+
+修改后调用 `POST /monitor/datasource/reload` 使配置立即生效，无需重启。
