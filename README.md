@@ -99,7 +99,7 @@ mop-admin
 2. 执行 `sql/` 目录下的 SQL 脚本：
     - `mop_initial.sql`（完整建库脚本，含 CREATE DATABASE + 所有表结构 + 初始数据）
     - `mysql_conversion_sqlserver_initial_sql.sql`（仅表结构 + 初始数据，不包含 CREATE DATABASE）
-3. 修改 `mop-admin/src/main/resources/application-druid.yml` 中的数据库连接信息
+3. 修改 `mop-admin/src/main/resources/application-dev.yml`（开发）或 `application-prod.yml`（生产）中的数据库连接信息
 
 > **注意**：`mop_initial.sql` 中 CREATE DATABASE 的文件路径为本地路径，部署到其他机器时需修改。
 
@@ -174,7 +174,20 @@ java -jar mop-admin/target/mop-admin.jar --spring.profiles.active=prod
 
 ## AI 对话配置
 
-AI 对话模块支持多厂商切换，修改 `application.yml` 中 `ai.model` 节点即可：
+AI 对话模块支持多厂商切换，配置文件中的 `ai.model` 节点分散在两个层中：
+
+**application.yml（公共角色定义）**：
+
+```yaml
+ai:
+  model:
+    max-tokens: 1024
+    temperature: 0.7
+    max-history-messages: 5
+    system-prompt: "你的名字是「牛牛哥」..."
+```
+
+**application-dev.yml / application-prod.yml（环境独有，厂商+密钥）**：
 
 ```yaml
 ai:
@@ -183,11 +196,9 @@ ai:
     api-key: your-api-key
     model-name: your-model
     base-url: https://api.example.com/v1
-    max-tokens: 1024
-    temperature: 0.7
-    max-history-messages: 5
-    system-prompt: "你是一个专业、友好的 AI 助手"
 ```
+
+> Spring Boot 会将两层 `ai.model` 键值自动合并为完整配置。
 
 | 厂商        | provider    | 说明                                |
 |-----------|-------------|-----------------------------------|
@@ -227,11 +238,10 @@ ai:
 
 ## 配置文件说明
 
-| 文件                           | 说明                              |
-|------------------------------|---------------------------------|
-| `application.yml`            | 主配置：端口、Redis、Token、MyBatis、AI 等 |
-| `application-druid.yml`      | 数据源配置：数据库连接、Druid 连接池           |
-| `application-dev.yml`        | 开发环境覆盖配置                        |
-| `application-prod.yml`       | 生产环境覆盖配置                        |
-| `logback.xml`                | 日志配置                            |
-| `mybatis/mybatis-config.xml` | MyBatis 全局配置                    |
+| 文件                           | 说明                   |
+|------------------------------|----------------------|
+| `application.yml`            | 公共配置：框架选型、策略参数、技术栈常量 |
+| `application-dev.yml`        | 开发环境完整配置（明文，开箱即用）    |
+| `application-prod.yml`       | 生产环境完整配置（明文，按需填写）    |
+| `logback.xml`                | 日志配置                 |
+| `mybatis/mybatis-config.xml` | MyBatis 全局配置         |

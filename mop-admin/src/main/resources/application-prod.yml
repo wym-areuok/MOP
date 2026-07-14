@@ -1,64 +1,40 @@
 # ===================================================================
-# MOP 生产环境配置（第 3 层加载，仅写与 druid.yml 不同的配置）
+# MOP 生产环境配置（第 2 层加载，自包含完整明文配置）
 #
-# 加载位置: application.yml → application-druid.yml → 【application-prod.yml】
-# 规则: 本文件只写与 application-druid.yml 不同的配置项，相同部分自动继承
+# 加载位置: application.yml → 【application-prod.yml】
 #
 # 激活方式:
-#   java -jar mop-admin.jar --spring.profiles.active=druid,prod
-#
-# ╔══════════════════════════════════════════════════════════════════════════╗
-# ║                     生产环境占位符规则（重要！）                           ║
-# ╠══════════════════════════════════════════════════════════════════════════╣
-# ║                                                                          ║
-# ║  本文件所有敏感配置均使用 ${ENV_NAME} 格式（无默认值）：                    ║
-# ║                                                                          ║
-# ║    ✅ 正确:  url: ${MOP_PROD_DB_URL}                                     ║
-# ║               password: ${MOP_PROD_DB_PASSWORD}                           ║
-# ║    ❌ 旧式:  url: ${MOP_PROD_DB_URL:jdbc:...}  ← 含 : 的默认值易混淆       ║
-# ║                                                                          ║
-# ║  环境变量未注入时 Spring 启动将直接报错（IllegalArgumentException），       ║
-# ║  以此强制生产部署前完成所有敏感变量注入，避免误用弱默认值。                   ║
-# ║                                                                          ║
-# ║  开发环境（application-druid.yml + application-dev.yml）保留了默认值，       ║
-# ║  所以本地直接启动 java -jar 即可，无需设置任何环境变量。                    ║
-# ║                                                                          ║
-# ╚══════════════════════════════════════════════════════════════════════════╝
-#
-# ⚠️ 上线前必须注入以下环境变量（缺失任何一个都会导致启动失败）:
-#   1. MOP_PROD_TOKEN_SECRET      → 生产 JWT 密钥（高强度随机字符串）
-#   2. MOP_PROD_DB_URL            → 生产数据库 JDBC 连接串
-#   3. MOP_PROD_DB_USERNAME       → 生产数据库账号
-#   4. MOP_PROD_DB_PASSWORD       → 生产数据库密码
-#   5. MOP_PROD_REDIS_PASSWORD    → 生产 Redis 密码（无密码则设为空字符串）
-#   6. MOP_PROD_DRUID_PASSWORD    → Druid 控制台强密码（并配置 allow 白名单）
-#   7. MOP_PROD_AI_API_KEY        → 生产 AI API Key
-#   8. MOP_PROD_AI_MODEL_NAME     → 生产 AI 推理接入点名称
+#   java -jar mop-admin.jar --spring.profiles.active=prod
 #
 # 说明:
 #   1. devtools 关闭，禁止热部署
 #   2. Swagger 接口文档关闭，防止 API 暴露
 #   3. 日志级别 warn，减少磁盘 IO
 #   4. Druid 监控仅允许白名单 IP 访问
-#   5. 防盗链开启，仅允许配置的域名访问静态资源
+#   5. 防盗链开启
 #   6. 数据库连接池调大（minIdle=20, maxActive=50）
 #
-# 配置来源说明:
-#   本文件中 未写 的 datasource 配置项全部继承自 application-druid.yml:
-#     type, driverClassName, initialSize, maxWait, connectTimeout,
-#     socketTimeout, validationQuery, filter.stat, filter.wall 等
-#   当前覆盖项主要为：
-#     - 生产数据库连接信息（MOP_PROD_DB_URL / USERNAME / PASSWORD）
-#     - 连接池容量（minIdle=20, maxActive=50）
-#     - Druid 控制台访问控制（allow + MOP_PROD_DRUID_PASSWORD）
+# ⚠️ 部署前请将以下占位符替换为真实值:
+#   - token.secret            → 生产 JWT 密钥（高强度随机字符串）
+#   - datasource.master.*     → 生产数据库连接信息
+#   - redis.password          → 生产 Redis 密码（无密码则留空）
+#   - statViewServlet.login-password → Druid 控制台强密码
+#   - ai.api-key              → 生产 AI API Key
+#   - ai.model-name           → 生产 AI 推理接入点
 #
 # 注意事项:
-#   - application-druid.yml 中的 multi-statement-allow=true 在生产评估后决定是否关闭
+#   - 本文件所有配置均为明文，请妥善保管
+#   - multi-statement-allow=true 在生产评估后决定是否关闭
 # ===================================================================
+
+# 文件上传路径（生产环境建议绝对路径）
+mop:
+  profile: /data/mop/uploadPath
 
 server:
   port: 8080
   tomcat:
+    accept-count: 1000
     threads:
       max: 800
       min-spare: 100
@@ -69,22 +45,20 @@ logging:
     com.mop: warn
     org.springframework: warn
 
-# ---------- 生产环境 JWT 密钥（必须通过环境变量注入，无默认值）----------
+# ---------- 生产环境 JWT 密钥 ----------
 token:
-  secret: ${MOP_PROD_TOKEN_SECRET}
+  secret: <请填写生产环境JWT密钥>
 
-# Spring 配置
 spring:
-  # 生产环境关闭 devtools
   devtools:
     restart:
       enabled: false
   data:
     redis:
-      host: 127.0.0.1         # ← 改为生产 Redis IP
+      host: 127.0.0.1
       port: 6379
       database: 0
-      password: ${MOP_PROD_REDIS_PASSWORD}               # ← 生产 Redis 密码（必须注入，无密码则设为空字符串）
+      password:
       timeout: 10s
       lettuce:
         pool:
@@ -92,20 +66,45 @@ spring:
           max-idle: 8
           max-active: 8
           max-wait: -1ms
-  # ---------- 生产环境数据库（无默认值，必须注入环境变量）----------
+  # ---------- 数据库配置 ----------
   datasource:
     druid:
+      # 主库数据源（生产环境数据库）
       master:
-        url: ${MOP_PROD_DB_URL}       # 例如 jdbc:sqlserver://prod-db:1433;DatabaseName=mes_ops_platform;TrustServerCertificate=true
-        username: ${MOP_PROD_DB_USERNAME}
-        password: ${MOP_PROD_DB_PASSWORD}
-      minIdle: 20              # 生产环境调大
-      maxActive: 50            # 生产环境调大（根据并发量）
+        url: jdbc:sqlserver://<请填写生产数据库IP>:1433;DatabaseName=mes_ops_platform;TrustServerCertificate=true;sendStringParametersAsUnicode=true
+        username: <请填写生产数据库账号>
+        password: <请填写生产数据库密码>
+      # 初始连接数
+      initialSize: 10
+      # 最小连接池数量（生产环境调大）
+      minIdle: 20
+      # 最大连接池数量（根据并发量调整）
+      maxActive: 50
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置连接超时时间
+      connectTimeout: 30000
+      # 配置网络超时时间
+      socketTimeout: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # Druid 控制台访问控制
       statViewServlet:
-        allow: 127.0.0.1      # ← 仅允许内网/本机访问
-        login-password: ${MOP_PROD_DRUID_PASSWORD}   # ← 必须注入强密码
+        # 仅允许本机或内网 IP 访问
+        allow: 127.0.0.1
+        login-username: admin
+        login-password: <请填写Druid控制台强密码>
+      # SQL 防火墙
+      filter:
+        wall:
+          config:
+            multi-statement-allow: true
 
-# ---------- 生产环境关闭 Swagger ----------
+# ---------- 生产环境 Swagger ----------
 springdoc:
   swagger-ui:
     enabled: false
@@ -113,15 +112,19 @@ springdoc:
 # ---------- 生产环境安全策略 ----------
 referer:
   enabled: true
-  allowed-domains: localhost,127.0.0.1  # ← 改为生产域名，如 your-domain.com
+  allowed-domains: localhost,127.0.0.1
 
 xss:
   enabled: true
 
-# ---------- 生产环境 AI 模型（无默认值，必须注入环境变量） ----------
+# ---------- 生产环境 Quartz ----------
+quartz:
+  jobTimeoutMinutes: 30
+
+# ---------- 生产环境 AI 模型 ----------
 ai:
   model:
     provider: openai
-    api-key: ${MOP_PROD_AI_API_KEY}          # ← 注入生产 API Key
-    model-name: ${MOP_PROD_AI_MODEL_NAME}    # ← 注入生产推理接入点
+    api-key: <请填写生产AI-API-Key>
+    model-name: <请填写生产AI推理接入点>
     base-url: https://ark.cn-beijing.volces.com/api/v3
