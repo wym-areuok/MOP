@@ -38,6 +38,12 @@ public class AiChatServiceImpl implements IAiChatService {
     private static final Logger log = LoggerFactory.getLogger(AiChatServiceImpl.class);
 
     /**
+     * 默认会话标题的内部标记符，存入数据库用于跨 locale 识别。
+     * 对外输出时通过 {@link MessageUtils#message} 翻译为当前 locale 的文本。
+     */
+    private static final String DEFAULT_TITLE_MARKER = "__default__";
+
+    /**
      * 流式聊天语言模型
      * 由 AiModelConfig 工厂 Bean 根据 application.yml 中的 provider 配置动态注入，
      * 可能是 OpenAiStreamingChatModel / OllamaStreamingChatModel 等具体实现
@@ -65,7 +71,7 @@ public class AiChatServiceImpl implements IAiChatService {
     public AiConversationEntity createConversation(Long userId, String model) {
         AiConversationEntity conv = new AiConversationEntity();
         conv.setUserId(userId);
-        conv.setTitle("新对话");
+        conv.setTitle(DEFAULT_TITLE_MARKER);
         conv.setModel(model == null ? modelProps.getModelName() : model);
         // 安全获取用户名，防止 SecurityContext 中无用户信息时 NPE
         String userName = "system";
@@ -75,6 +81,8 @@ public class AiChatServiceImpl implements IAiChatService {
         }
         conv.setCreateBy(userName);
         aiChatMapper.insertConversation(conv);
+        // 向前端返回时翻译为当前 locale 的文本
+        conv.setTitle(MessageUtils.message("ai.conversation.default.title"));
         return conv;
     }
 
@@ -82,7 +90,14 @@ public class AiChatServiceImpl implements IAiChatService {
     public List<AiConversationEntity> listConversations(Long userId) {
         List<AiConversationEntity> list = aiChatMapper.selectConversationsByUserId(userId);
         // 防御性处理：MyBatis 查无数据时可能返回 null，统一转为空列表
-        return list != null ? list : new ArrayList<>();
+        list = list != null ? list : new ArrayList<>();
+        // 将内部标记翻译为当前 locale 的文本，供前端展示
+        for (AiConversationEntity conv : list) {
+            if (DEFAULT_TITLE_MARKER.equals(conv.getTitle())) {
+                conv.setTitle(MessageUtils.message("ai.conversation.default.title"));
+            }
+        }
+        return list;
     }
 
     /**
@@ -146,7 +161,7 @@ public class AiChatServiceImpl implements IAiChatService {
         aiChatMapper.insertMessage(userMsg);
 
         // 3. 首条消息自动命名会话标题（截取前15字 + 省略号）
-        if ("新对话".equals(conv.getTitle())) {
+        if (DEFAULT_TITLE_MARKER.equals(conv.getTitle())) {
             String autoTitle = userInput.length() > 15 ? userInput.substring(0, 15) + "…" : userInput;
             aiChatMapper.updateConversationTitle(conversationId, autoTitle, userId);
         }

@@ -265,11 +265,12 @@ ai:
 ### 使用方式
 
 ```java
+
 @DS("server_a")
 public List<Order> getOrders() {
     // 跨库查询：库名.dbo.表名
     return jdbcTemplate.queryForList(
-        "SELECT * FROM mes_production.dbo.work_order");
+            "SELECT * FROM mes_production.dbo.work_order");
 }
 ```
 
