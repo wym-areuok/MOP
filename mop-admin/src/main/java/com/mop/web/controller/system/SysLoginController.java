@@ -15,6 +15,8 @@ import com.mop.framework.web.service.SysPermissionService;
 import com.mop.framework.web.service.TokenService;
 import com.mop.system.service.ISysConfigService;
 import com.mop.system.service.ISysMenuService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +32,7 @@ import java.util.Set;
  *
  * @author weiyiming
  */
+@Tag(name = "登录验证")
 @RestController
 public class SysLoginController {
     @Autowired
@@ -47,12 +50,7 @@ public class SysLoginController {
     @Autowired
     private ISysConfigService configService;
 
-    /**
-     * 登录方法
-     *
-     * @param loginBody 登录信息
-     * @return 结果
-     */
+    @Operation(summary = "用户登录")
     @PostMapping("/login")
     public AjaxResult login(@RequestBody LoginBody loginBody) {
         AjaxResult ajax = AjaxResult.success();
@@ -63,11 +61,7 @@ public class SysLoginController {
         return ajax;
     }
 
-    /**
-     * 获取用户信息
-     *
-     * @return 用户信息
-     */
+    @Operation(summary = "获取当前登录用户信息（角色/权限/密码策略）")
     @GetMapping("getInfo")
     public AjaxResult getInfo() {
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -90,11 +84,7 @@ public class SysLoginController {
         return ajax;
     }
 
-    /**
-     * 获取路由信息
-     *
-     * @return 路由信息
-     */
+    @Operation(summary = "获取当前用户路由菜单")
     @GetMapping("getRouters")
     public AjaxResult getRouters() {
         Long userId = SecurityUtils.getUserId();

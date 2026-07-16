@@ -7,6 +7,8 @@ import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.framework.web.service.SysRegisterService;
 import com.mop.system.service.ISysConfigService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author weiyiming
  */
+@Tag(name = "用户注册")
 @RestController
 public class SysRegisterController extends BaseController {
     @Autowired
@@ -25,6 +28,7 @@ public class SysRegisterController extends BaseController {
     @Autowired
     private ISysConfigService configService;
 
+    @Operation(summary = "用户注册")
     @PostMapping("/register")
     public AjaxResult register(@RequestBody RegisterBody user) {
         if (!("true".equals(configService.selectConfigByKey("sys.account.registerUser")))) {

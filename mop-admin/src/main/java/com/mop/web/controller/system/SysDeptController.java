@@ -9,6 +9,9 @@ import com.mop.common.enums.BusinessType;
 import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.service.ISysDeptService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,15 +26,14 @@ import java.util.Map;
  *
  * @author weiyiming
  */
+@Tag(name = "部门管理")
 @RestController
 @RequestMapping("/system/dept")
 public class SysDeptController extends BaseController {
     @Autowired
     private ISysDeptService deptService;
 
-    /**
-     * 获取部门列表
-     */
+    @Operation(summary = "查询部门列表")
     @PreAuthorize("@ss.hasPermi('system:dept:list')")
     @GetMapping("/list")
     public AjaxResult list(SysDept dept) {
@@ -39,12 +41,10 @@ public class SysDeptController extends BaseController {
         return success(depts);
     }
 
-    /**
-     * 查询部门列表（排除节点）
-     */
+    @Operation(summary = "查询部门列表（排除指定节点及其子节点）")
     @PreAuthorize("@ss.hasPermi('system:dept:list')")
     @GetMapping("/list/exclude/{deptId}")
-    public AjaxResult excludeChild(@PathVariable(value = "deptId", required = false) Long deptId) {
+    public AjaxResult excludeChild(@Parameter(description = "需排除的部门ID（可选）") @PathVariable(value = "deptId", required = false) Long deptId) {
         List<SysDept> depts = deptService.selectDeptList(new SysDept());
         if (deptId != null) {
             depts.removeIf(d -> deptId.equals(d.getDeptId())
@@ -53,19 +53,15 @@ public class SysDeptController extends BaseController {
         return success(depts);
     }
 
-    /**
-     * 根据部门编号获取详细信息
-     */
+    @Operation(summary = "根据部门ID获取详细信息")
     @PreAuthorize("@ss.hasPermi('system:dept:query')")
     @GetMapping(value = "/{deptId}")
-    public AjaxResult getInfo(@PathVariable Long deptId) {
+    public AjaxResult getInfo(@Parameter(description = "部门ID") @PathVariable Long deptId) {
         deptService.checkDeptDataScope(deptId);
         return success(deptService.selectDeptById(deptId));
     }
 
-    /**
-     * 新增部门
-     */
+    @Operation(summary = "新增部门")
     @PreAuthorize("@ss.hasPermi('system:dept:add')")
     @Log(title = "部门管理", businessType = BusinessType.INSERT)
     @PostMapping
@@ -77,9 +73,7 @@ public class SysDeptController extends BaseController {
         return toAjax(deptService.insertDept(dept));
     }
 
-    /**
-     * 修改部门
-     */
+    @Operation(summary = "修改部门")
     @PreAuthorize("@ss.hasPermi('system:dept:edit')")
     @Log(title = "部门管理", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -97,9 +91,7 @@ public class SysDeptController extends BaseController {
         return toAjax(deptService.updateDept(dept));
     }
 
-    /**
-     * 保存部门排序
-     */
+    @Operation(summary = "保存部门排序")
     @PreAuthorize("@ss.hasPermi('system:dept:edit')")
     @Log(title = "保存部门排序", businessType = BusinessType.UPDATE)
     @PutMapping("/updateSort")
@@ -115,13 +107,11 @@ public class SysDeptController extends BaseController {
         return success();
     }
 
-    /**
-     * 删除部门
-     */
+    @Operation(summary = "删除部门")
     @PreAuthorize("@ss.hasPermi('system:dept:remove')")
     @Log(title = "部门管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{deptId}")
-    public AjaxResult remove(@PathVariable Long deptId) {
+    public AjaxResult remove(@Parameter(description = "部门ID") @PathVariable Long deptId) {
         if (deptService.hasChildByDeptId(deptId)) {
             return warn(MessageUtils.message("dept.delete.child.exists"));
         }

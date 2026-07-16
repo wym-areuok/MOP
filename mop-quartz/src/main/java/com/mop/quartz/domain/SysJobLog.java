@@ -3,6 +3,7 @@ package com.mop.quartz.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mop.common.annotation.Excel;
 import com.mop.common.core.domain.BaseEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -13,60 +14,70 @@ import java.util.Date;
  *
  * @author weiyiming
  */
+@Schema(description = "定时任务日志")
 public class SysJobLog extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
      * ID
      */
+    @Schema(description = "日志ID", example = "1")
     @Excel(name = "日志序号")
     private Long jobLogId;
 
     /**
      * 任务名称
      */
+    @Schema(description = "任务名称", example = "系统默认（无参）")
     @Excel(name = "任务名称")
     private String jobName;
 
     /**
      * 任务组名
      */
+    @Schema(description = "任务组名", example = "DEFAULT")
     @Excel(name = "任务组名")
     private String jobGroup;
 
     /**
      * 调用目标字符串
      */
+    @Schema(description = "调用目标字符串", example = "ryTask.ryNoParams")
     @Excel(name = "调用目标字符串")
     private String invokeTarget;
 
     /**
      * 日志信息
      */
+    @Schema(description = "日志信息", example = "执行成功")
     @Excel(name = "日志信息")
     private String jobMessage;
 
     /**
      * 执行状态（0正常 1失败）
      */
+    @Schema(description = "执行状态（0=正常 1=失败）", allowableValues = {"0", "1"}, example = "0")
     @Excel(name = "执行状态", readConverterExp = "0=正常,1=失败")
     private String status;
 
     /**
      * 异常信息
      */
+    @Schema(description = "异常信息", accessMode = Schema.AccessMode.READ_ONLY)
     @Excel(name = "异常信息")
     private String exceptionInfo;
 
     /**
      * 开始时间
      */
+    @Schema(description = "开始时间", accessMode = Schema.AccessMode.READ_ONLY)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;
 
     /**
      * 结束时间
      */
+    @Schema(description = "结束时间", accessMode = Schema.AccessMode.READ_ONLY)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
 

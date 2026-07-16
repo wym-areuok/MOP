@@ -136,13 +136,10 @@ xss:
   urlPatterns: /system/*,/monitor/*,/tool/*
 
 # Springdoc 公共配置（是否启用由 dev/prod 各自控制 enabled）
+# 分组定义在 SwaggerConfig.java 的 GroupedOpenApi Bean 中，不在 yaml 配置
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
     tags-sorter: alpha
-  group-configs:
-    - group: 'default'
-      paths-to-match: '/**'
-      packages-to-scan: com.mop.ai

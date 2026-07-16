@@ -3,6 +3,7 @@ package com.mop.common.core.domain.entity;
 import com.mop.common.annotation.Excel;
 import com.mop.common.annotation.Excel.ColumnType;
 import com.mop.common.core.domain.BaseEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,81 +14,59 @@ import java.util.Set;
 
 /**
  * 角色表 sys_role
+ * <p>
+ * 字段描述与 mop_initial.sql 中 sys_role 表 MS_Description 保持一致。
  *
  * @author weiyiming
  */
+@Schema(description = "系统角色")
 public class SysRole extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 角色ID
-     */
+    @Schema(description = "角色ID", example = "1")
     @Excel(name = "角色序号", cellType = ColumnType.NUMERIC)
     private Long roleId;
 
-    /**
-     * 角色名称
-     */
+    @Schema(description = "角色名称", required = true, example = "超级管理员")
     @Excel(name = "角色名称")
     private String roleName;
 
-    /**
-     * 角色权限
-     */
+    @Schema(description = "角色权限字符串", required = true, example = "admin")
     @Excel(name = "角色权限")
     private String roleKey;
 
-    /**
-     * 角色排序
-     */
+    @Schema(description = "显示顺序", example = "1")
     @Excel(name = "角色排序")
     private Integer roleSort;
 
-    /**
-     * 数据范围（1：所有数据权限；2：自定义数据权限；3：本部门数据权限；4：本部门及以下数据权限；5：仅本人数据权限）
-     */
+    @Schema(description = "数据范围（1=全部数据权限 2=自定义数据权限 3=本部门数据权限 4=本部门及以下数据权限 5=仅本人数据权限）",
+            allowableValues = {"1", "2", "3", "4", "5"}, example = "1")
     @Excel(name = "数据范围", readConverterExp = "1=所有数据权限,2=自定义数据权限,3=本部门数据权限,4=本部门及以下数据权限,5=仅本人数据权限")
     private String dataScope;
 
-    /**
-     * 菜单树选择项是否关联显示（ 0：父子不互相关联显示 1：父子互相关联显示）
-     */
+    @Schema(description = "菜单树选择项是否关联显示")
     private boolean menuCheckStrictly;
 
-    /**
-     * 部门树选择项是否关联显示（0：父子不互相关联显示 1：父子互相关联显示 ）
-     */
+    @Schema(description = "部门树选择项是否关联显示")
     private boolean deptCheckStrictly;
 
-    /**
-     * 角色状态（0正常 1停用）
-     */
+    @Schema(description = "角色状态（0=正常 1=停用）", allowableValues = {"0", "1"}, example = "0")
     @Excel(name = "角色状态", readConverterExp = "0=正常,1=停用")
     private String status;
 
-    /**
-     * 删除标志（0代表存在 2代表删除）
-     */
+    @Schema(description = "删除标志（0=存在 2=删除）", allowableValues = {"0", "2"}, example = "0", accessMode = Schema.AccessMode.READ_ONLY)
     private String delFlag;
 
-    /**
-     * 用户是否存在此角色标识 默认不存在
-     */
+    @Schema(description = "用户是否已分配此角色", accessMode = Schema.AccessMode.READ_ONLY)
     private boolean flag = false;
 
-    /**
-     * 菜单组
-     */
+    @Schema(description = "菜单ID组", accessMode = Schema.AccessMode.WRITE_ONLY)
     private Long[] menuIds;
 
-    /**
-     * 部门组（数据权限）
-     */
+    @Schema(description = "部门ID组（数据权限）", accessMode = Schema.AccessMode.WRITE_ONLY)
     private Long[] deptIds;
 
-    /**
-     * 角色菜单权限
-     */
+    @Schema(description = "角色菜单权限集合", accessMode = Schema.AccessMode.READ_ONLY)
     private Set<String> permissions;
 
     public SysRole() {

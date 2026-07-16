@@ -4,6 +4,7 @@ import com.mop.common.annotation.Excel;
 import com.mop.common.annotation.Excel.ColumnType;
 import com.mop.common.constant.UserConstants;
 import com.mop.common.core.domain.BaseEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -14,58 +15,68 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  *
  * @author weiyiming
  */
+@Schema(description = "字典数据")
 public class SysDictData extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
      * 字典编码
      */
+    @Schema(description = "字典编码", example = "1")
     @Excel(name = "字典编码", cellType = ColumnType.NUMERIC)
     private Long dictCode;
 
     /**
      * 字典排序
      */
+    @Schema(description = "字典排序", example = "0")
     @Excel(name = "字典排序", cellType = ColumnType.NUMERIC)
     private Long dictSort;
 
     /**
      * 字典标签
      */
+    @Schema(description = "字典标签", example = "男")
     @Excel(name = "字典标签")
     private String dictLabel;
 
     /**
      * 字典键值
      */
+    @Schema(description = "字典键值", example = "0")
     @Excel(name = "字典键值")
     private String dictValue;
 
     /**
      * 字典类型
      */
+    @Schema(description = "字典类型", example = "sys_user_sex")
     @Excel(name = "字典类型")
     private String dictType;
 
     /**
      * 样式属性（其他样式扩展）
      */
+    @Schema(description = "样式属性（其他样式扩展）")
     private String cssClass;
 
     /**
      * 表格字典样式
      */
+    @Schema(description = "表格字典样式")
     private String listClass;
 
     /**
      * 是否默认（Y是 N否）
      */
+    @Schema(description = "是否默认（Y=是 N=否）", allowableValues = {"Y", "N"}, example = "N")
     @Excel(name = "是否默认", readConverterExp = "Y=是,N=否")
     private String isDefault;
 
     /**
      * 状态（0正常 1停用）
      */
+    @Schema(description = "状态（0=正常 1=停用）", allowableValues = {"0", "1"}, example = "0")
     @Excel(name = "状态", readConverterExp = "0=正常,1=停用")
     private String status;
 

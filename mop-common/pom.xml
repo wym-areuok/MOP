@@ -134,6 +134,12 @@
             <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
 
+        <!-- Swagger Annotations (@Schema/@Tag/@Operation/@Parameter 注解) -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations-jakarta</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

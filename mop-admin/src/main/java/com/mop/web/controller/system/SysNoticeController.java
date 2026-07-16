@@ -9,6 +9,9 @@ import com.mop.common.enums.BusinessType;
 import com.mop.system.domain.SysNotice;
 import com.mop.system.service.ISysNoticeReadService;
 import com.mop.system.service.ISysNoticeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +24,7 @@ import java.util.List;
  *
  * @author weiyiming
  */
+@Tag(name = "通知公告")
 @RestController
 @RequestMapping("/system/notice")
 public class SysNoticeController extends BaseController {
@@ -30,9 +34,7 @@ public class SysNoticeController extends BaseController {
     @Autowired
     private ISysNoticeReadService noticeReadService;
 
-    /**
-     * 获取通知公告列表
-     */
+    @Operation(summary = "查询通知公告列表")
     @PreAuthorize("@ss.hasPermi('system:notice:list')")
     @GetMapping("/list")
     public TableDataInfo list(SysNotice notice) {
@@ -41,18 +43,14 @@ public class SysNoticeController extends BaseController {
         return getDataTable(list);
     }
 
-    /**
-     * 根据通知公告编号获取详细信息
-     */
+    @Operation(summary = "根据公告ID获取详细信息")
     @PreAuthorize("@ss.hasPermi('system:notice:query')")
     @GetMapping(value = "/{noticeId}")
-    public AjaxResult getInfo(@PathVariable Long noticeId) {
+    public AjaxResult getInfo(@Parameter(description = "公告ID") @PathVariable Long noticeId) {
         return success(noticeService.selectNoticeById(noticeId));
     }
 
-    /**
-     * 新增通知公告
-     */
+    @Operation(summary = "新增通知公告")
     @PreAuthorize("@ss.hasPermi('system:notice:add')")
     @Log(title = "通知公告", businessType = BusinessType.INSERT)
     @PostMapping
@@ -61,9 +59,7 @@ public class SysNoticeController extends BaseController {
         return toAjax(noticeService.insertNotice(notice));
     }
 
-    /**
-     * 修改通知公告
-     */
+    @Operation(summary = "修改通知公告")
     @PreAuthorize("@ss.hasPermi('system:notice:edit')")
     @Log(title = "通知公告", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -72,9 +68,7 @@ public class SysNoticeController extends BaseController {
         return toAjax(noticeService.updateNotice(notice));
     }
 
-    /**
-     * 首页顶部公告列表（返回全部正常公告，带当前用户已读标记，最多5条）
-     */
+    @Operation(summary = "获取首页顶部公告（最多5条，含已读标记）")
     @PreAuthorize("@ss.hasPermi('system:notice:list')")
     @GetMapping("/listTop")
     @ResponseBody
@@ -87,9 +81,7 @@ public class SysNoticeController extends BaseController {
         return result;
     }
 
-    /**
-     * 标记公告已读
-     */
+    @Operation(summary = "标记公告已读")
     @PreAuthorize("@ss.hasPermi('system:notice:list')")
     @PostMapping("/markRead")
     @ResponseBody
@@ -99,9 +91,7 @@ public class SysNoticeController extends BaseController {
         return success();
     }
 
-    /**
-     * 批量标记已读
-     */
+    @Operation(summary = "批量标记公告已读")
     @PreAuthorize("@ss.hasPermi('system:notice:list')")
     @PostMapping("/markReadAll")
     @ResponseBody
@@ -112,9 +102,7 @@ public class SysNoticeController extends BaseController {
         return success();
     }
 
-    /**
-     * 已读用户列表数据
-     */
+    @Operation(summary = "查询公告已读用户列表")
     @PreAuthorize("@ss.hasPermi('system:notice:list')")
     @GetMapping("/readUsers/list")
     @ResponseBody
@@ -124,13 +112,11 @@ public class SysNoticeController extends BaseController {
         return getDataTable(list);
     }
 
-    /**
-     * 删除通知公告（级联清理已由 Service 层处理）
-     */
+    @Operation(summary = "删除通知公告")
     @PreAuthorize("@ss.hasPermi('system:notice:remove')")
     @Log(title = "通知公告", businessType = BusinessType.DELETE)
     @DeleteMapping("/{noticeIds}")
-    public AjaxResult remove(@PathVariable Long[] noticeIds) {
+    public AjaxResult remove(@Parameter(description = "公告ID数组") @PathVariable Long[] noticeIds) {
         return toAjax(noticeService.deleteNoticeByIds(noticeIds));
     }
 }

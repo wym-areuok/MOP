@@ -1,6 +1,7 @@
 package com.mop.common.core.domain.entity;
 
 import com.mop.common.core.domain.BaseEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,95 +13,64 @@ import java.util.List;
 
 /**
  * 菜单权限表 sys_menu
+ * <p>
+ * 字段描述与 mop_initial.sql 中 sys_menu 表 MS_Description 保持一致。
  *
  * @author weiyiming
  */
+@Schema(description = "系统菜单")
 public class SysMenu extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 菜单ID
-     */
+    @Schema(description = "菜单ID", example = "1")
     private Long menuId;
 
-    /**
-     * 菜单名称
-     */
+    @Schema(description = "菜单名称", required = true, example = "系统管理")
     private String menuName;
 
-    /**
-     * 父菜单名称
-     */
+    @Schema(description = "父菜单名称", accessMode = Schema.AccessMode.READ_ONLY)
     private String parentName;
 
-    /**
-     * 父菜单ID
-     */
+    @Schema(description = "父菜单ID", example = "0")
     private Long parentId;
 
-    /**
-     * 显示顺序
-     */
+    @Schema(description = "显示顺序", example = "1")
     private Integer orderNum;
 
-    /**
-     * 路由地址
-     */
+    @Schema(description = "路由地址", example = "system")
     private String path;
 
-    /**
-     * 组件路径
-     */
+    @Schema(description = "组件路径", example = "system/user/index")
     private String component;
 
-    /**
-     * 路由参数
-     */
+    @Schema(description = "路由参数", example = "{\"id\":1}")
     private String query;
 
-    /**
-     * 路由名称，默认和路由地址相同的驼峰格式（注意：因为vue3版本的router会删除名称相同路由，为避免名字的冲突，特殊情况可以自定义）
-     */
+    @Schema(description = "路由名称", example = "SystemUser")
     private String routeName;
 
-    /**
-     * 是否为外链（0是 1否）
-     */
+    @Schema(description = "是否为外链（0=是 1=否）", allowableValues = {"0", "1"}, example = "1")
     private String isFrame;
 
-    /**
-     * 是否缓存（0缓存 1不缓存）
-     */
+    @Schema(description = "是否缓存（0=缓存 1=不缓存）", allowableValues = {"0", "1"}, example = "0")
     private String isCache;
 
-    /**
-     * 类型（M目录 C菜单 F按钮）
-     */
+    @Schema(description = "菜单类型（M=目录 C=菜单 F=按钮）", allowableValues = {"M", "C", "F"}, example = "C")
     private String menuType;
 
-    /**
-     * 显示状态（0显示 1隐藏）
-     */
+    @Schema(description = "显示状态（0=显示 1=隐藏）", allowableValues = {"0", "1"}, example = "0")
     private String visible;
 
-    /**
-     * 菜单状态（0正常 1停用）
-     */
+    @Schema(description = "菜单状态（0=正常 1=停用）", allowableValues = {"0", "1"}, example = "0")
     private String status;
 
-    /**
-     * 权限字符串
-     */
+    @Schema(description = "权限标识", example = "system:user:list")
     private String perms;
 
-    /**
-     * 菜单图标
-     */
+    @Schema(description = "菜单图标", example = "user")
     private String icon;
 
-    /**
-     * 子菜单
-     */
+    @Schema(description = "子菜单", accessMode = Schema.AccessMode.READ_ONLY)
     private List<SysMenu> children = new ArrayList<SysMenu>();
 
     public Long getMenuId() {

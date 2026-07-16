@@ -7,6 +7,9 @@ import com.mop.common.utils.StringUtils;
 import com.mop.common.utils.file.FileUploadUtils;
 import com.mop.common.utils.file.FileUtils;
 import com.mop.framework.config.ServerConfig;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -27,6 +30,7 @@ import java.util.List;
  *
  * @author weiyiming
  */
+@Tag(name = "通用接口")
 @RestController
 @RequestMapping("/common")
 public class CommonController {
@@ -35,14 +39,12 @@ public class CommonController {
     @Autowired
     private ServerConfig serverConfig;
 
-    /**
-     * 通用下载请求
-     *
-     * @param fileName 文件名称
-     * @param delete   是否删除
-     */
+    @Operation(summary = "通用文件下载")
     @GetMapping("/download")
-    public void fileDownload(String fileName, Boolean delete, HttpServletResponse response, HttpServletRequest request) {
+    public void fileDownload(
+            @Parameter(description = "文件名称") String fileName,
+            @Parameter(description = "下载后是否删除源文件") Boolean delete,
+            HttpServletResponse response, HttpServletRequest request) {
         try {
             if (!FileUtils.checkAllowDownload(fileName)) {
                 throw new Exception(MessageUtils.message("common.download.filename.illegal", fileName));
@@ -61,9 +63,7 @@ public class CommonController {
         }
     }
 
-    /**
-     * 通用上传请求（单个）
-     */
+    @Operation(summary = "单文件上传")
     @PostMapping("/upload")
     public AjaxResult uploadFile(MultipartFile file) throws Exception {
         try {
@@ -83,9 +83,7 @@ public class CommonController {
         }
     }
 
-    /**
-     * 通用上传请求（多个）
-     */
+    @Operation(summary = "多文件上传")
     @PostMapping("/uploads")
     public AjaxResult uploadFiles(List<MultipartFile> files) throws Exception {
         try {
@@ -115,11 +113,11 @@ public class CommonController {
         }
     }
 
-    /**
-     * 本地资源通用下载
-     */
+    @Operation(summary = "本地资源文件下载")
     @GetMapping("/download/resource")
-    public void resourceDownload(String resource, HttpServletRequest request, HttpServletResponse response)
+    public void resourceDownload(
+            @Parameter(description = "资源名称/路径") String resource,
+            HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         try {
             if (!FileUtils.checkAllowDownload(resource)) {

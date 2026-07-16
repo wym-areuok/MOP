@@ -9,6 +9,9 @@ import com.mop.common.enums.BusinessType;
 import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.service.ISysMenuService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -22,15 +25,14 @@ import java.util.Map;
  *
  * @author weiyiming
  */
+@Tag(name = "菜单管理")
 @RestController
 @RequestMapping("/system/menu")
 public class SysMenuController extends BaseController {
     @Autowired
     private ISysMenuService menuService;
 
-    /**
-     * 获取菜单列表
-     */
+    @Operation(summary = "查询菜单列表")
     @PreAuthorize("@ss.hasPermi('system:menu:list')")
     @GetMapping("/list")
     public AjaxResult list(SysMenu menu) {
@@ -38,18 +40,14 @@ public class SysMenuController extends BaseController {
         return success(menus);
     }
 
-    /**
-     * 根据菜单编号获取详细信息
-     */
+    @Operation(summary = "根据菜单ID获取详细信息")
     @PreAuthorize("@ss.hasPermi('system:menu:query')")
     @GetMapping(value = "/{menuId}")
-    public AjaxResult getInfo(@PathVariable Long menuId) {
+    public AjaxResult getInfo(@Parameter(description = "菜单ID") @PathVariable Long menuId) {
         return success(menuService.selectMenuById(menuId));
     }
 
-    /**
-     * 获取菜单下拉树列表
-     */
+    @Operation(summary = "获取菜单树形下拉列表")
     @PreAuthorize("@ss.hasPermi('system:menu:list')")
     @GetMapping("/treeselect")
     public AjaxResult treeselect(SysMenu menu) {
@@ -57,12 +55,10 @@ public class SysMenuController extends BaseController {
         return success(menuService.buildMenuTreeSelect(menus));
     }
 
-    /**
-     * 加载对应角色菜单列表树
-     */
+    @Operation(summary = "加载角色菜单树（含已选节点）")
     @PreAuthorize("@ss.hasPermi('system:role:list')")
     @GetMapping(value = "/roleMenuTreeselect/{roleId}")
-    public AjaxResult roleMenuTreeselect(@PathVariable("roleId") Long roleId) {
+    public AjaxResult roleMenuTreeselect(@Parameter(description = "角色ID") @PathVariable("roleId") Long roleId) {
         List<SysMenu> menus = menuService.selectMenuList(getUserId());
         AjaxResult ajax = AjaxResult.success();
         ajax.put("checkedKeys", menuService.selectMenuListByRoleId(roleId));
@@ -70,9 +66,7 @@ public class SysMenuController extends BaseController {
         return ajax;
     }
 
-    /**
-     * 新增菜单
-     */
+    @Operation(summary = "新增菜单")
     @PreAuthorize("@ss.hasPermi('system:menu:add')")
     @Log(title = "菜单管理", businessType = BusinessType.INSERT)
     @PostMapping
@@ -88,9 +82,7 @@ public class SysMenuController extends BaseController {
         return toAjax(menuService.insertMenu(menu));
     }
 
-    /**
-     * 修改菜单
-     */
+    @Operation(summary = "修改菜单")
     @PreAuthorize("@ss.hasPermi('system:menu:edit')")
     @Log(title = "菜单管理", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -108,9 +100,7 @@ public class SysMenuController extends BaseController {
         return toAjax(menuService.updateMenu(menu));
     }
 
-    /**
-     * 保存菜单排序
-     */
+    @Operation(summary = "保存菜单排序")
     @PreAuthorize("@ss.hasPermi('system:menu:edit')")
     @Log(title = "保存菜单排序", businessType = BusinessType.UPDATE)
     @PutMapping("/updateSort")
@@ -121,13 +111,11 @@ public class SysMenuController extends BaseController {
         return success();
     }
 
-    /**
-     * 删除菜单
-     */
+    @Operation(summary = "删除菜单")
     @PreAuthorize("@ss.hasPermi('system:menu:remove')")
     @Log(title = "菜单管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{menuId}")
-    public AjaxResult remove(@PathVariable("menuId") Long menuId) {
+    public AjaxResult remove(@Parameter(description = "菜单ID") @PathVariable("menuId") Long menuId) {
         if (menuService.hasChildByMenuId(menuId)) {
             return warn(MessageUtils.message("menu.delete.child.exists"));
         }

@@ -31,6 +31,7 @@
         <jaxb-runtime.version>2.3.1</jaxb-runtime.version>
         <springdoc.version>3.0.2</springdoc.version>
         <knife4j.version>4.5.0</knife4j.version>
+        <swagger-annotations.version>2.2.43</swagger-annotations.version>
         <langchain4j.version>0.36.2</langchain4j.version>
         <mssql-jdbc.version>12.8.1.jre11</mssql-jdbc.version>
         <dynamic-datasource.version>4.5.0</dynamic-datasource.version>
@@ -113,6 +114,13 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+
+            <!-- Swagger Annotations（供非 Web 模块使用 @Schema/@Tag/@Operation/@Parameter） -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
+                <version>${swagger-annotations.version}</version>
             </dependency>
 
             <!-- io常用工具类 -->

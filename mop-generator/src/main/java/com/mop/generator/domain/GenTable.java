@@ -3,6 +3,7 @@ package com.mop.generator.domain;
 import com.mop.common.constant.GenConstants;
 import com.mop.common.core.domain.BaseEntity;
 import com.mop.common.utils.StringUtils;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.commons.lang3.ArrayUtils;
@@ -11,149 +12,100 @@ import java.util.List;
 
 /**
  * 业务表 gen_table
+ * <p>
+ * 字段描述与 mop_initial.sql 中 gen_table 表 MS_Description 保持一致。
  *
  * @author weiyiming
  */
+@Schema(description = "代码生成业务表")
 public class GenTable extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 编号
-     */
+    @Schema(description = "编号", example = "1")
     private Long tableId;
 
-    /**
-     * 表名称
-     */
+    @Schema(description = "表名称", required = true, example = "sys_user")
     @NotBlank(message = "{gen.table.name.not.blank}")
     private String tableName;
 
-    /**
-     * 表描述
-     */
+    @Schema(description = "表描述", required = true, example = "用户信息表")
     @NotBlank(message = "{gen.table.desc.not.blank}")
     private String tableComment;
 
-    /**
-     * 关联父表的表名
-     */
+    @Schema(description = "关联子表的表名")
     private String subTableName;
 
-    /**
-     * 本表关联父表的外键名
-     */
+    @Schema(description = "子表关联的外键名")
     private String subTableFkName;
 
-    /**
-     * 实体类名称(首字母大写)
-     */
+    @Schema(description = "实体类名称", required = true, example = "SysUser")
     @NotBlank(message = "{gen.table.class.name.not.blank}")
     private String className;
 
-    /**
-     * 使用的模板（crud单表操作 tree树表操作 sub主子表操作）
-     */
+    @Schema(description = "使用的模板（crud=单表 tree=树表 sub=主子表）", allowableValues = {"crud", "tree", "sub"}, example = "crud")
     private String tplCategory;
 
-    /**
-     * 前端类型（element-ui模版 element-plus模版 element-plus-typescript模版）
-     */
+    @Schema(description = "前端模板类型（element-plus模版）", example = "element-plus")
     private String tplWebType;
 
-    /**
-     * 生成包路径
-     */
+    @Schema(description = "生成包路径", required = true, example = "com.mop.system")
     @NotBlank(message = "{gen.table.package.not.blank}")
     private String packageName;
 
-    /**
-     * 生成模块名
-     */
+    @Schema(description = "生成模块名", required = true, example = "system")
     @NotBlank(message = "{gen.table.module.not.blank}")
     private String moduleName;
 
-    /**
-     * 生成业务名
-     */
+    @Schema(description = "生成业务名", required = true, example = "user")
     @NotBlank(message = "{gen.table.business.not.blank}")
     private String businessName;
 
-    /**
-     * 生成功能名
-     */
+    @Schema(description = "生成功能名", required = true, example = "用户")
     @NotBlank(message = "{gen.table.function.not.blank}")
     private String functionName;
 
-    /**
-     * 生成作者
-     */
+    @Schema(description = "生成功能作者", required = true, example = "weiyiming")
     @NotBlank(message = "{gen.table.author.not.blank}")
     private String functionAuthor;
 
-    /**
-     * 表单布局（单列 双列 三列）
-     */
+    @Schema(description = "表单布局（1=单列 2=双列 3=三列）", example = "1")
     private Integer formColNum;
 
-    /**
-     * 生成代码方式（0zip压缩包 1自定义路径）
-     */
+    @Schema(description = "生成代码方式（0=zip压缩包 1=自定义路径）", allowableValues = {"0", "1"}, example = "0")
     private String genType;
 
-    /**
-     * 生成路径（不填默认项目路径）
-     */
+    @Schema(description = "生成路径")
     private String genPath;
 
-    /**
-     * 主键信息
-     */
+    @Schema(description = "主键信息", accessMode = Schema.AccessMode.READ_ONLY)
     private GenTableColumn pkColumn;
 
-    /**
-     * 子表信息
-     */
+    @Schema(description = "子表信息", accessMode = Schema.AccessMode.READ_ONLY)
     private GenTable subTable;
 
-    /**
-     * 表列信息
-     */
+    @Schema(description = "表列信息")
     @Valid
     private List<GenTableColumn> columns;
 
-    /**
-     * 其它生成选项
-     */
+    @Schema(description = "其它生成选项")
     private String options;
 
-    /**
-     * 树编码字段
-     */
+    @Schema(description = "树编码字段")
     private String treeCode;
 
-    /**
-     * 树父编码字段
-     */
+    @Schema(description = "树父编码字段")
     private String treeParentCode;
 
-    /**
-     * 树名称字段
-     */
+    @Schema(description = "树名称字段")
     private String treeName;
 
-    /**
-     * 上级菜单ID字段
-     */
+    @Schema(description = "上级菜单ID字段")
     private Long parentMenuId;
 
-    /**
-     * 上级菜单名称字段
-     */
+    @Schema(description = "上级菜单名称字段")
     private String parentMenuName;
 
-    /**
-     * 是否生成详情页
-     */
+    @Schema(description = "是否生成详情页")
     private boolean isView;
 
     public static boolean isSub(String tplCategory) {

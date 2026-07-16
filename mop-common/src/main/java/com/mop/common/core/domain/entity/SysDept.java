@@ -1,6 +1,7 @@
 package com.mop.common.core.domain.entity;
 
 import com.mop.common.core.domain.BaseEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,70 +14,49 @@ import java.util.List;
 
 /**
  * 部门表 sys_dept
+ * <p>
+ * 字段描述与 mop_initial.sql 中 sys_dept 表 MS_Description 保持一致。
  *
  * @author weiyiming
  */
+@Schema(description = "系统部门")
 public class SysDept extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 部门ID
-     */
+    @Schema(description = "部门ID", example = "100")
     private Long deptId;
 
-    /**
-     * 父部门ID
-     */
+    @Schema(description = "父部门ID")
     private Long parentId;
 
-    /**
-     * 祖级列表
-     */
+    @Schema(description = "祖级列表", accessMode = Schema.AccessMode.READ_ONLY)
     private String ancestors;
 
-    /**
-     * 部门名称
-     */
+    @Schema(description = "部门名称", required = true, example = "研发部")
     private String deptName;
 
-    /**
-     * 显示顺序
-     */
+    @Schema(description = "显示顺序", example = "1")
     private Integer orderNum;
 
-    /**
-     * 负责人
-     */
+    @Schema(description = "负责人", example = "张三")
     private String leader;
 
-    /**
-     * 联系电话
-     */
+    @Schema(description = "联系电话", example = "13800138000")
     private String phone;
 
-    /**
-     * 邮箱
-     */
+    @Schema(description = "邮箱", example = "dept@example.com")
     private String email;
 
-    /**
-     * 部门状态:0正常,1停用
-     */
+    @Schema(description = "部门状态（0=正常 1=停用）", allowableValues = {"0", "1"}, example = "0")
     private String status;
 
-    /**
-     * 删除标志（0代表存在 2代表删除）
-     */
+    @Schema(description = "删除标志（0=存在 2=删除）", allowableValues = {"0", "2"}, example = "0", accessMode = Schema.AccessMode.READ_ONLY)
     private String delFlag;
 
-    /**
-     * 父部门名称
-     */
+    @Schema(description = "父部门名称", accessMode = Schema.AccessMode.READ_ONLY)
     private String parentName;
 
-    /**
-     * 子部门
-     */
+    @Schema(description = "子部门", accessMode = Schema.AccessMode.READ_ONLY)
     private List<SysDept> children = new ArrayList<SysDept>();
 
     public Long getDeptId() {

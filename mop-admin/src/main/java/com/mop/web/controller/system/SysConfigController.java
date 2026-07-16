@@ -9,6 +9,9 @@ import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.poi.ExcelUtil;
 import com.mop.system.domain.SysConfig;
 import com.mop.system.service.ISysConfigService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,15 +25,14 @@ import java.util.List;
  *
  * @author weiyiming
  */
+@Tag(name = "参数管理")
 @RestController
 @RequestMapping("/system/config")
 public class SysConfigController extends BaseController {
     @Autowired
     private ISysConfigService configService;
 
-    /**
-     * 获取参数配置列表
-     */
+    @Operation(summary = "查询参数配置列表")
     @PreAuthorize("@ss.hasPermi('system:config:list')")
     @GetMapping("/list")
     public TableDataInfo list(SysConfig config) {
@@ -39,6 +41,7 @@ public class SysConfigController extends BaseController {
         return getDataTable(list);
     }
 
+    @Operation(summary = "导出参数配置")
     @Log(title = "参数管理", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('system:config:export')")
     @PostMapping("/export")
@@ -48,27 +51,21 @@ public class SysConfigController extends BaseController {
         util.exportExcel(response, list, MessageUtils.message("config.export.title"));
     }
 
-    /**
-     * 根据参数编号获取详细信息
-     */
+    @Operation(summary = "根据参数ID获取详细信息")
     @PreAuthorize("@ss.hasPermi('system:config:query')")
     @GetMapping(value = "/{configId}")
-    public AjaxResult getInfo(@PathVariable Long configId) {
+    public AjaxResult getInfo(@Parameter(description = "参数ID") @PathVariable Long configId) {
         return success(configService.selectConfigById(configId));
     }
 
-    /**
-     * 根据参数键名查询参数值
-     */
+    @Operation(summary = "根据参数键名查询参数值")
     @PreAuthorize("@ss.hasPermi('system:config:query')")
     @GetMapping(value = "/configKey/{configKey}")
-    public AjaxResult getConfigKey(@PathVariable String configKey) {
+    public AjaxResult getConfigKey(@Parameter(description = "参数键名") @PathVariable String configKey) {
         return success(configService.selectConfigByKey(configKey));
     }
 
-    /**
-     * 新增参数配置
-     */
+    @Operation(summary = "新增参数配置")
     @PreAuthorize("@ss.hasPermi('system:config:add')")
     @Log(title = "参数管理", businessType = BusinessType.INSERT)
     @PostMapping
@@ -80,9 +77,7 @@ public class SysConfigController extends BaseController {
         return toAjax(configService.insertConfig(config));
     }
 
-    /**
-     * 修改参数配置
-     */
+    @Operation(summary = "修改参数配置")
     @PreAuthorize("@ss.hasPermi('system:config:edit')")
     @Log(title = "参数管理", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -94,20 +89,16 @@ public class SysConfigController extends BaseController {
         return toAjax(configService.updateConfig(config));
     }
 
-    /**
-     * 删除参数配置
-     */
+    @Operation(summary = "删除参数配置")
     @PreAuthorize("@ss.hasPermi('system:config:remove')")
     @Log(title = "参数管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{configIds}")
-    public AjaxResult remove(@PathVariable Long[] configIds) {
+    public AjaxResult remove(@Parameter(description = "参数ID数组") @PathVariable Long[] configIds) {
         configService.deleteConfigByIds(configIds);
         return success();
     }
 
-    /**
-     * 刷新参数缓存
-     */
+    @Operation(summary = "刷新参数缓存")
     @PreAuthorize("@ss.hasPermi('system:config:remove')")
     @Log(title = "参数管理", businessType = BusinessType.CLEAN)
     @PostMapping("/refreshCache")

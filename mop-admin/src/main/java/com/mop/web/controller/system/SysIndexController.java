@@ -7,6 +7,8 @@ import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.service.ISysUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,28 +22,22 @@ import java.util.Map;
  *
  * @author weiyiming
  */
+@Tag(name = "首页")
 @RestController
 public class SysIndexController {
-    /**
-     * 系统基础配置
-     */
     @Autowired
     private MopConfig mopConfig;
 
     @Autowired
     private ISysUserService userService;
 
-    /**
-     * 访问首页，提示语
-     */
+    @Operation(summary = "访问首页欢迎信息")
     @RequestMapping("/")
     public String index() {
         return StringUtils.format(MessageUtils.message("sys.index.welcome"), mopConfig.getName(), mopConfig.getVersion());
     }
 
-    /**
-     * 解锁屏幕
-     */
+    @Operation(summary = "解锁屏幕")
     @PostMapping("/unlockscreen")
     public AjaxResult unlockScreen(@RequestBody Map<String, String> body) {
         String password = body.get("password");

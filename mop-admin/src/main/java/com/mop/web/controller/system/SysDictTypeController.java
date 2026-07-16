@@ -9,6 +9,9 @@ import com.mop.common.enums.BusinessType;
 import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.poi.ExcelUtil;
 import com.mop.system.service.ISysDictTypeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,12 +25,14 @@ import java.util.List;
  *
  * @author weiyiming
  */
+@Tag(name = "字典类型")
 @RestController
 @RequestMapping("/system/dict/type")
 public class SysDictTypeController extends BaseController {
     @Autowired
     private ISysDictTypeService dictTypeService;
 
+    @Operation(summary = "查询字典类型列表")
     @PreAuthorize("@ss.hasPermi('system:dict:list')")
     @GetMapping("/list")
     public TableDataInfo list(SysDictType dictType) {
@@ -36,6 +41,7 @@ public class SysDictTypeController extends BaseController {
         return getDataTable(list);
     }
 
+    @Operation(summary = "导出字典类型")
     @Log(title = "字典类型", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('system:dict:export')")
     @PostMapping("/export")
@@ -45,18 +51,14 @@ public class SysDictTypeController extends BaseController {
         util.exportExcel(response, list, MessageUtils.message("dict.export.title"));
     }
 
-    /**
-     * 查询字典类型详细
-     */
+    @Operation(summary = "根据字典ID获取详细信息")
     @PreAuthorize("@ss.hasPermi('system:dict:query')")
     @GetMapping(value = "/{dictId}")
-    public AjaxResult getInfo(@PathVariable Long dictId) {
+    public AjaxResult getInfo(@Parameter(description = "字典ID") @PathVariable Long dictId) {
         return success(dictTypeService.selectDictTypeById(dictId));
     }
 
-    /**
-     * 新增字典类型
-     */
+    @Operation(summary = "新增字典类型")
     @PreAuthorize("@ss.hasPermi('system:dict:add')")
     @Log(title = "字典类型", businessType = BusinessType.INSERT)
     @PostMapping
@@ -68,9 +70,7 @@ public class SysDictTypeController extends BaseController {
         return toAjax(dictTypeService.insertDictType(dict));
     }
 
-    /**
-     * 修改字典类型
-     */
+    @Operation(summary = "修改字典类型")
     @PreAuthorize("@ss.hasPermi('system:dict:edit')")
     @Log(title = "字典类型", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -82,20 +82,16 @@ public class SysDictTypeController extends BaseController {
         return toAjax(dictTypeService.updateDictType(dict));
     }
 
-    /**
-     * 删除字典类型
-     */
+    @Operation(summary = "删除字典类型")
     @PreAuthorize("@ss.hasPermi('system:dict:remove')")
     @Log(title = "字典类型", businessType = BusinessType.DELETE)
     @DeleteMapping("/{dictIds}")
-    public AjaxResult remove(@PathVariable Long[] dictIds) {
+    public AjaxResult remove(@Parameter(description = "字典ID数组") @PathVariable Long[] dictIds) {
         dictTypeService.deleteDictTypeByIds(dictIds);
         return success();
     }
 
-    /**
-     * 刷新字典缓存
-     */
+    @Operation(summary = "刷新字典缓存")
     @PreAuthorize("@ss.hasPermi('system:dict:remove')")
     @Log(title = "字典类型", businessType = BusinessType.CLEAN)
     @PostMapping("/refreshCache")
@@ -104,9 +100,7 @@ public class SysDictTypeController extends BaseController {
         return success();
     }
 
-    /**
-     * 获取字典选择框列表
-     */
+    @Operation(summary = "获取字典类型下拉选择列表")
     @GetMapping("/optionselect")
     public AjaxResult optionselect() {
         List<SysDictType> dictTypes = dictTypeService.selectDictTypeAll();

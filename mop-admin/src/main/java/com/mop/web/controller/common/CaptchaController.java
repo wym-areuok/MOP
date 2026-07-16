@@ -9,6 +9,8 @@ import com.mop.common.core.redis.RedisCache;
 import com.mop.common.utils.sign.Base64;
 import com.mop.common.utils.uuid.IdUtils;
 import com.mop.system.service.ISysConfigService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author weiyiming
  */
+@Tag(name = "验证码")
 @RestController
 public class CaptchaController {
     @Resource(name = "captchaProducer")
@@ -40,9 +43,7 @@ public class CaptchaController {
     @Autowired
     private ISysConfigService configService;
 
-    /**
-     * 生成验证码
-     */
+    @Operation(summary = "生成登录验证码")
     @GetMapping("/captchaImage")
     public AjaxResult getCode(HttpServletResponse response) throws IOException {
         AjaxResult ajax = AjaxResult.success();

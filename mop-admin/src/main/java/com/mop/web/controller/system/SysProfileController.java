@@ -17,6 +17,8 @@ import com.mop.common.utils.file.FileUtils;
 import com.mop.common.utils.file.MimeTypeUtils;
 import com.mop.framework.web.service.TokenService;
 import com.mop.system.service.ISysUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ import java.util.Map;
  *
  * @author weiyiming
  */
+@Tag(name = "个人信息")
 @RestController
 @RequestMapping("/system/user/profile")
 public class SysProfileController extends BaseController {
@@ -41,9 +44,7 @@ public class SysProfileController extends BaseController {
     @Autowired
     private TokenService tokenService;
 
-    /**
-     * 个人信息
-     */
+    @Operation(summary = "获取个人基本信息")
     @GetMapping
     public AjaxResult profile() {
         LoginUser loginUser = getLoginUser();
@@ -54,9 +55,7 @@ public class SysProfileController extends BaseController {
         return ajax;
     }
 
-    /**
-     * 修改用户
-     */
+    @Operation(summary = "修改个人信息")
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult updateProfile(@RequestBody Map<String, Object> params) {
@@ -92,9 +91,7 @@ public class SysProfileController extends BaseController {
         }
     }
 
-    /**
-     * 重置密码
-     */
+    @Operation(summary = "修改个人密码")
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @PutMapping("/updatePwd")
     public AjaxResult updatePwd(@RequestBody Map<String, String> params) {
@@ -138,9 +135,7 @@ public class SysProfileController extends BaseController {
         }
     }
 
-    /**
-     * 头像上传
-     */
+    @Operation(summary = "上传用户头像")
     @RateLimiter(key = "avatar", count = 3, time = 60)
     @Log(title = "用户头像", businessType = BusinessType.UPDATE)
     @PostMapping("/avatar")

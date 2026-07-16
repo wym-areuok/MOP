@@ -9,6 +9,7 @@ import com.mop.common.annotation.Excels;
 import com.mop.common.core.domain.BaseEntity;
 import com.mop.common.utils.SecurityUtils;
 import com.mop.common.xss.Xss;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -20,120 +21,88 @@ import java.util.List;
 
 /**
  * 用户对象 sys_user
+ * <p>
+ * 字段描述与 mop_initial.sql 中 sys_user 表 MS_Description 保持一致。
  *
  * @author weiyiming
  */
+@Schema(description = "系统用户")
 public class SysUser extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 用户ID
-     */
+    @Schema(description = "用户ID", example = "1")
     @Excel(name = "用户序号", type = Type.EXPORT, cellType = ColumnType.NUMERIC, prompt = "用户编号")
     private Long userId;
 
-    /**
-     * 部门ID
-     */
+    @Schema(description = "部门ID", example = "103")
     @Excel(name = "部门编号", type = Type.IMPORT)
     private Long deptId;
 
-    /**
-     * 用户账号
-     */
+    @Schema(description = "用户账号", required = true, example = "admin")
     @Excel(name = "登录名称")
     private String userName;
 
-    /**
-     * 用户昵称
-     */
+    @Schema(description = "用户昵称", example = "管理员")
     @Excel(name = "用户名称")
     private String nickName;
 
     /**
-     * 用户邮箱
+     * 用户类型（00系统用户）— SysUser 的 userType 字段通过 DeferredImportSelector 注入，此处不声明
      */
+    @Schema(description = "用户邮箱", example = "admin@example.com")
     @Excel(name = "用户邮箱")
     private String email;
 
-    /**
-     * 手机号码
-     */
+    @Schema(description = "手机号码", example = "13800138000")
     @Excel(name = "手机号码", cellType = ColumnType.TEXT)
     private String phonenumber;
 
-    /**
-     * 用户性别
-     */
+    @Schema(description = "用户性别（0=男 1=女 2=未知）", allowableValues = {"0", "1", "2"}, example = "0")
     @Excel(name = "用户性别", readConverterExp = "0=男,1=女,2=未知")
     private String sex;
 
-    /**
-     * 用户头像
-     */
+    @Schema(description = "头像地址")
     private String avatar;
 
-    /**
-     * 密码
-     */
+    @Schema(description = "密码", accessMode = Schema.AccessMode.WRITE_ONLY)
     private String password;
 
-    /**
-     * 账号状态（0正常 1停用）
-     */
+    @Schema(description = "账号状态（0=正常 1=停用）", allowableValues = {"0", "1"}, example = "0")
     @Excel(name = "账号状态", readConverterExp = "0=正常,1=停用")
     private String status;
 
-    /**
-     * 删除标志（0代表存在 2代表删除）
-     */
+    @Schema(description = "删除标志（0=存在 2=删除）", allowableValues = {"0", "2"}, example = "0", accessMode = Schema.AccessMode.READ_ONLY)
     private String delFlag;
 
-    /**
-     * 最后登录IP
-     */
+    @Schema(description = "最后登录IP", accessMode = Schema.AccessMode.READ_ONLY)
     @Excel(name = "最后登录IP", type = Type.EXPORT)
     private String loginIp;
 
-    /**
-     * 最后登录时间
-     */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "最后登录时间", accessMode = Schema.AccessMode.READ_ONLY)
     @Excel(name = "最后登录时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss", type = Type.EXPORT)
     private Date loginDate;
 
-    /**
-     * 密码最后更新时间
-     */
+    @Schema(description = "密码最后更新时间", accessMode = Schema.AccessMode.READ_ONLY)
     private Date pwdUpdateDate;
 
-    /**
-     * 部门对象
-     */
+    @Schema(description = "部门对象")
     @Excels({
             @Excel(name = "部门名称", targetAttr = "deptName", type = Type.EXPORT),
             @Excel(name = "部门负责人", targetAttr = "leader", type = Type.EXPORT)
     })
     private SysDept dept;
 
-    /**
-     * 角色对象
-     */
+    @Schema(description = "角色列表")
     private List<SysRole> roles;
 
-    /**
-     * 角色组
-     */
+    @Schema(description = "角色ID组", accessMode = Schema.AccessMode.WRITE_ONLY)
     private Long[] roleIds;
 
-    /**
-     * 岗位组
-     */
+    @Schema(description = "岗位ID组", accessMode = Schema.AccessMode.WRITE_ONLY)
     private Long[] postIds;
 
-    /**
-     * 角色ID
-     */
+    @Schema(description = "角色ID")
     private Long roleId;
 
     public SysUser() {

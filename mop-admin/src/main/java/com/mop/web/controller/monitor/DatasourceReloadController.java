@@ -2,6 +2,8 @@ package com.mop.web.controller.monitor;
 
 import com.mop.common.core.domain.AjaxResult;
 import com.mop.framework.config.DynamicDsFilter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author weiyiming
  */
+@Tag(name = "数据源管理")
 @RestController
 @RequestMapping("/monitor/datasource")
 public class DatasourceReloadController {
@@ -23,6 +26,7 @@ public class DatasourceReloadController {
     @Autowired
     private DynamicDsFilter dsFilter;
 
+    @Operation(summary = "重新加载数据源开关配置")
     @PostMapping("/reload")
     @PreAuthorize("@ss.hasPermi('monitor:datasource:reload')")
     public AjaxResult reload() {

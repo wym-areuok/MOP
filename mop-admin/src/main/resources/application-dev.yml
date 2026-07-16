@@ -120,6 +120,8 @@ spring:
 
 # ---------- 开发环境 Swagger ----------
 springdoc:
+  api-docs:
+    enabled: true
   swagger-ui:
     enabled: true
 

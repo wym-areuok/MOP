@@ -11,6 +11,9 @@ import com.mop.common.enums.BusinessType;
 import com.mop.common.utils.StringUtils;
 import com.mop.system.domain.SysUserOnline;
 import com.mop.system.service.ISysUserOnlineService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,7 @@ import java.util.List;
  *
  * @author weiyiming
  */
+@Tag(name = "在线用户")
 @RestController
 @RequestMapping("/monitor/online")
 public class SysUserOnlineController extends BaseController {
@@ -34,9 +38,12 @@ public class SysUserOnlineController extends BaseController {
     @Autowired
     private RedisCache redisCache;
 
+    @Operation(summary = "查询在线用户列表")
     @PreAuthorize("@ss.hasPermi('monitor:online:list')")
     @GetMapping("/list")
-    public TableDataInfo list(String ipaddr, String userName) {
+    public TableDataInfo list(
+            @Parameter(description = "IP地址（可选）") String ipaddr,
+            @Parameter(description = "用户名（可选）") String userName) {
         // NOTE: 使用 KEYS 命令扫描特定前缀的 key，仅扫描 login_tokens: 开头的少量 key。
         // 生产环境若在线用户数超过 10000+，建议改用 SCAN 命令或维护在线用户 Set 集合。
         Collection<String> keys = redisCache.keys(CacheConstants.LOGIN_TOKEN_KEY + "*");
@@ -58,13 +65,11 @@ public class SysUserOnlineController extends BaseController {
         return getDataTable(userOnlineList);
     }
 
-    /**
-     * 强退用户
-     */
+    @Operation(summary = "强退指定在线用户")
     @PreAuthorize("@ss.hasPermi('monitor:online:forceLogout')")
     @Log(title = "在线用户", businessType = BusinessType.FORCE)
     @DeleteMapping("/{tokenId}")
-    public AjaxResult forceLogout(@PathVariable String tokenId) {
+    public AjaxResult forceLogout(@Parameter(description = "用户Token ID") @PathVariable String tokenId) {
         userOnlineService.forceLogout(tokenId);
         return success();
     }
