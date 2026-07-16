@@ -12,6 +12,7 @@ import com.mop.common.exception.ServiceException;
 import com.mop.common.utils.MessageUtils;
 import com.mop.common.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,7 @@ import java.util.concurrent.Executor;
  */
 @RestController
 @RequestMapping("/ai/chat")
+@PreAuthorize("@ss.hasPermi('ai:chat:list')")
 public class AiChatController extends BaseController {
     @Autowired
     private IAiChatService aiChatService;
